@@ -66,6 +66,11 @@ for the top 10 (substitute your own number) best hits:
 
 > $STRUCT_HOME/15_postproc/perlscr/postp_3.pl 1a02N01.struct_out params 10
 1a02N01.struct_out will be moved (by the script) to 1a02N01.struct_out.full
+
+
+THE MAP STRUCTURE
+----------
+
 typedef struct {
     
     ////////////////////
