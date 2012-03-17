@@ -1,0 +1,113 @@
+INSTALLING
+----------
+
+a) making the pre-processor
+
+depends on lapack, and 
+assumes it is installed in /usr/lib/ 
+(sudo apt-get install liblapack-dev)
+also depends stride, which is included
+
+> cd $STRUCT_HOME/05_preproc/stride
+> make
+> make clean
+
+> cd ..
+> make
+> make clean
+
+the executable called preproc should appear in $STRUCT_HOME
+both give usage statements if ran without arguments
+
+b) making struct proper
+
+also depends on lapack
+
+> cd ../10_objects/
+> make
+> make clean
+
+the executable called struct should now be in $STRUCT_HOME
+
+
+
+
+TEST CASES
+----------
+
+a) 1-on-1 comparison
+
+> cd $STRUCT_HOME/11_tests/01_1d4xG_2d8bA/
+
+preprocessing:
+> $STRUCT_HOME/preproc 1d4xG 1d4xG.pdb 1d4xG.db
+> $STRUCT_HOME/preproc 2d8bA 2d8bA.pdb 2d8bA.db
+
+comparing 1d4xG("target") and 2d8bA("query")
+> $STRUCT_HOME/struct 1d4xG 2d8bA params
+
+in the params file, the exclamation mark (!)
+is the comment sign - comment it out to get a silent run
+(only the output file with the score is produced)
+
+
+b) 1-to-many comparison
+
+> cd $STRUCT_HOME/11_tests/00_kolodny
+
+the presprocessing already done (db files
+for the target are concatenated in all.db)
+
+> $STRUCT_HOME/struct all.db  cathdbdir/1a02N01.db params
+(any other dbfile from cathdbdir/1a02N01.db can be used)
+
+postprocessing - producing a match on the backbone level 
+for the top 10 (substitute your own number) best hits:
+
+> $STRUCT_HOME/15_postproc/perlscr/postp_3.pl 1a02N01.struct_out params 10
+1a02N01.struct_out will be moved (by the script) to 1a02N01.struct_out.full
+typedef struct {
+    
+    ////////////////////
+    // general
+    int size;                // max number of mapped elements (SSEs or Ca, depending where we use the structure
+    int matches;             // the number ofactually mapped SSEs
+    double q[4]; /* rotation (quaternion)  -- the rotation which results in this particular map */
+    double T[3]; /* translation (once we believe we know it)  -- the translation (for the Ca level)*/
+    
+    ////////////////////
+    // referring to SSE-level map:
+    int *x2y, *y2x;          // x2y: for each mapped pair (x,y), returns y, the index of the SSE in the structure Y,
+                             // given x, the index of SSE in structure X  ( x2y[x] = y, e.g. x2y[3] = 7)
+    int x2y_size, y2x_size;  // the size of the two maps above; ultimately the two should be equal
+                             // in some general intermediate step that might not be the case, in the
+                             // current implementation it always is
+    double avg_length_mismatch; // average difference in the length of mapped SSEs
+    double rmsd;             /* rmsd for the centers of matched SSEs */
+
+    ////////////////////
+    // "urchin" scoring
+    double **cosine;          // table of angle cosines for all pairs (x,y) (all of them, not just the mapped ones)
+    double **image;           // table of exp terms for all pairs (x,y) (all of them, not just the mapped ones)
+    double F;                 // value of the  function F for this map
+    double avg, avg_sq;       // refers to the avg and average square of F over the sapce of all rotations
+                              // the input for the calulcation of the z-score
+    double z_score;           // z-score for F (based on avg and avg_sq0
+    double assigned_score;    // sum of the exp terms of but only for the  matched SSE pairs (x,y)
+    
+    ////////////////////
+    // referring to Ca-level map:
+    int *x2y_residue_level, *y2x_residue_level;  // the same as the x2y above, this time not on SSE, but on Ca level
+    int x2y_residue_l_size, y2x_residue_l_size;
+    int res_almt_length;    // length of the alignment on the Ca level
+    double res_rmsd;        /* rmsd for the matched Ca atoms*/
+    double aln_score;         // like the "assigned score" above, but for the Ca level
+    double res_almt_score;  /*not sure - cou;ld be I am duplicating the aln_score */
+    
+    ////////////////////
+    // complementary or sub-maps - never mind for now, just leave as is
+    int *submatch_best;         // the best map which complements this one; don't worry about it right now
+    double score_with_children; // this goes with the submatch above = never mind
+    double compl_z_score;       // z-score for the submatch
+    
+} Map;
