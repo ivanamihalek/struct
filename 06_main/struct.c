@@ -9,9 +9,9 @@ int set_default_options () {
 
     options.min_no_SSEs = 4;
 
-    options.sheet_cosine = 1.0; /*min cos angle between two strands
-				 in a sheet to be represented by the
-				 same vector */ 
+    options.merge_cosine = 1.1; /*min cos angle between two SSEs to be represented
+				  by (merged into) the same vector */
+    
     options.alpha = 0.0;  /* gaussian width for the scoring fn F */
                           /* note that it is set from the input table */
                           /* rather than from the cmd file        */

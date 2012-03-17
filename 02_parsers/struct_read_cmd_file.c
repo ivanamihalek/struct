@@ -18,7 +18,7 @@ int read_cmd_file (char *filename) {
 		 char * fmt, char * warnstr) ;
 
     double * ptrs_to_doubles[DOUBLES] = {
-	&(options.sheet_cosine),
+	&(options.merge_cosine),
 	&(options.tol), &(options.z_max_store), &(options.z_max_out),
     	&(options.F_guess_max), &(options.F_eff_max),
 	&(options.z_max_corr),  &(options.z_min_compl), 
@@ -27,7 +27,7 @@ int read_cmd_file (char *filename) {
 	&(options.gap_extend) , &(options.endgap),  &(options.far_away_cosine),
 	&(options.H_length_mismatch_tol), &(options.H_length_mismatch_tol)};
     char * names_of_doubles[DOUBLES] = {
-	"sheet_cosine",
+	"merge_cosine",
 	"tol", "z_max_store", "z_max_out",
 	"F_guess_max", "F_eff_max",
 	"z_max_corr", "z_min_compl",
