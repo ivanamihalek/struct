@@ -37,9 +37,8 @@
 #define PENALTY  0
 
 typedef struct {
-    double sheet_cosine;  /* min cos angle between two strands
-			     in a sheet to be represented by the
-			     same vector */ 
+    double merge_cosine;  /* min cos angle between two SSEs to be represented
+			     by (merged into) the same vector */
     double alpha;         /* gaussian width for the scoring fn F */
                           /* note that it is set from the input table */
                           /* rather than from the cmd file        */
@@ -312,7 +311,7 @@ int quat_to_R ( double quat[4], double **R);
 double quat_rmsd (double parent_map_q[4], double  current_map_q[4]);
 int random_q ( double exp_s[4],  double theta_step );
 int read_integral_table (char * file_name );
-int read_pdb (char * pdbname,  char chain, Protein * protein, int postp_flag);
+int read_pdb (char * pdbname,  char chain, Protein * protein);
 int rep_initialize (Representation * rep,  Descr * descr  );
 int rep_shutdown  (Representation * rep);
 int rotate(double **Ynew, int NY, double **R, double ** Y);

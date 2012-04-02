@@ -489,13 +489,13 @@ int compare (Descr * descr1, Descr *descr2, Score *score) {
 	       if we are expecting to postprocess -- we will use the
 	       original pdb */
 	    /* the last arg is 1 in postprocessing */
-	    retval = read_pdb (options.pdbf_qry, options.chain_qry, &qry_structure, 1);
+	    retval = read_pdb (options.pdbf_qry, options.chain_qry, &qry_structure);
 	    if ( retval) {
 		fprintf ( stderr, "Error reading %s, chain %c; retval %d\n",
 			  options.pdbf_qry, options.chain_qry, retval);
 		return 1;
 	    }
-	    retval = read_pdb (options.pdbf_tgt, options.chain_tgt, &tgt_structure, 1);
+	    retval = read_pdb (options.pdbf_tgt, options.chain_tgt, &tgt_structure);
 	    if (retval ) {
 		fprintf ( stderr, "Error reading %s, chain %c; retval %d\n",
 			  options.pdbf_tgt,  options.chain_tgt, retval);
