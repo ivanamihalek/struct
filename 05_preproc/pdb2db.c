@@ -11,14 +11,14 @@ typedef struct {
 
 typedef struct  {
     char struct_type;
-    Neighbors ideal_rec;
-    int count_min;
-    double weight_thr;
+    Neighbors ideal_rec;  // distances to upstream neighbors for an ideal structure
+    int count_min; // min number of consecutive secondary structures
+    double weight_thr; //  threshold value for the optimization function
 } Ideal_struct;
 
 
 int determine_sec_structure(Neighbors *neighbors, Protein *protein);
-int clean_short_structures(Protein * protein, Ideal_struct * ideal_helix, Ideal_struct * ideal_strand);
+int clean_short_structures(Ideal_struct * ideal_helix, Ideal_struct * ideal_strand, Protein * protein);
 int calculate_neighbors_distances(Protein *protein, Neighbors * neighbors);
 int structure2seq (Protein *protein);
 void return_missing_data_distances(Neighbors * neighbors);
@@ -26,6 +26,7 @@ double calc_dist_res(Residue *res1, Residue * res2);
 char struct_type(Residue * res);
 int trace_back(int count, int count_min, int id, Protein * protein);
 int is_regular_struct(Neighbors * neighbors, Ideal_struct * ideal_struct);
+int numerate_structures(Protein *protein);
 
 
 int main ( int argc, char * argv[]) {
@@ -56,17 +57,19 @@ int main ( int argc, char * argv[]) {
     
 
     int  resctr;
-
+    int ord_number;
     for (resctr=0; resctr<protein.length; resctr++) {
-
+        ord_number = -1;
 	char sse_code = 'C';
 	if ( protein.sequence[resctr].belongs_to_helix) {
 	    sse_code = 'H';
+            ord_number = protein.sequence[resctr].belongs_to_helix;
 	} else if ( protein.sequence[resctr].belongs_to_strand) {
-	    sse_code = 'S';
+	    sse_code = 'E';
+            ord_number = protein.sequence[resctr].belongs_to_strand;
 	}
-	
-	printf ("  %s  %c\n", protein.sequence[resctr].pdb_id, sse_code);
+        	
+	printf ("  %s  %c  %d\n", protein.sequence[resctr].pdb_id, sse_code, ord_number);
 
 	
     }
@@ -75,12 +78,23 @@ int main ( int argc, char * argv[]) {
     return 0;
 }
 
+/**
+ * Function that return default values if neighboring residues doesn't exist
+ * @param neighbors 
+ */
 void return_missing_data_distances(Neighbors * neighbors) {
     neighbors->dist2 = MISSING_DATA;
     neighbors->dist3 = MISSING_DATA;
     neighbors->dist4 = MISSING_DATA;
 }
 
+
+/**
+ * Function that calculate Euclidian distance between CA atoms from two residues 
+ * @param res1
+ * @param res2
+ * @return 
+ */
 double calc_dist_res(Residue *res1, Residue *res2){
     double x1, y1, z1, x2, y2, z2;
     double distance = 0, aux;
@@ -101,12 +115,19 @@ double calc_dist_res(Residue *res1, Residue *res2){
     return sqrt(distance);   
 }
 
+
+/**
+ * Function that check if the structure is regular (helix or strand) or not comparing it with an ideal structure
+ * @param neighbors
+ * @param ideal_struct
+ * @return 
+ */
 int is_regular_struct(Neighbors * neighbors, Ideal_struct * ideal_struct){
     double weight = 0;
     double diff2, diff3, diff4;
-    diff2 = neighbors->dist2 - ideal_struct->ideal_rec->dist2;
-    diff3 = neighbors->dist3 - ideal_struct->ideal_rec->dist3;
-    diff4 = neighbors->dist4 - ideal_struct->ideal_rec->dist4;
+    diff2 = neighbors->dist2 - ideal_struct->ideal_rec.dist2;
+    diff3 = neighbors->dist3 - ideal_struct->ideal_rec.dist3;
+    diff4 = neighbors->dist4 - ideal_struct->ideal_rec.dist4;
     
     weight = sqrt(diff2*diff2+diff3*diff3+diff4*diff4);
     if (weight < ideal_struct->weight_thr) return 1; 
@@ -114,13 +135,21 @@ int is_regular_struct(Neighbors * neighbors, Ideal_struct * ideal_struct){
 }
 
 
+/**
+ * Function that calculates distances between residues and theirs second, third and forth upstream neighbors in the sequence
+ * @param protein
+ * @param neighbors
+ * @return 
+ */
+
 int calculate_neighbors_distances(Protein *protein, Neighbors * neighbors) {
     
     Residue res1, res2;
     int i, j;
     int start_shift = 2;
     int end_shift = 4;
-    for (i=0; i<protein->length-4; i++) {
+    int length = protein->length;
+    for (i=0; i< length-4; i++) {
 	
         int missing_Ca = 0;
 	res1 = protein->sequence[i];
@@ -147,27 +176,56 @@ int calculate_neighbors_distances(Protein *protein, Neighbors * neighbors) {
         neighbors[i].dist3 = calc_dist_res(&res1, &protein->sequence[i+3]);
         neighbors[i].dist4 = calc_dist_res(&res1, &protein->sequence[i+4]);
     }
-    return 1;
+    
+    for(i = length - 4; i < length; ++i) {
+        return_missing_data_distances(&neighbors[i]);
+    }
+/*
+    
+    for (i = 0; i < length; ++i) {
+        printf("%lf\t%lf\t%lf\n", neighbors[i].dist2, neighbors[i].dist3, neighbors[i].dist4);
+        
+    }
+*/
+    
+    return 0;
 }
 
+/**
+ *  Function that changes structure types to 'C' if the number of consecutive upstream structures ('H' or 'E')
+ * is less than a min value
+ * @param count
+ * @param count_min
+ * @param id
+ * @param protein
+ * @return 
+ */
+
 int trace_back(int count, int count_min, int id, Protein * protein) {
-    int length = protein->length;
     int i;
     
     if (count < count_min) {
-        for (i = 0; i < length; ++i) {
+        for (i = 0; i < count; ++i) {
             protein->sequence[id - i].belongs_to_helix  = 0;
             protein->sequence[id - i].belongs_to_strand = 0;
         }
     }
-    return 1;
+    return 0;
 }
 
+/**
+ * Function that changes regular structures ('H' or 'E') to 
+ * if their length is less than a threshold value
+ * @param ideal_helix
+ * @param ideal_strand
+ * @param protein
+ * @return Protein structure with changed secondary structure values by pointer
+ */
 
-int clean_short_structures(Protein * protein, Ideal_struct * ideal_helix, Ideal_struct * ideal_strand) {
-    char state_old = 'S', state;
+int clean_short_structures(Ideal_struct * ideal_helix, Ideal_struct * ideal_strand, Protein * protein) {
+    char state_old = 'S'; // the first state is marked with 'S', others are marked with secondary structures
+    char state;
     int count = 0;
-    int res_id_old = 0, res_id;
     int i;
     int length = protein->length;
     
@@ -194,15 +252,8 @@ int clean_short_structures(Protein * protein, Ideal_struct * ideal_helix, Ideal_
                     trace_back(count, ideal_strand->count_min, i -1, protein );
                     count = 1;
                 } else if (state_old == 'H') {
-                    if (res_id_old + 1 == res_id){
-                        count++;
-                    }
-                    else {
-                         trace_back(count, ideal_helix->count_min, i -1, protein );
-                         count = 0;
-                    }
+                    count++;
                 }
-                res_id_old = res_id;
                 state_old = 'H';
                 break;
                 
@@ -214,31 +265,36 @@ int clean_short_structures(Protein * protein, Ideal_struct * ideal_helix, Ideal_
                     trace_back(count, ideal_helix->count_min, i -1, protein );
                     count = 1;
                 } else if (state_old == 'E') {
-                    if (res_id_old + 1 == res_id){
-                        count++;
-                    }
-                    else {
-                         trace_back(count, ideal_strand->count_min, i -1, protein );
-                         count = 0;
-                    }
+                    count++;
                 }
-                res_id_old = res_id;
-                state_old = 'E';
-                
+                state_old = 'E';               
         }
     }
-    return 1;
+    return 0;
     
 }
+
+/**
+ * Function that returns type of secondary structure
+ * @param res
+ * @return structure type ('C', 'H' or 'E')
+ */
 
 char struct_type(Residue * res) {
     char type = 'C';
     if (res->belongs_to_helix) type = 'H';
-    else if (res->alt_belongs_to_helix) type = 'E';
+    else if (res->belongs_to_strand) type = 'E';
     
     return type;
 }
 
+
+/**
+ * Function that determines type of secondary structure and save that values in Protein struct
+ * @param neighbors
+ * @param protein
+ * @return protein structure by pointer
+ */
 
 int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
     int length = protein->length;
@@ -272,26 +328,66 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
         
     }
     
-    clean_short_structures(protein, &ideal_helix, &ideal_strand);
+    clean_short_structures(&ideal_helix, &ideal_strand, protein);
     
-    return 1;
+    return 0;
+}
+
+/**
+ * Function that numerate secondary structures in accordance with their order in sequence
+ * @param protein
+ * @return 
+ */
+
+int numerate_structures(Protein *protein){
+    char state_old = 'S', state;
+    int length = protein->length;
+    int i;
+    int counter = 1;
+    for (i = 0; i < length; ++i) {
+        state = struct_type(&protein->sequence[i]);
+        switch (state) {
+            case 'C':
+                if (state_old == 'H' || state_old == 'E') {
+                    counter++;
+                }
+                break;
+            case 'H':
+                if (state_old == 'E') {
+                    counter++;
+                } 
+                protein->sequence[i].belongs_to_helix = counter;
+                break;
+            case 'E':
+                if (state_old == 'H') {
+                    counter++;
+                } 
+                protein->sequence[i].belongs_to_strand = counter;
+        }
+        state_old = state;
+    }
+    return 0;
 }
 
 
-
-
-/*************************************************************/
-/* in this first version, the sequence is a sequence of distances
-   to the first three upstream neighbors */
+/**
+ * Function that calculates secondary structures comparing distances to the first three upstream neighbors
+ * with distances in the case of an ideal secondary structure
+ * @param protein
+ * @return 
+ */
 int structure2seq (Protein *protein) {
 
-    Neighbors* neighbors = malloc(sizeof(Neighbors)*protein->length);
+    Neighbors * neighbors = malloc(sizeof(Neighbors) * protein->length);
+    if (neighbors == NULL) {
+        fprintf(stderr, "Can not allocate memory in function structure2seq\n");
+        return 1;
+    }
     calculate_neighbors_distances(protein, neighbors);
     
     determine_sec_structure(neighbors, protein);
     free(neighbors);
-    
-    
+    numerate_structures(protein);
     
     
     /* fill protein->sequence[resctr].belongs_to_helix or
@@ -299,5 +395,5 @@ int structure2seq (Protein *protein) {
 
     
     
-    return 1;
+    return 0;
 }
