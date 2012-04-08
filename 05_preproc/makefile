@@ -12,7 +12,7 @@ NAME = pdb2db
 OPTM =  -g
 
 
-VPATH = ../02_parsers:../06_main:\
+VPATH = ./:../02_parsers:../06_main:\
         ../04_geometric_match:../05_preproc\
         ../01_data_structures:../03_output:../07_utils:\
 	../09_surface_fitting:../15_postproc
@@ -22,7 +22,7 @@ PLATFORM = $(shell uname)
 
 
 LIBS =  -lm -lc  -L/usr/lib  -llapack  
-INCLUDE = -I ../00_include
+INCLUDE = -I ../00_include -I ./
 
 
 DEFINES =   # -DDMALLOC # -DDEBUG
@@ -30,7 +30,7 @@ SOURCES.F =
 SOURCES.f = 
 
 
-SOURCES.c =  pdb2db.c  struct_read_pdb.c  struct_utils.c struct_aa_code.c
+SOURCES.c =  pdb2db.c  structure2sse.c struct_read_pdb.c  struct_utils.c struct_aa_code.c
 
 
 
