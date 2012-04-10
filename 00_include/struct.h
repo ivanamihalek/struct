@@ -100,20 +100,12 @@ typedef struct {
 
 
 
-typedef Strand Element; /* pseudonym */
 
 typedef struct {
     char name[SHORTSTRING];
     int no_of_residues, no_of_elements; 
-    int no_of_helices, no_of_p_sheets, no_of_a_sheets; 
-    int no_of_strands;
-    Element  * element;  /* strand has all the fields that I need,
-			   but whether it is actually a strand or helix
-			   is stored in type array:
-			   1 for helix, -1 for strand */
-    int * type;
-    int * sheet_id; /* sheet id for each strand */
-    int * length;
+    int no_of_helices, no_of_strands;
+    SSElement  * element; /*list of secondary structure elements*/
 } Descr;
 
 

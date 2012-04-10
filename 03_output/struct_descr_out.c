@@ -3,23 +3,23 @@
 int descr_out (FILE * fptr, Descr * descr) {
 
     int element_ctr, i;
-    Element * element;
+    SSElement * element;
     
     fprintf (fptr, "name: %s \n", descr->name);
     fprintf (fptr, "no of elements: %d \n", descr->no_of_elements);
     
     for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
 	element = descr->element+element_ctr;
-	if ( descr->type[element_ctr] == HELIX ) {
+	if ( descr->element[element_ctr].type == HELIX ) {
 	    fprintf (fptr, "HELIX  %3d %5d  %5s %5s ",
-		     descr->type[element_ctr],
+		     descr->element[element_ctr].type,
 		     element->length,  element->begin_id, element->end_id);
 	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[0][i]);
 	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[0][i]);
 	    fprintf (fptr, "\n");
 	} else {
 	    fprintf (fptr, "STRAND %3d %5d  %5s %5s ",
-		     PARALLEL,
+		     descr->element[element_ctr].type,
 		     element->length,  element->begin_id, element->end_id);
 	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[0][i]);
 	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[0][i]);

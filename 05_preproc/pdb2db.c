@@ -2,11 +2,15 @@
 # include "structure2sse.h"
 
 
+int sse2descriptor (Protein *protein, Descr * descr);
+int process_sse (int type, double ** points,
+		 int number_of_points, SSElement * element);
+
 int main ( int argc, char * argv[]) {
 
     int retval;
-    //int seq_length = 0;
     Protein protein;
+    Descr descr;
    
     if ( argc < 3 ) {
 	fprintf ( stderr,
@@ -28,34 +32,101 @@ int main ( int argc, char * argv[]) {
 	exit (1);
     }
 
-# if 0
-    if ( sse2db (&protein)) {
+    if ( sse2descriptor (&protein, &descr)) {
 	fprintf ( stderr, "Error  fitting lines to sse.\n");
 	exit (1);
     }
 
- # endif   
-    
 
-    
     return 0;
 }
+
+
+
 /*************************************************************************************/
 
-# if 0
-int sse2db (Protein *protein) {
+int sse2descriptor (Protein *protein, Descr* descr) {
 
+
+    int resctr, type, prev_type = 0;
+    int element_ctr, no_of_sses;
+    int number_of_points;
+    double **points;
+    Residue * residue;
+
+    if ( ! (points=dmatrix(protein->length,3))) return 1;
+    
+    /* count the SSEs, and allocate the Description space */
+    element_ctr = 0;
+    for (resctr=0; resctr<protein->length; resctr++) {
+	residue = protein->sequence+resctr;
+	type = 0;
+	if ( residue->belongs_to_helix) {
+	    type = HELIX;
+	}  else if ( residue->belongs_to_strand) {
+	    type = STRAND;
+	}
+
+	if ( !(type&prev_type) ) element_ctr++;
+ 	prev_type = type;
+    }
+    no_of_sses = element_ctr;
+    if ( ! (descr->element = emalloc(no_of_sses*sizeof(SSElement)) )) return 1;
+
+    
     /* turn SSEs into sets of points to fit onto */
+    number_of_points = 0;
+    for (resctr=0; resctr<protein->length; resctr++) {
+	
+	residue = protein->sequence+resctr;
 
-    /* foreach SSE, do the fit */
+	type = 0;
+	if ( residue->belongs_to_helix) {
+	    type = HELIX;
+	}  else if (residue->belongs_to_strand) {
+	    type = STRAND;
+	}
 
-    /* store as reduced representation */
+	if ( ! (type&prev_type) ) {
+	    if (prev_type) {
+		/* we didn't process this one */
+		process_sse (type, points, number_of_points, descr->element+element_ctr);
+	    }
+	    element_ctr ++;
+	    number_of_points = 0;
+	}  
+        number_of_points ++;
+	prev_type = type;
+    }
+
+   
+    if (prev_type&(HELIX|STRAND) ) {
+	/* we didn't process this one */
+	process_sse (prev_type, points, number_of_points, descr->element+element_ctr);
+    }
 
 
+    free_dmatrix(points);
+    
     return 0;
 
 }
 
+int process_sse (int type, double ** points,
+		 int number_of_points, SSElement * element){
+
+    
+    /* fit a line through the points */
+    
+
+    /* store as Description object */
+
+    return 0;
+}
+
+
+
+# if 0
 
 int fit_line (double *points, int no_points, double center[3], double direction[3]) {
 

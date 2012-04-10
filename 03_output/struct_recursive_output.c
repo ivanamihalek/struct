@@ -219,7 +219,7 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 
 	type = ' ';
 	if ( descr1 ) {
-	    if (descr1->type[index_x] == HELIX) {
+	    if (descr1->element[index_x].type == HELIX) {
 		type = 'H';
 	    } else {
 		type = 'S';

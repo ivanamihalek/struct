@@ -2,8 +2,8 @@
 
 /* ss elements: */
 # define HELIX 1
-# define PARALLEL 2
-# define PERP  4
+# define STRAND 2
+
 /* maximal allowed overlap between structural elements */
 # define MAX_ALLOWED_OVERLAP 3
 
@@ -33,45 +33,25 @@ typedef struct {
 
 
 typedef struct {
-    char begin_id[PDB_HELIX_BEGIN_LEN+2]; /* this will make reading in easier*/
-    char end_id[PDB_HELIX_END_LEN+2]; /* this will make reading in easier*/
+    int type; /* helix or strand */
+    char begin_id[PDB_HELIX_BEGIN_LEN+2]; /* this is a string identifier fomr PDB*/
+    char  end_id[PDB_HELIX_END_LEN+2]; 
     int length;
     int begin, end; /* this may be added as post-processing step */
     int no_of_vectors;
     double **p, **cm;
-} Helix;
+} SSElement;
 
-typedef struct {
-    char sheet_id[PDB_SHEET_SHEET_LEN+1];
-    char begin_id[PDB_SHEET_BEGIN_LEN+2]; /* this will make reading in easier*/
-    char end_id[PDB_SHEET_END_LEN+2]; /* this will make reading in easier*/
-    int sheet_number;
-    int length;
-    int begin, end;
-    int no_of_vectors;
-    double **p, **cm, **perp, **foot; /* if the strand is curved, it will be
-			 associated with an array of vectors (well, 2 for now*/ 
-} Strand;
-
-typedef struct {
-    char sheet_id[PDB_SHEET_SHEET_LEN+1];
-    int parallel;
-    double p[3];
-    int number_of_strands;
-    Strand * first_strand;
-} Sheet;
 
 
 typedef struct {
     int length;
     Residue * sequence;
     int no_helices;
-    Helix   * helix;
+    SSElement *helix;
     int no_strands;
-    Strand   * strand;
-    int no_sheets;
-    Sheet * sheet;
-    int *sse_sequence;
+    SSElement *strand;
+    int * sse_sequence;
 } Protein;
 
 

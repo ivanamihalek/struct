@@ -14,7 +14,7 @@ int protein_shutdown (Protein * protein) {
 	}
 	protein->no_helices = 0;
     }
-    if (protein->helix)free (protein->helix);
+    if (protein->helix) free (protein->helix);
     
     if (protein->no_strands) {
 	int strand_ctr;
@@ -25,8 +25,6 @@ int protein_shutdown (Protein * protein) {
 	protein->no_strands = 0;
     } 
     if (protein->strand) free (protein->strand);
-    protein->no_sheets= 0;
-    if (protein->sheet) free (protein->sheet);
     if (protein->sse_sequence) free (protein->sse_sequence);
 
     

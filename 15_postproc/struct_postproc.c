@@ -42,7 +42,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
     double **R, T[3], q[4];
     double total_score = 0;
   
-    Element * element;
+    SSElement * element;
     /* for the MC: */
     int max_no_steps = 20, no_steps = 0;
     int done = 0, toggle = 0;
@@ -207,7 +207,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
        - we'll use it below */
     memset (type_1, 0, no_res_1*sizeof(int) );
     for (element_ctr_1=0; element_ctr_1<descr1->no_of_elements; element_ctr_1++) {
-	type = descr1->type[element_ctr_1];
+	type = descr1->element[element_ctr_1].type;
 	for (resctr1=element_1_begin[element_ctr_1]; resctr1<= element_1_end[element_ctr_1]; resctr1++) {
 	    type_1[resctr1] = type;
 	}
@@ -215,7 +215,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
 
     memset (type_2, 0, no_res_2*sizeof(int) );
     for (element_ctr_2=0; element_ctr_2<descr2->no_of_elements; element_ctr_2++) {
-	type = descr2->type[element_ctr_2];
+	type = descr2->element[element_ctr_2].type;
 	for (resctr2=element_2_begin[element_ctr_2]; resctr2 <= element_2_end[element_ctr_2]; resctr2++) {
 	    type_2[resctr2] = type;
 	}
@@ -419,7 +419,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
 		
 	    for (resctr2= first_res_prev_loop_2; resctr2<= last_res_next_loop_2; resctr2++) {
 		/* skip if we are sure the two are not of the same type */
-		if ( (type_1[resctr1]|type_2[resctr2]) == (HELIX|PARALLEL) )  continue;
+		if ( (type_1[resctr1]|type_2[resctr2]) == (HELIX|STRAND) )  continue;
 	
 
 		/* find the representative atom (CA) for residue resctr2*/
@@ -484,7 +484,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
 		       of the same type (helix, strand or unassigned)*/
 		    for (resctr2=first_res_2; resctr2<=last_res_2; resctr2++) {
 		
-			if ( (type_1[resctr1]|type_2[resctr2]) == (HELIX|PARALLEL) )  continue;
+			if ( (type_1[resctr1]|type_2[resctr2]) == (HELIX|STRAND) )  continue;
 			
 			if ( find_Calpha (protein2, resctr2,  ca2 ) ) {
 			    similarity[resctr1][resctr2] = 0.0;

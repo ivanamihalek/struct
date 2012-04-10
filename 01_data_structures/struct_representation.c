@@ -24,9 +24,10 @@ int rep_initialize (Representation * rep, Descr * descr  ){
     if ( ! (rep->translation  = dmatrix(N,3)) ) return 1;
     if ( ! (rep->transl_norm  = emalloc(N*sizeof(double)))) return 1;
     
-    rep->full_type = descr->type;
-    rep->full_sheet_id  = descr->sheet_id;
-    rep->length  = descr->length;
+    for (i=0; i<N; i++ ) {
+	rep->full_type[i] = descr->element[i].type;
+	rep->length[i]    = descr->element[i].length;
+    }
 
     if ( ! (rep->compact  = dmatrix (N,3) )) return 1;
     if ( ! (rep->compact_type  = emalloc (N*sizeof (int)) )) return 1;

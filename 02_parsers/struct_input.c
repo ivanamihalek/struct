@@ -27,7 +27,7 @@ int input_by_strand (FILE * fptr, Descr * description) {
     int element_ctr = 0; 
     int descr_initialized =0;
     char line[BUFFLEN];
-    Element * element;
+    SSElement * element;
 
     if ( feof(fptr) ) return -1;
     
@@ -88,13 +88,13 @@ int input_by_strand (FILE * fptr, Descr * description) {
 		return 1;
 	    }
 	    element = description->element + element_ctr;
-	    sscanf ( line, "%*s %d  %d   %d %s %s %lf %lf %lf %lf %lf %lf \n",
-		     &(description->type[element_ctr]),
-		     &(description->sheet_id[element_ctr]),
+	    /* the third field is an unused field (used to be sheet id, which was abandoned*/
+	    sscanf ( line, "%*s %d  %*d   %d %s %s %lf %lf %lf %lf %lf %lf \n",
+		     &(description->element[element_ctr].type),
 		     &(element->length), element->begin_id, element->end_id,
 		     element->p[0], element->p[0]+1, element->p[0]+2, 
 		     element->cm[0], element->cm[0]+1, element->cm[0]+2);
-	    description->length[element_ctr] = element->length;
+	    description->element[element_ctr].length = element->length;
 
 	    element_ctr++;
 	    /*  } */
@@ -141,7 +141,7 @@ int input_by_sheet (FILE * fptr, Descr * description) {
     int element_ctr = 0; 
     int descr_initialized =0;
     char line[BUFFLEN];
-    Element *element, * prev_element;
+    SSElement *element, * prev_element;
     
     if ( feof(fptr) ) return -1;
     
@@ -196,7 +196,7 @@ int input_by_sheet (FILE * fptr, Descr * description) {
  	    }
 	    element = description->element + element_ctr;
 	    sscanf ( line, "%*s %d  %d %s %s %lf %lf %lf %lf %lf %lf \n",
-		     &(description->type[element_ctr]),
+		     &(description->element[element_ctr].type),
 		     &(element->length), element->begin_id, element->end_id,
 		     element->p[0], element->p[0]+1, element->p[0]+2, 
 		     element->cm[0], element->cm[0]+1, element->cm[0]+2);
@@ -207,7 +207,7 @@ int input_by_sheet (FILE * fptr, Descr * description) {
 	    if ( description->type[element_ctr-1] == ANTIPARALLEL ) {
 		prev_element = element;
 		element = description->element + element_ctr;
-		description->type[element_ctr] = description->type[element_ctr-1];
+		description->element[element_ctr].type = description->type[element_ctr-1];
 		element->length   =  prev_element->length;
 		memcpy (element->begin_id, prev_element->begin_id,
 			(PDB_SHEET_BEGIN_LEN+2)*sizeof(char) );
@@ -258,7 +258,7 @@ int input_by_sheet (FILE * fptr, Descr * description) {
 int free_element (Descr * descr ) {
 
     int ctr;
-    Element * element = descr->element;
+    SSElement * element = descr->element;
 
     for (ctr=0; ctr < descr->no_of_elements;  ctr++ ) {
 	free_dmatrix ( (element+ctr)->p );
@@ -275,9 +275,9 @@ int free_element (Descr * descr ) {
 int alloc_element (Descr * descr) {
 
     int ctr, no_of_elements = descr->no_of_elements;
-    Element * element;
+    SSElement * element;
     
-    element = emalloc ( no_of_elements*sizeof(Element) );
+    element = emalloc ( no_of_elements*sizeof(SSElement) );
     if ( ! element) return 1;
     
     for (ctr=0; ctr < no_of_elements; ctr++ ) {
@@ -296,21 +296,11 @@ int alloc_element (Descr * descr) {
 
 int descr_init ( Descr * description ) {
 		
-    int retval, no_of_elements = description->no_of_elements;
+    int retval;
     
     retval = alloc_element (description);
     if (retval) return retval;
 		
-    description->type = emalloc (no_of_elements*sizeof(int));
-    if (!description->type) return 1;
-
-    description->length = emalloc (no_of_elements*sizeof(int));
-    if (!description->length) return 1;
-
-    description->sheet_id = emalloc (no_of_elements*sizeof(int));
-    if (!description->sheet_id) return 1;
-
-
     return 0;
     
 }
@@ -324,10 +314,6 @@ int descr_shutdown ( Descr * description ) {
 	retval = free_element ( description );
 	if (retval) return retval;
     }
-
-    if ( description->type) free ( description->type );
-    if ( description->length) free ( description->length );
-    if ( description->sheet_id) free ( description->sheet_id );
 
     memset (description, 0, sizeof(Descr) );
 
