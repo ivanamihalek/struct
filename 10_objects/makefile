@@ -11,8 +11,8 @@ OPTM =  -g
 
 
 VPATH = ../01_data_structures:../02_parsers:../03_output:\
-        ../04_geometric_match:../05_preproc:../06_main:\
-        ../07_utils:../09_surface_fitting:../15_postproc
+	../04_geometric_match:../05_preproc:../06_main:\
+	../07_utils:../09_surface_fitting:../15_postproc
 
 
 PLATFORM = $(shell uname)

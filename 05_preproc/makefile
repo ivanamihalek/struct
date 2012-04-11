@@ -1,6 +1,6 @@
-CFLAGS=     # options for C compiler
+CFLAGS =     # options for C compiler
 FFLAGS =
-FCOMPL= f90   # name of Fortran compiler
+FCOMPL = f90   # name of Fortran compiler
 CCOMPL = gcc -Wall
 CPLUSCOMPL = g++
 
@@ -17,9 +17,7 @@ VPATH = ./:../02_parsers:../06_main:\
         ../01_data_structures:../03_output:../07_utils:\
 	../09_surface_fitting:../15_postproc
 
-
 PLATFORM = $(shell uname)
-
 
 LIBS =  -lm -lc  -L/usr/lib  -llapack  
 INCLUDE = -I ../00_include -I ./
@@ -30,13 +28,14 @@ SOURCES.F =
 SOURCES.f = 
 
 
-SOURCES.c =  pdb2db.c  structure2sse.c struct_read_pdb.c  struct_utils.c struct_aa_code.c
+SOURCES.c =  pdb2db.c  structure2sse.c struct_linalg.c \
+	struct_read_pdb.c  struct_utils.c struct_aa_code.c
 
 
 
 AUX =  makefile  taxtrie.h  README \
        struct_comparison.h  struct_geometry.h  struct.h  struct_pdb.h  \
-       struct_tree.h  struct_utils.h
+       struct_tree.h  struct_utils.h 
 
 PREP_SOURCES = $(PREP_SOURCES.c)  $(PREP_SOURCES.F) $(PREP_SOURCES.f)
 PREP_OBJECTS =  $(PREP_SOURCES.F:.F=.o)  $(PREP_SOURCES.f:.f=.o)\

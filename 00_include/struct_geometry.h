@@ -35,11 +35,10 @@ typedef struct {
 typedef struct {
     int type; /* helix or strand */
     char begin_id[PDB_HELIX_BEGIN_LEN+2]; /* this is a string identifier fomr PDB*/
-    char  end_id[PDB_HELIX_END_LEN+2]; 
-    int length;
+    char end_id[PDB_HELIX_END_LEN+2]; 
     int begin, end; /* this may be added as post-processing step */
-    int no_of_vectors;
-    double **p, **cm;
+    int length;
+    double p[3], cm[3];
 } SSElement;
 
 

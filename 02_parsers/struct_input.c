@@ -92,8 +92,8 @@ int input_by_strand (FILE * fptr, Descr * description) {
 	    sscanf ( line, "%*s %d  %*d   %d %s %s %lf %lf %lf %lf %lf %lf \n",
 		     &(description->element[element_ctr].type),
 		     &(element->length), element->begin_id, element->end_id,
-		     element->p[0], element->p[0]+1, element->p[0]+2, 
-		     element->cm[0], element->cm[0]+1, element->cm[0]+2);
+		     element->p, element->p+1, element->p+2, 
+		     element->cm, element->cm+1, element->cm+2);
 	    description->element[element_ctr].length = element->length;
 
 	    element_ctr++;
@@ -119,12 +119,12 @@ int input_by_strand (FILE * fptr, Descr * description) {
 	int i;
 	norm = 0;
 	for (i=0; i<3; i++) {
-	    aux = description->element[element_ctr].p[0][i];
+	    aux = description->element[element_ctr].p[i];
 	    norm += aux*aux;
 	}
 	norm = sqrt (norm);
 	for (i=0; i<3; i++) {
-	    description->element[element_ctr].p[0][i] /= norm;
+	    description->element[element_ctr].p[i] /= norm;
 	}
     }
     
@@ -257,13 +257,8 @@ int input_by_sheet (FILE * fptr, Descr * description) {
 
 int free_element (Descr * descr ) {
 
-    int ctr;
     SSElement * element = descr->element;
 
-    for (ctr=0; ctr < descr->no_of_elements;  ctr++ ) {
-	free_dmatrix ( (element+ctr)->p );
-	free_dmatrix ( (element+ctr)->cm );
-    }
     free (element);
     descr-> no_of_elements = 0;
 
@@ -274,19 +269,12 @@ int free_element (Descr * descr ) {
 
 int alloc_element (Descr * descr) {
 
-    int ctr, no_of_elements = descr->no_of_elements;
+    int  no_of_elements = descr->no_of_elements;
     SSElement * element;
     
     element = emalloc ( no_of_elements*sizeof(SSElement) );
     if ( ! element) return 1;
     
-    for (ctr=0; ctr < no_of_elements; ctr++ ) {
-	(element+ctr)->p = dmatrix(1,3);
-	if ( ! ((element+ctr)->p ) ) return 1;
-	(element+ctr)->cm = dmatrix(1,3);
-	if ( ! ((element+ctr)->cm) ) return 1;
-    }
-
     descr->element = element;
     descr->no_of_elements = no_of_elements;
     

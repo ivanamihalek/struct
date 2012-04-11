@@ -14,15 +14,15 @@ int descr_out (FILE * fptr, Descr * descr) {
 	    fprintf (fptr, "HELIX  %3d %5d  %5s %5s ",
 		     descr->element[element_ctr].type,
 		     element->length,  element->begin_id, element->end_id);
-	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[0][i]);
-	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[0][i]);
+	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[i]);
+	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[i]);
 	    fprintf (fptr, "\n");
 	} else {
 	    fprintf (fptr, "STRAND %3d %5d  %5s %5s ",
 		     descr->element[element_ctr].type,
 		     element->length,  element->begin_id, element->end_id);
-	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[0][i]);
-	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[0][i]);
+	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->p[i]);
+	    for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->cm[i]);
 	    fprintf (fptr, "\n");
 	}
 	
@@ -40,8 +40,8 @@ int descr_out (FILE * fptr, Descr * descr) {
 fprintf (fptr, "STRAND %3d %5d  %5s %5s ",
 	 PERP,
 	 element->length,  element->begin_id, element->end_id);
-for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->perp[0][i]);
-for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->foot[0][i]);
+for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->perp[i]);
+for (i=0; i<3; i++) fprintf (fptr, "%8.2lf", element->foot[i]);
 fprintf (fptr, "\n");
 
 # endif

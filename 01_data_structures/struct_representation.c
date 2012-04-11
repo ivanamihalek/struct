@@ -5,7 +5,7 @@
 int rep_initialize (Representation * rep, Descr * descr  ){
 
     int N = descr->no_of_elements;
-    int i;
+    int i, j;
     int construct_compact (Representation *rep);
     
     rep->N_full = N;
@@ -14,11 +14,11 @@ int rep_initialize (Representation * rep, Descr * descr  ){
     if ( ! (rep->full  = emalloc(N*sizeof(double*))) ) return 1;
     for (i=0; i<N; i++ ) {
 	/* note we are not allocating here - only storing the pointer*/
-	rep->full[i] = descr->element[i].p[0];
+	for (j=0; j<3; j++) rep->full[i][j] = descr->element[i].p[j];
     }
     if ( ! (rep->cm  = emalloc(N*sizeof(double*))) ) return 1;
     for (i=0; i<N; i++ ) {
-	rep->cm[i]   = descr->element[i].cm[0];
+	for (j=0; j<3; j++) rep->cm[i][j]   = descr->element[i].cm[j];
     }
    
     if ( ! (rep->translation  = dmatrix(N,3)) ) return 1;
