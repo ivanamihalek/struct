@@ -28,7 +28,7 @@ SOURCES.F =
 SOURCES.f = 
 
 
-SOURCES.c =  pdb2db.c  structure2sse.c struct_linalg.c \
+SOURCES.c =  pdb2db.c  struct_descr_out.c structure2sse.c struct_linalg.c \
 	struct_read_pdb.c  struct_utils.c struct_aa_code.c
 
 

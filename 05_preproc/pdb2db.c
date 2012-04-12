@@ -9,15 +9,27 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
 
 int main ( int argc, char * argv[]) {
 
+    char chain = '\0';
+    char name[SHORTSTRING] = {'\0'};
     int retval;
     Protein protein;
     Descr descr;
    
     if ( argc < 3 ) {
 	fprintf ( stderr,
-		  "Usage: %s <pdb file> [<chain>].\n",
+		  "Usage: %s <pdb file> [<chain>  [<name>]].\n",
 		  argv[0]);
 	exit (1);
+    }
+
+    if (argc>=3) {
+	chain =  argv[2][0];
+    }
+
+    if (argc>=4) {
+	sprintf (name, "%s", argv[3]);
+    } else {
+	sprintf (name, "%s", "noname");
     }
 
     /* input pdb */
@@ -41,8 +53,12 @@ int main ( int argc, char * argv[]) {
 	exit (1);
     }
 
+    /* fill in the remaining fields in the descriptor */
+    sprintf (descr.name, "%s", name);
+    descr.no_of_residues = protein.length;
+    
     /* output descriptor */
-
+    descr_out (stdout, &descr);
     return 0;
 }
 
@@ -59,6 +75,9 @@ int sse2descriptor (Protein *protein, Descr* descr) {
     Residue * residue;
  
     if ( ! (point=dmatrix(protein->length,3))) return 1;
+
+    descr->no_of_helices = 0;
+    descr->no_of_strands = 0;
     
     /* count the SSEs, and allocate the Description space */
     element_ctr = 0;
@@ -77,7 +96,6 @@ int sse2descriptor (Protein *protein, Descr* descr) {
     no_of_sses = element_ctr;
     if ( ! (descr->element = emalloc(no_of_sses*sizeof(SSElement)) )) return 1;
 
-    
     /* turn SSEs into sets of points to fit onto */
     point_ctr = 0;
     element_ctr = 0;
@@ -92,15 +110,22 @@ int sse2descriptor (Protein *protein, Descr* descr) {
 	    type = STRAND;
 	}
 
+	if (prev_type && !type) last_res_index = resctr-1;
+	    
+
 	if ( type && !(type&prev_type) ) {
 	    if (point_ctr) {
 		/* we didn't process this one */
-		last_res_index = resctr-1;
-		process_sse ( protein,  type, point, point_ctr,
-			      first_res_index, last_res_index,
-			      descr->element+element_ctr);
+		process_sse (protein, type, point, point_ctr,
+			     first_res_index, last_res_index,
+			     descr->element+element_ctr);
+		element_ctr ++;
+		if (type == HELIX ) {
+		    descr->no_of_helices ++;
+		} else if (type== STRAND) {
+		    descr->no_of_strands ++;
+		}
 	    }
-	    element_ctr ++;
 	    first_res_index = resctr;
 	    point_ctr = 0;
 	}
@@ -116,13 +141,20 @@ int sse2descriptor (Protein *protein, Descr* descr) {
 
    
     if (prev_type && point_ctr) {
+	if (prev_type && !type) last_res_index = resctr-1;
 	/* we didn't process this one */
-	last_res_index = resctr-1;
 	process_sse (protein, prev_type, point, point_ctr, 
 		     first_res_index, last_res_index,
 		     descr->element+element_ctr);
+	if (type == HELIX ) {
+	    descr->no_of_helices ++;
+	} else if (type== STRAND) {
+	    descr->no_of_strands ++;
+	}
+	element_ctr ++;
     }
 
+    descr->no_of_elements = descr->no_of_helices + descr->no_of_strands;
 
     free_dmatrix(point);
     
@@ -150,23 +182,19 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
 
     /* the fields that are straightforward to fill: */
     element->type    = type;
+    
     residue = protein->sequence+first_res_index;
     strncpy (element->begin_id, residue->pdb_id, (PDB_ATOM_RES_NO_LEN+2)*sizeof(char));
+    
     residue = protein->sequence+last_res_index;
     strncpy (element->end_id, residue->pdb_id, (PDB_ATOM_RES_NO_LEN+2)*sizeof(char));
+    
     element->begin  = first_res_index;
     element->end    =  last_res_index;
     element->length = last_res_index-first_res_index-1;
     
     /* fit a line through the points -- 
        fill in the center and direction fields of the element structure*/
-    printf ("processing type %d, points %d\n", type, number_of_points);
-    for (point_ctr = 0; point_ctr < number_of_points; point_ctr++) {
-	printf ( "%3d    %8.3lf   %8.3lf   %8.3lf \n",
-		 point_ctr,  point[point_ctr][0],
-		 point[point_ctr][1], point[point_ctr][2]);
-    }
-
     if (type== STRAND) {
 	number_of_avgd_points = number_of_points;
 	point_avg = point;
@@ -237,9 +265,10 @@ int fit_line (double **point, int no_points, double center[3], double direction[
     }
     for (i=0; i<3; i++) {
 	for ( j=i+1; j<3; j++) { 
-	    I[j][i] =  I[j][i];
+	    I[j][i] =  I[i][j];
 	}
     }
+
 
     /*****************************************/
     /* diagonalize I[][], pick the direction
@@ -250,7 +279,7 @@ int fit_line (double **point, int no_points, double center[3], double direction[
     char uplo = 'L'; /* matrix is stored as lower (fortran convention) */
     int  N = 3; /* the order of matrix */
     int leading_dim = N;
-    int retval;
+    int retval = 0;
     int workspace_size = 3*N;
     double A[N*N];
     double eigenvalues[N];
@@ -258,11 +287,12 @@ int fit_line (double **point, int no_points, double center[3], double direction[
     double NC_direction[3];
     
     for (i=0; i<3; i++) {
-	for ( j=i+1; j<3; j++) { 
-	    A[i*3+i] = I[i][j];
+	for ( j=0; j<3; j++) {
+	    A[i*3+j] = I[i][j];
 	}
     }
-   
+
+    
     dsyev_ ( &jobz, &uplo, &N, A, &leading_dim, eigenvalues,
 	     workspace, &workspace_size, &retval);
     
@@ -272,6 +302,7 @@ int fit_line (double **point, int no_points, double center[3], double direction[
 	exit (1);
     }
     for (i=0; i<3; i++)  direction[i] = A[i];
+
     /* sum of squared dist is egeinvalues[0];
        in case we need it */
 

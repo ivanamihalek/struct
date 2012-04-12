@@ -23,9 +23,14 @@ $ascii = ord ("Z");
 
 while ( <IF> ) {
     next if ( ! /\S/ );
-    @aux =split;
-    @p = @aux [0 .. 2];
-    @cm = @aux [3 .. 5];
+    next if (  /name/ );
+    next if (  /residues/ );
+    next if (  /helices/ );
+    next if (  /strands/ );
+    next if (  /^\#/ );
+    @aux = split;
+    @p   = @aux [5 .. 7];
+    @cm  = @aux [8 .. 10];
     $chain = chr($ascii);
 
     #printf " %d \n\n", 2*$max+1;

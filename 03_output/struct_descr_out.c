@@ -6,7 +6,9 @@ int descr_out (FILE * fptr, Descr * descr) {
     SSElement * element;
     
     fprintf (fptr, "name: %s \n", descr->name);
-    fprintf (fptr, "no of elements: %d \n", descr->no_of_elements);
+    fprintf (fptr, "no of residues: %d \n", descr->no_of_residues);
+    fprintf (fptr, "no of helices: %d \n", descr->no_of_helices);
+    fprintf (fptr, "no of strands: %d \n", descr->no_of_strands);
     
     for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
 	element = descr->element+element_ctr;

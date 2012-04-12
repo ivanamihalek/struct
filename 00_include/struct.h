@@ -245,8 +245,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 		      int * map_ctr, int * map_best, int best_max, int parent_map);
 int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 				 Map *map );
-int descr_out (FILE * fptr, Descr *descr);
 int descr_init ( Descr * description);
+int descr_out (FILE * fptr, Descr * descr);
 int descr_shutdown ( Descr * description );
 
 double F (double **X, int * x_type,  int NX,
