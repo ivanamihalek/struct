@@ -12,15 +12,15 @@ NAME = pdb2db
 OPTM =  -g
 
 
-VPATH = ./:../02_parsers:../06_main:\
-        ../04_geometric_match:../05_preproc\
-        ../01_data_structures:../03_output:../07_utils:\
-	../09_surface_fitting:../15_postproc
+VPATH = ./:../../02_parsers:../../06_main:\
+        ../../04_geometric_match:../../05_preproc\
+        ../../01_data_structures:../../03_output:../../07_utils:\
+	../../09_surface_fitting:../../15_postproc
 
 PLATFORM = $(shell uname)
 
 LIBS =  -lm -lc  -L/usr/lib  -llapack  
-INCLUDE = -I ../00_include -I ./
+INCLUDE = -I ../../00_include -I ./
 
 
 DEFINES =   # -DDMALLOC # -DDEBUG

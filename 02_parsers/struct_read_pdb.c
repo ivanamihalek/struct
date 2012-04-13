@@ -5,13 +5,28 @@
 
 # define DELETE  -789
 
-
 int read_pdb ( char * pdbname,  char chain, Protein * protein) {
+    
+    FILE * fptr = NULL;
+    
+    /* open file */
+    fptr = fopen ( pdbname, "r");
+    if ( !fptr ) {
+	fprintf (stderr, "Cno %s.\n", pdbname);
+	return ERR_NO_FILE_OR_CHAIN;
+    }
+    fill_protein_info (fptr, chain, protein);
+    
+    fclose(fptr);
+    return 0;
+}
+
+/*****************************************************************/
+int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 
     /* TODO for the moment we rely on PDB annotation
        to extract structural elements - that should be changed */
     Residue * sequence = NULL;
-    FILE    * fptr = NULL;
     char line[BUFFLEN];
     char oldresno[PDB_ATOM_RES_NO_LEN+2];
     /* res name: 4 digits + insertion code + \0 */
@@ -27,14 +42,7 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
     
     int has_backbone (Residue * sequence, int from, int to);
     
-    /* open file */
-    fptr = fopen ( pdbname, "r");
-    if ( !fptr ) {
-	fprintf (stderr, "Cno %s.\n", pdbname);
-	return ERR_NO_FILE_OR_CHAIN;
-    }
-
-
+ 
     
     /********************************************/
     /********************************************/
@@ -74,7 +82,7 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
 
     /* sanity: */
     if ( chain && ! chain_found) {
-	fprintf (stderr, "Chain %c not found in %s\n", chain, pdbname);
+	fprintf (stderr, "Chain %c not found.\n", chain);
 	return ERR_NO_FILE_OR_CHAIN;
     }
     
@@ -124,7 +132,8 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
 		
 		resctr ++;
 		if ( resctr >= no_res ) {
-		    fprintf (stderr, "Error reading %s: rectr:%d   no res: %d\n", pdbname, resctr, no_res);
+		    fprintf (stderr, "Error reading pdb: rectr:%d   no res: %d\n",
+			     resctr, no_res);
 		    return ERR_NONSENSE;
 		}
 		atomctr = 0;
@@ -149,8 +158,9 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
 		atomctr ++;
 		sequence[resctr].no_atoms = atomctr + 1;
 		if ( atomctr >= MAX_NO_ATOMS ) {
-		    fprintf ( stderr, "Error parsing %s: I thought every aa has < %d atoms.\n",
-			      pdbname, MAX_NO_ATOMS );
+		    fprintf ( stderr,
+			      "Error parsing pdb: I thought every aa has < %d atoms.\n",
+			      MAX_NO_ATOMS );
 		    return ERR_MAX_ATOMS;
 		}
 	    }
@@ -227,7 +237,6 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
     protein->sequence = sequence;
     protein->length   = no_res;
 
-    fclose(fptr);
     return 0;
 }
 

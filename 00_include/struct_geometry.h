@@ -1,8 +1,12 @@
 #include "struct.h"
 
 /* ss elements: */
-# define HELIX 1
-# define STRAND 2
+# define LOOP  1
+# define HELIX 2
+# define STRAND 4
+
+# define MIN_CaS_IN_SSE 4  /* min number of Cas to be used for fitting of SSEs */
+
 
 /* maximal allowed overlap between structural elements */
 # define MAX_ALLOWED_OVERLAP 3

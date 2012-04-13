@@ -11,19 +11,21 @@ int rep_initialize (Representation * rep, Descr * descr  ){
     rep->N_full = N;
     
     rep->full_no_of_strands = descr->no_of_strands;
-    if ( ! (rep->full  = emalloc(N*sizeof(double*))) ) return 1;
-    for (i=0; i<N; i++ ) {
-	/* note we are not allocating here - only storing the pointer*/
+    if ( ! (rep->full  = dmatrix(N, 3) )) return 1;
+    for (i=0; i<N; i++ ) {	
 	for (j=0; j<3; j++) rep->full[i][j] = descr->element[i].p[j];
     }
-    if ( ! (rep->cm  = emalloc(N*sizeof(double*))) ) return 1;
+    if ( ! (rep->cm    = dmatrix(N, 3) )) return 1;
     for (i=0; i<N; i++ ) {
 	for (j=0; j<3; j++) rep->cm[i][j]   = descr->element[i].cm[j];
     }
    
     if ( ! (rep->translation  = dmatrix(N,3)) ) return 1;
     if ( ! (rep->transl_norm  = emalloc(N*sizeof(double)))) return 1;
-    
+
+    if ( ! (rep->full_type = emalloc(N*sizeof(int)))) return 1;
+    if ( ! (rep->length    = emalloc(N*sizeof(int)))) return 1;
+   
     for (i=0; i<N; i++ ) {
 	rep->full_type[i] = descr->element[i].type;
 	rep->length[i]    = descr->element[i].length;

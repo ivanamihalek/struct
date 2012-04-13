@@ -1,66 +1,5 @@
 # include "struct.h"
-# include "structure2sse.h"
 
-
-int fit_line (double **point, int no_points, double center[3], double direction[3]);
-int sse2descriptor (Protein *protein, Descr * descr);
-int process_sse (Protein * protein, int type, double ** point, int number_of_points,
-		 int first_res_index, int last_res_index, SSElement * element);
-
-int main ( int argc, char * argv[]) {
-
-    char chain = '\0';
-    char name[SHORTSTRING] = {'\0'};
-    int retval;
-    Protein protein;
-    Descr descr;
-   
-    if ( argc < 3 ) {
-	fprintf ( stderr,
-		  "Usage: %s <pdb file> [<chain>  [<name>]].\n",
-		  argv[0]);
-	exit (1);
-    }
-
-    if (argc>=3) {
-	chain =  argv[2][0];
-    }
-
-    if (argc>=4) {
-	sprintf (name, "%s", argv[3]);
-    } else {
-	sprintf (name, "%s", "noname");
-    }
-
-    /* input pdb */
-    retval =  read_pdb(argv[1], argv[2][0], &protein);
-    if ( retval ) {
-	fprintf ( stderr, "Error reading %s, retval %d.\n",
-		  argv[1], retval);
-	exit (1);
-    }
-
-
-    /* find positions of SSEs on the sequence */
-    if ( structure2sse (&protein)) {
-	fprintf ( stderr, "Error  finding SSEs..\n");
-	exit (1);
-    }
-
-    /* replace each SSE with a (directed) line: */
-    if ( sse2descriptor (&protein, &descr)) {
-	fprintf ( stderr, "Error  fitting lines to sse.\n");
-	exit (1);
-    }
-
-    /* fill in the remaining fields in the descriptor */
-    sprintf (descr.name, "%s", name);
-    descr.no_of_residues = protein.length;
-    
-    /* output descriptor */
-    descr_out (stdout, &descr);
-    return 0;
-}
 
 
 
@@ -69,8 +8,9 @@ int sse2descriptor (Protein *protein, Descr* descr) {
 
 
     int resctr, type, prev_type = 0;
-    int element_ctr, no_of_sses;
-    int point_ctr, first_res_index, last_res_index;
+    int element_ctr = 0, no_of_sses = 0;
+    int point_ctr = 0, first_res_index = 0, last_res_index = 0;
+    int sse_id, prev_sse_id;
     double **point = NULL;
     Residue * residue;
  
@@ -81,67 +21,90 @@ int sse2descriptor (Protein *protein, Descr* descr) {
     
     /* count the SSEs, and allocate the Description space */
     element_ctr = 0;
+    prev_sse_id = 0;
     for (resctr=0; resctr<protein->length; resctr++) {
 	residue = protein->sequence+resctr;
-	type = 0;
+
 	if ( residue->belongs_to_helix) {
-	    type = HELIX;
-	}  else if ( residue->belongs_to_strand) {
-	    type = STRAND;
+	    sse_id = residue->belongs_to_helix;
+	}  else if (residue->belongs_to_strand) {
+	    sse_id = residue->belongs_to_strand;
+	} else {
+	    sse_id = 0;
 	}
 
-	if (type && !(type&prev_type) ) element_ctr++;
- 	prev_type = type;
+	if ( prev_sse_id && sse_id != prev_sse_id ) element_ctr++;
+
+	prev_sse_id = sse_id;
+	
     }
     no_of_sses = element_ctr;
     if ( ! (descr->element = emalloc(no_of_sses*sizeof(SSElement)) )) return 1;
 
     /* turn SSEs into sets of points to fit onto */
-    point_ctr = 0;
+    point_ctr   = 0;
     element_ctr = 0;
+    first_res_index = last_res_index = 0;
+    sse_id = 0;
+    
     for (resctr=0; resctr<protein->length; resctr++) {
 	
 	residue = protein->sequence+resctr;
 
-	type = 0;
 	if ( residue->belongs_to_helix) {
+	    sse_id = residue->belongs_to_helix;
 	    type = HELIX;
+	    
 	}  else if (residue->belongs_to_strand) {
+	    sse_id = residue->belongs_to_strand;
 	    type = STRAND;
+
+	} else {
+	    sse_id = 0;
+	    type = LOOP;
 	}
 
-	if (prev_type && !type) last_res_index = resctr-1;
+	if ( sse_id != prev_sse_id ) {
 	    
+	    if ( prev_sse_id  ) {
 
-	if ( type && !(type&prev_type) ) {
-	    if (point_ctr) {
-		/* we didn't process this one */
-		process_sse (protein, type, point, point_ctr,
-			     first_res_index, last_res_index,
-			     descr->element+element_ctr);
-		element_ctr ++;
-		if (type == HELIX ) {
-		    descr->no_of_helices ++;
-		} else if (type== STRAND) {
-		    descr->no_of_strands ++;
+		last_res_index = resctr-1;
+		if (point_ctr >= MIN_CaS_IN_SSE) {
+		    /* we didn't process this one */
+		    process_sse (protein, prev_type, point, point_ctr,
+				 first_res_index, last_res_index,
+				 descr->element+element_ctr);
+		    element_ctr ++;
+		    if (prev_type == HELIX ) {
+			descr->no_of_helices ++;
+		    } else if (prev_type== STRAND) {
+			descr->no_of_strands ++;
+		    }
 		}
 	    }
-	    first_res_index = resctr;
-	    point_ctr = 0;
+
+	    if ( sse_id ) {
+		first_res_index = resctr;
+		point_ctr = 0;
+	    }
 	}
-	
-	if ( residue->Ca ) { /* survive cases when Ca not given */
-	    point[point_ctr][0] = residue->Ca->x;
-	    point[point_ctr][1] = residue->Ca->y;
-	    point[point_ctr][2] = residue->Ca->z;
-	    point_ctr ++;
+
+
+	if ( sse_id ) {
+	    if ( residue->Ca ) { /* survive cases when Ca not given */
+		point[point_ctr][0] = residue->Ca->x;
+		point[point_ctr][1] = residue->Ca->y;
+		point[point_ctr][2] = residue->Ca->z;
+		point_ctr ++;
+	    }
 	}
-	prev_type = type;
+	prev_sse_id = sse_id;
+	prev_type   = type;
     }
 
    
-    if (prev_type && point_ctr) {
-	if (prev_type && !type) last_res_index = resctr-1;
+    if (prev_sse_id && point_ctr) {
+	last_res_index = resctr-1;
 	/* we didn't process this one */
 	process_sse (protein, prev_type, point, point_ctr, 
 		     first_res_index, last_res_index,
@@ -191,7 +154,7 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
     
     element->begin  = first_res_index;
     element->end    =  last_res_index;
-    element->length = last_res_index-first_res_index-1;
+    element->length = last_res_index-first_res_index+1;
     
     /* fit a line through the points -- 
        fill in the center and direction fields of the element structure*/

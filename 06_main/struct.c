@@ -84,48 +84,109 @@ int set_default_options () {
 /***************************************************/
 int main ( int argc, char * argv[]) {
 
-    Descr qry_descr = {{0}};
-    Descr tgt_descr  = {{0}};
-    clock_t CPU_time_begin, CPU_time_end;
+
+    char tgt_chain = '\0', qry_chain = '\0';
     int retval, qry_done, tgt_done;
     int db_ctr, db_effective_ctr;
-    int user_defined_name;
-    FILE * qry_fptr = NULL, * tgt_fptr = NULL, * digest = NULL;
-    
+    int tgt_input_type, qry_input_type;
+    clock_t CPU_time_begin, CPU_time_end;
+    FILE *qry_fptr = NULL, *tgt_fptr = NULL, *digest = NULL;
+    Protein qry_protein;
+    Protein tgt_protein;
+    Descr qry_descr = {{0}};
+    Descr tgt_descr  = {{0}};
     Score score;
-    
     
     int compare   (Descr *descr1, Descr *descr2, Score *score);
     int read_cmd_file (char *filename);
-    
+     
+    /* set defaults: */
+    set_default_options ();
+
+
+    /***************************************************************/
+    /*  command line parsing                                       */
     if ( argc < 3 ) {
 	fprintf ( stderr,
-		  "Usage: %s <db file> <qry file> [<parameter file>].\n",
+		  "Usage: %s <pdb/db tgt file> [tgt chain] "
+		  "<pdb/db qry file> [qry chain] [<parameter file>].\n",
 		  argv[0]);
 	exit (1);
     }
-    if ( ! (qry_fptr = efopen(argv[2], "r")) ) return 1;
-    if ( ! (tgt_fptr = efopen(argv[1], "r")) ) return 1;
+
+    if  (argc < 5) {
+	
+	if ( ! (tgt_fptr = efopen(argv[1], "r")) ) return 1;
+	if ( ! (qry_fptr = efopen(argv[2], "r")) ) return 1;
+
+	tgt_chain = '\0';
+	qry_chain = '\0';
+	
+	if ( argc == 4 ) {
+	    if (read_cmd_file (argv[3])) return 1;
+	}
+	
+    } else {
+	
+	/* check whether th 3rd and the 5th args look like  chains */
+	if ( strlen(argv[2]) > 1 ) {
+	    fprintf ( stderr, "The second argument (%s) "
+		      "does not look like a chain.\n", argv[2]);
+	    fprintf ( stderr,
+		      "Usage: %s <pdb/db tgt file> [tgt chain] "
+		      "<pdb/db qry file> [qry chain] [<parameter file>].\n",
+		      argv[0]);
+	    exit (1);	    
+	}
+
+	if ( strlen(argv[4]) > 1 ) {
+	    fprintf ( stderr, "The 4th argument (%s) "
+		      "does not look like a chain.\n", argv[4]);
+	    fprintf ( stderr,
+		      "Usage: %s <pdb/db tgt file> [tgt chain] "
+		      "<pdb/db qry file> [qry chain] [<parameter file>].\n",
+		      argv[0]);
+	    exit (1);	    
+	}
+
+	
+	if ( ! (tgt_fptr = efopen(argv[1], "r")) ) return 1;
+	if ( ! (qry_fptr = efopen(argv[3], "r")) ) return 1;
+
+	tgt_chain = argv[2][0];
+	qry_chain = argv[4][0];
+	
+	if ( argc == 6 ) {
+	    if (read_cmd_file (argv[5])) return 1;
+	}
+	
+    } 
+
     
-    /* set defaults: */
-    set_default_options ();
-    
-    /* change them with the cmd file, if the cmd file given */
-    if ( argc == 4 ) {
-	if (read_cmd_file (argv[3])) return 1;
-    }
-    
-    /* read in the table of integral values */
-    /* the array int_table in struct_table.c */
+    /**************************************************************/
+    /* read in the table of integral values                       */
+    /* the array int_table in struct_table.c                      */
     if ( read_integral_table (options.path) ) {
 	fprintf (stderr, "In data file  %s.\n\n", options.path);
 	exit (1);
     }
     set_up_exp_table ();
     
-    user_defined_name = options.outname[0];
-    
+    /**************************************************************/
+    /* figure out whether we have a pdb or db input:              */
+    tgt_input_type = check_input_type (qry_fptr);
+    if ( tgt_input_type != PDB && tgt_input_type != DB ) {
+	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
+	exit (1);
+    }
 
+    qry_input_type = check_input_type (qry_fptr);
+    if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
+	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
+	exit (1);
+    }
+
+    
     /*********************************/
     /* loop over the query database :*/
     qry_done = 0;
@@ -134,7 +195,7 @@ int main ( int argc, char * argv[]) {
     CPU_time_begin = clock();
    
     while ( ! qry_done) {
-	retval = get_next_descr (qry_fptr, &qry_descr);
+	retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_protein, &qry_descr);
 	if ( retval == 1 ) {
 	    continue;
 	} else if ( retval == -1 ) {
@@ -143,22 +204,22 @@ int main ( int argc, char * argv[]) {
 	}
    
 	/* digest file for larger scale comparisons */ 
-	if ( ! digest ) {
-	    if ( ! user_defined_name ) {
+	if ( ! digest ) { 
+
+	    if ( ! options.outname[0] ) { /* user did not specify the name ofr the output */
 		sprintf (options.outname, "%s.struct_out",
 		     qry_descr.name);
 	    }
 
-		// ************ added by Mile
-		// output name in postprocessing consists of query and target name
-	
-		retval = get_next_descr (tgt_fptr, &tgt_descr);	    
-		if (options.postprocess) {
-			sprintf (options.outname, "%s_%s.struct_out", qry_descr.name, tgt_descr.name);
+	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_protein, &tgt_descr);
+	    
+	    // ************ added by Mile
+	    // output name in postprocessing consists of query and target name
+	    if (options.postprocess) {
+		sprintf (options.outname, "%s_%s.struct_out", qry_descr.name, tgt_descr.name);
 			
-		}
-
-		// ************* end by Mile
+	    }
+	    // ************* end by Mile
     
 	    digest  = efopen (options.outname, "w");
 	    if ( !digest) exit (1);
@@ -169,7 +230,8 @@ int main ( int argc, char * argv[]) {
 		fprintf ( digest,"%% <dL>:    average length mismatch for matched SSEs \n");
 		fprintf ( digest,"%% T:       total score assigned to matched SSEs \n");
 		fprintf ( digest,"%% frac:    T divided by the number of matched SSEs \n");
-		fprintf ( digest,"%% GC_rmsd: RMSD btw geometric centers of matched SSEs (before postprocessing) \n");
+		fprintf ( digest,"%% GC_rmsd: RMSD btw geometric centers "
+			  "of matched SSEs (before postprocessing) \n");
 		fprintf ( digest,"%% A:       (after postprocessing) the alignment score \n");
 		fprintf ( digest,"%% aln_L:   (after postprocessing) the alignment length \n\n");
 		fprintf ( digest,"%% %6s%6s %6s %6s  %6s %6s %6s %6s %6s %6s \n",
@@ -186,12 +248,12 @@ int main ( int argc, char * argv[]) {
 	tgt_done = 0;
 	db_ctr = 0;
 	db_effective_ctr = 0;
-	if ( !user_defined_name) CPU_time_begin = clock();
+	if ( !options.outname[0]) CPU_time_begin = clock();
 	retval = -1;
     
 	while ( ! tgt_done) {
 	    db_ctr++;
-	    retval = get_next_descr (tgt_fptr, &tgt_descr);
+	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_protein, &tgt_descr);
 	    if ( retval == 1 ) {
 		continue;
 	    } else if ( retval == -1 ) {
@@ -269,13 +331,13 @@ int main ( int argc, char * argv[]) {
 	    if (options.postprocess) tgt_done=1; /* for now, we postprocess only
 						one pair of structures (not structure against database) */
 	}
-	if (!user_defined_name && db_effective_ctr ) {
+	if (!options.outname[0] && db_effective_ctr ) {
 	    CPU_time_end = clock();
 	    fprintf (digest, "done   CPU:  %10.3lf s\n", (double)(CPU_time_end-CPU_time_begin)/CLOCKS_PER_SEC );
 	    fflush  (digest);
 	}
     
-	if ( ! user_defined_name ) {
+	if ( !options.outname[0] ) {
 	    fclose (digest);
 	    digest = NULL;
 	} /* otherwise we keep writing into the saem digest file */

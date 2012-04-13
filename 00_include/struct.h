@@ -10,12 +10,19 @@
 # include "struct_utils.h"
 # include "struct_pdb.h"
 # include "struct_geometry.h"
+# include "struct_structure2sse.h"
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif
 
 
 # define  BUFFLEN 150
+
+
+/* input type */
+# define PDB  1
+# define  DB  2
+
 
 /* used in preprocessor */
 # define MIN_HELIX_LENGTH 8
@@ -218,11 +225,10 @@ typedef struct {
 /******************************/
 extern Options options;  /* defined in struct.c */
 
+
 /******************************/
 /* integral lookup table :    */
 /******************************/
-
-
 
 # define NR_POINTS 100
 # define TABLE_SIZE NR_POINTS+1
@@ -230,16 +236,16 @@ extern Options options;  /* defined in struct.c */
 # define INTEGRAL_TABLE "/home/ivanam/baubles/struct/08_data/tmp.1000.table"
 # define MAX_EXP_VALUE 10
 
-
 extern double int_table [TABLE_SIZE][TABLE_SIZE];
 extern double exp_table [TABLE_SIZE];
+
 
 /******************************/
 /* function declarations :    */
 /******************************/
 
 int check_gap_lengths  (Map * map, double *gap_score );
-
+int check_input_type (FILE *fptr);
 int complement_match (Representation* X_rep, Representation* Y_rep,
 		      Map * map, int map_max,
 		      int * map_ctr, int * map_best, int best_max, int parent_map);
@@ -255,6 +261,7 @@ int F_moments (double **x, int *x_type, int NX,
 	       double **y, int *y_type, int NY, double alpha,
 	       double *avg_ptr, double *avg_sq_ptr,
 	       double *std_ptr);
+int fill_protein_info ( FILE * fptr,  char chain, Protein * protein);
 int find_next_pair (double **X, double **Y, 
 		    int *x_type, int *y_type,
 		    int NX, int NY, int nbr_range,
@@ -266,7 +273,7 @@ int find_quat_exp (double ** X, int NX, double **Y, int NY,
 		     double alpha, double * quat, double *qof);
 int free_map (Map *map);
 int geometric_descriptors (Protein * protein);
-int get_next_descr (FILE * fptr,  Descr * description);
+int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, Descr * description);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
 double lookup ( double alpha, double beta);
@@ -312,6 +319,8 @@ int set_up_exp_table ();
 char single_letter ( char code[]);
 int store_image (Representation *X_rep,  Representation *Y_rep, 
 		 double **R, double alpha,  Map *map);
+int sse2descriptor (Protein *protein, Descr *descr);
+int structure2sse  (Protein *protein);
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
 
