@@ -1,5 +1,4 @@
 # include "struct.h"
-# include "structure2sse.h"
 
 
 int fit_line (double **point, int no_points, double center[3], double direction[3]);

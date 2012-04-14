@@ -23,7 +23,8 @@ number_maps_cpl  0
 
 
 ! numerical grids
-path           /home/ivanam/kode/03_struct/08_data/n100.d3.table
+!path           /home/ivanam/kode/03_struct/08_data/n100.d3.table
+path           /Users/ivana/kode/03_struct/08_data/n100.d3.table
 grid_size      400
 ! exp_table_size 100 !not implemented
 

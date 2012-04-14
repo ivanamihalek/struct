@@ -86,6 +86,8 @@ int main ( int argc, char * argv[]) {
 
 
     char tgt_chain = '\0', qry_chain = '\0';
+    char tgt_filename[MEDSTRING] = {'\0'};
+    char qry_filename[MEDSTRING] = {'\0'};
     int retval, qry_done, tgt_done;
     int db_ctr, db_effective_ctr;
     int tgt_input_type, qry_input_type;
@@ -116,8 +118,8 @@ int main ( int argc, char * argv[]) {
 
     if  (argc < 5) {
 	
-	if ( ! (tgt_fptr = efopen(argv[1], "r")) ) return 1;
-	if ( ! (qry_fptr = efopen(argv[2], "r")) ) return 1;
+	sprintf (tgt_filename, "%s", argv[1]);
+	sprintf (qry_filename, "%s", argv[2]);
 
 	tgt_chain = '\0';
 	qry_chain = '\0';
@@ -150,9 +152,8 @@ int main ( int argc, char * argv[]) {
 	}
 
 	
-	if ( ! (tgt_fptr = efopen(argv[1], "r")) ) return 1;
-	if ( ! (qry_fptr = efopen(argv[3], "r")) ) return 1;
-
+	sprintf (tgt_filename, "%s", argv[1]);
+	sprintf (qry_filename, "%s", argv[3]);
 	tgt_chain = argv[2][0];
 	qry_chain = argv[4][0];
 	
@@ -162,7 +163,9 @@ int main ( int argc, char * argv[]) {
 	
     } 
 
-    
+    if ( ! (tgt_fptr = efopen(tgt_filename, "r")) ) return 1;
+    if ( ! (qry_fptr = efopen(qry_filename, "r")) ) return 1;
+   
     /**************************************************************/
     /* read in the table of integral values                       */
     /* the array int_table in struct_table.c                      */
@@ -186,6 +189,16 @@ int main ( int argc, char * argv[]) {
 	exit (1);
     }
 
+    /*********************************************/
+    /*do something about the names for the output:*/
+    if ( tgt_input_type==PDB) {
+	improvize_name (tgt_filename,  tgt_chain, tgt_descr.name);
+    }
+    if ( qry_input_type==PDB) {
+	improvize_name (qry_filename, qry_chain, qry_descr.name);
+    }
+      
+    
     
     /*********************************/
     /* loop over the query database :*/

@@ -368,3 +368,41 @@ int  cluster_counter (int  no_of_things,  int **neighbors,
     return 0;
  }
 
+
+
+/*******************************************************************/
+int improvize_name ( char *filename, char chain, char *outstring) {
+
+    int name_length = strlen(filename);
+    int c, tokenctr;
+    char token[MAX_TOK][MEDSTRING];
+    char auxstring[MEDSTRING] = {'\0'};;
+    int maxtoken;
+    char comment_char = '!';
+
+    /* this assumes that the outstring is empty; we'll not take care of that here */
+    
+    for (c=name_length-1; c>=0; c--) {
+	if (filename[c] == '/') filename[c] = ' ';	
+    }
+    
+    tokenize ( token, &maxtoken, filename, comment_char);
+
+    sprintf ( auxstring, "%s", token[maxtoken]);
+
+    for (c=strlen(auxstring)-1; c>=0; c--) {
+	if (auxstring[c] == '.') auxstring[c] = ' ';	
+    }
+    tokenize ( token, &maxtoken, auxstring, comment_char);
+
+    if (! strcmp(token[maxtoken], "pdb") ) maxtoken --;
+
+    sprintf (outstring, "%s", token[0]);
+    for (tokenctr=1; tokenctr<=maxtoken; tokenctr++) {
+	sprintf (outstring, "%s.%s", outstring, token[tokenctr]);
+    }
+
+    if (chain) outstring[strlen(outstring)] = chain;
+    
+    return 0;
+}

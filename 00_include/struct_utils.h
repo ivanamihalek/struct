@@ -35,5 +35,6 @@ void     free_dmatrix(double **m);
 void     free_d3matrix(double  ***m);
 int    **intmatrix(int rows, int columns);
 int intmatrix_init(int **matrix, int rows, int columns, int val);
+int improvize_name ( char *filename,  char chain, char *outstring) ;
 int      string_clean ( char* string, int length);
 # endif

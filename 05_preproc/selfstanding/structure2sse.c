@@ -1,5 +1,4 @@
 # include "struct.h"
-# include "structure2sse.h"
 
 
 /**

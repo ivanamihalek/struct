@@ -11,6 +11,9 @@ int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, 
 	fprintf (stderr, "Error in get_next_decr: read on closed fptr (?)\n");
 	return -1;
     }
+
+    if ( feof(fptr) ) return -1;
+
     
     if ( input_type == DB ) {
 	retval = db_input (fptr, description);
@@ -45,8 +48,7 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     }
 
     /* fill in the remaining fields in the descriptor   */
-    sprintf (descr->name, "%s", "anon");
-    descr->no_of_residues = protein->length;
+     descr->no_of_residues = protein->length;
 
     return 0;
 }
@@ -63,7 +65,6 @@ int db_input (FILE * fptr, Descr * descr) {
     char line[BUFFLEN];
     SSElement * element;
 
-    if ( feof(fptr) ) return -1;
     
     if (descr->element) descr_shutdown(descr);
     
