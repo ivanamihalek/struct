@@ -191,6 +191,7 @@ typedef struct {
 
 typedef struct {
     double total_assigned_score;
+    double fraction_assigned;
     double z_score;
     double w_submap_z_score;
     double gap_score;
@@ -246,6 +247,7 @@ extern double exp_table [TABLE_SIZE];
 
 int check_gap_lengths  (Map * map, double *gap_score );
 int check_input_type (FILE *fptr);
+int close_digest (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
 int complement_match (Representation* X_rep, Representation* Y_rep,
 		      Map * map, int map_max,
 		      int * map_ctr, int * map_best, int best_max, int parent_map);
@@ -274,6 +276,7 @@ int find_quat_exp (double ** X, int NX, double **Y, int NY,
 int free_map (Map *map);
 int geometric_descriptors (Protein * protein);
 int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, Descr * description);
+int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
 double lookup ( double alpha, double beta);
@@ -292,8 +295,6 @@ int multiply (double *quat1, double *quat2_in,
 int needleman_wunsch (int max_i, int max_j, double **distance,
 		      int *map_i2j, int * map_j2i, double *aln_score);
 
-int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, double **similarity,
-		    int *map_i2j, int * map_j2i, double * aln_score);
 
 int normalized_cross (double *x, double *y, double * v, double *norm_ptr);
 int output (FILE * fptr,char *name, char chain,  Protein * protein);
@@ -321,8 +322,14 @@ int store_image (Representation *X_rep,  Representation *Y_rep,
 		 double **R, double alpha,  Map *map);
 int sse2descriptor (Protein *protein, Descr *descr);
 int structure2sse  (Protein *protein);
+
+
+int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, double **similarity,
+		    int *map_i2j, int * map_j2i, double * aln_score);
+
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
+int write_digest(Descr *qry_descr, Descr *tgt_descr, FILE * digest, Score * score);
 
 int find_Calpha (Protein *protein, int  resctr, double ca[3] );
 double two_point_distance (double point1[3], double point2[3]);

@@ -166,14 +166,6 @@ int main ( int argc, char * argv[]) {
     if ( ! (tgt_fptr = efopen(tgt_filename, "r")) ) return 1;
     if ( ! (qry_fptr = efopen(qry_filename, "r")) ) return 1;
    
-    /**************************************************************/
-    /* read in the table of integral values                       */
-    /* the array int_table in struct_table.c                      */
-    if ( read_integral_table (options.path) ) {
-	fprintf (stderr, "In data file  %s.\n\n", options.path);
-	exit (1);
-    }
-    set_up_exp_table ();
     
     /**************************************************************/
     /* figure out whether we have a pdb or db input:              */
@@ -198,16 +190,31 @@ int main ( int argc, char * argv[]) {
 	improvize_name (qry_filename, qry_chain, qry_descr.name);
     }
       
+     /**************************************************************/
+    /* read in the table of integral values                       */
+    /* the array int_table in struct_table.c                      */
+    if ( read_integral_table (options.path) ) {
+	fprintf (stderr, "In data file  %s.\n\n", options.path);
+	exit (1);
+    }
+    set_up_exp_table ();
+   
+    /***********************************************************************/
+    /* initialize the digest file: concise report on the comparison scores */
+    /*   for each pair of the structures we are looking at                 */
+    init_digest (&qry_descr, &tgt_descr, &digest);
     
-    
-    /*********************************/
-    /* loop over the query database :*/
+    /*************************************************************/
+    /*************************************************************/
+    /*************************************************************/
+    /* loop over the query database :                           */
     qry_done = 0;
     retval = -1;
     db_effective_ctr = 0;
     CPU_time_begin = clock();
    
     while ( ! qry_done) {
+	
 	retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_protein, &qry_descr);
 	if ( retval == 1 ) {
 	    continue;
@@ -215,53 +222,13 @@ int main ( int argc, char * argv[]) {
 	    qry_done = 1;
 	    continue;
 	}
-   
-	/* digest file for larger scale comparisons */ 
-	if ( ! digest ) { 
-
-	    if ( ! options.outname[0] ) { /* user did not specify the name ofr the output */
-		sprintf (options.outname, "%s.struct_out",
-		     qry_descr.name);
-	    }
-
-	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_protein, &tgt_descr);
-	    
-	    // ************ added by Mile
-	    // output name in postprocessing consists of query and target name
-	    if (options.postprocess) {
-		sprintf (options.outname, "%s_%s.struct_out", qry_descr.name, tgt_descr.name);
-			
-	    }
-	    // ************* end by Mile
-    
-	    digest  = efopen (options.outname, "w");
-	    if ( !digest) exit (1);
-	    if ( options.print_header ) {
-		fprintf ( digest,"%% columns: \n");
-		fprintf ( digest,"%% query, target: structure names\n");
-		fprintf ( digest,"%% geom_z:  z score for the orientational match \n");
-		fprintf ( digest,"%% <dL>:    average length mismatch for matched SSEs \n");
-		fprintf ( digest,"%% T:       total score assigned to matched SSEs \n");
-		fprintf ( digest,"%% frac:    T divided by the number of matched SSEs \n");
-		fprintf ( digest,"%% GC_rmsd: RMSD btw geometric centers "
-			  "of matched SSEs (before postprocessing) \n");
-		fprintf ( digest,"%% A:       (after postprocessing) the alignment score \n");
-		fprintf ( digest,"%% aln_L:   (after postprocessing) the alignment length \n\n");
-		fprintf ( digest,"%% %6s%6s %6s %6s  %6s %6s %6s %6s %6s %6s \n",
-			  "query ", "target ", "geom_z", "<dL>", "  T  ", "frac",
-			  "GC_rmsd", "rmsd  ", "A  ", "aln_L  " );	
-	    }
-	    
-	} else {
-	    /* otherwise write to the same old digest file */
-	}
-
-	/* loop over the database :*/
-	rewind(tgt_fptr);
+	
+        /*******************************/
+	/* loop over target  database :*/
 	tgt_done = 0;
-	db_ctr = 0;
+	db_ctr   = 0;
 	db_effective_ctr = 0;
-	if ( !options.outname[0]) CPU_time_begin = clock();
+	CPU_time_begin = clock();
 	retval = -1;
     
 	while ( ! tgt_done) {
@@ -280,98 +247,39 @@ int main ( int argc, char * argv[]) {
 		int strand_overlap =
 		    (qry_descr.no_of_strands < tgt_descr.no_of_strands )?
 		    qry_descr.no_of_strands :  tgt_descr.no_of_strands;
-		double fraction_assigned;
-		int query_size  = qry_descr.no_of_strands + qry_descr.no_of_helices;
-		int target_size = tgt_descr.no_of_strands + tgt_descr.no_of_helices;
+
+		memset (&score, 0, sizeof(Score));
+		
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
-		    db_effective_ctr ++;
-
-		    /* here is the core of the operation: */
+		    /* >>>>> here is the core of the operation: */
 		    retval = compare ( &tgt_descr, &qry_descr, &score);
-		    if (retval) {
-			printf (" error comparing  db:%s   query:%s   \n",
-				tgt_descr.name, qry_descr.name );
+		    if (retval) { /* this might be printf (rather than fprintf)
+				     bcs perl has a problem interceptign stderr */
+			printf (" error comparing   db:%s  query:%s \n", tgt_descr.name, qry_descr.name );
 			exit (retval);
 		    }
-		    
-		    if ( query_size > target_size ) {
-			fraction_assigned = score.total_assigned_score/target_size;
-		    } else {
-			fraction_assigned = score.total_assigned_score/query_size;
-		    }
-		    fprintf ( digest,
-			      "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
-			      qry_descr.name,
-			      tgt_descr.name,
-			      
-			      score.z_score,
-			      score.avg_length_mismatch,
-			      
-			      score.total_assigned_score,
-			      fraction_assigned,
-			  
-			      score.rmsd,
-			      
-			      score.res_rmsd,
-			      score.res_almt_score,
-			      score.res_almt_length);
-		    fprintf (digest, "\n");
-		    fflush  (digest);
+		    write_digest(&qry_descr, &tgt_descr, digest, &score);
 		   
 		} else if (options.report_no_sse_overlap) {
-		    fprintf ( digest,
-			      "%6s %6s %8.3lf %6.3lf %6.3lf %6.3lf %6.3lf %6.3lf %6.3lf %4d",
-			      qry_descr.name,
-			      tgt_descr.name,
-			      
-			      score.z_score = 0.0,
-			      score.avg_length_mismatch =  0.0,
-			      
-			      score.total_assigned_score =  0.0,
-			      fraction_assigned = -1.0,
-			  
-			      score.rmsd = 0.0,
-			  
-			      score.res_rmsd = 0.0,
-			      score.res_almt_score  = 0.0,
-			      score.res_almt_length = 0);
-			      
-		    fprintf (digest, "\n");
-		    fflush  (digest);
+		    /* write all zeros to the digest file */
+		    write_digest(&qry_descr, &tgt_descr, digest, &score);
 		}
 	    }
-	    if (options.postprocess) tgt_done=1; /* for now, we postprocess only
-						one pair of structures (not structure against database) */
-	}
-	if (!options.outname[0] && db_effective_ctr ) {
-	    CPU_time_end = clock();
-	    fprintf (digest, "done   CPU:  %10.3lf s\n", (double)(CPU_time_end-CPU_time_begin)/CLOCKS_PER_SEC );
-	    fflush  (digest);
-	}
-    
-	if ( !options.outname[0] ) {
-	    fclose (digest);
-	    digest = NULL;
-	} /* otherwise we keep writing into the saem digest file */
 
-	if (options.postprocess) qry_done=1; /* for now, we postprocess only
-						one pair of structures (not structure against database) */
+	}
+     }
 
-    }
+    CPU_time_end = clock();
+    close_digest(CPU_time_begin, CPU_time_end, digest);
  
-    if (digest  ) {
-	 CPU_time_end = clock();
-	 fprintf (digest, "done   CPU:  %10.3lf s\n", (double)(CPU_time_end-CPU_time_begin)/CLOCKS_PER_SEC );
-	 fflush  (digest);
-    }
     if (options.verbose ) {
 	 printf ("\n\nlooked at %d db entries.\n",
 		 db_effective_ctr);
 	 printf ("the output written to %s.\n\n", options.outname);
     }
     /**************************************************/
-    /* housekeeping, good for tracking memory leaks   */    if (digest) fclose (digest);
+    /* housekeeping, good for tracking memory leaks   */    
     map_consistence (0, 0, NULL, NULL, NULL, NULL, NULL); 
     compare (NULL, NULL, NULL);
     descr_shutdown (&qry_descr);
@@ -432,7 +340,8 @@ int compare (Descr * descr1, Descr *descr2, Score *score) {
 	
 	return 0;
     }
-   
+
+
     /****************************************/
     /*  arrays for immediate consumption    */
     /****************************************/
@@ -500,6 +409,7 @@ int compare (Descr * descr1, Descr *descr2, Score *score) {
 	return retval;
     }
 
+   
     /****************************************/
     /*   output the best case stats         */
     /****************************************/
@@ -550,6 +460,16 @@ int compare (Descr * descr1, Descr *descr2, Score *score) {
 	    sub_map_ctr++;
 	}
 
+	int size2  = descr2->no_of_strands + descr2->no_of_helices;
+	int size1 = descr1->no_of_strands + descr1->no_of_helices;
+	if ( size1 > size2 ) {
+	    score->fraction_assigned = score->total_assigned_score/size2;
+	} else {
+	    score->fraction_assigned = score->total_assigned_score/size1;
+	}
+
+ 
+	
 	score -> w_submap_z_score  = fabs(score -> w_submap_z_score);
 
 	/****************************************/

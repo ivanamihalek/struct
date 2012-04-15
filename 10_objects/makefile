@@ -27,7 +27,7 @@ SOURCES.F =
 SOURCES.f = 
 
 SOURCES.c =  struct.c struct_aa_code.c struct_complement_match.c \
-	     struct_descr_out.c struct_geometry.c \
+	     struct_descr_out.c struct_digest.c  struct_geometry.c \
 	     struct_linalg.c  struct_map.c struct_map2rotation.c \
 	     struct_postproc.c struct_quaternion.c struct_read_pdb.c  \
 	     struct_read_cmd_file.c struct_representation.c \
