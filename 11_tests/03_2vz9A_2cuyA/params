@@ -49,7 +49,7 @@ min_no_SSEs 4
 
 
 
-postp
+!postp
 pdbf_tgt 2vz9.rot.pdb
 chain_tgt A
 pdbf_qry  2vz9.pdb

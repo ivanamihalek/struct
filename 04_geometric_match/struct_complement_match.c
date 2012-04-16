@@ -197,17 +197,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	}
     }
 
-# if 0
-    for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
-	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
-	printf (" %3d %8.3lf   ", top_ctr,  best_rmsd[top_ctr]);
-	vec_out ( best_quat[top_ctr], 4, "quat: ");
-	for (t=0; t<3; t++ ) {
-	    printf ("\t %3d  %3d \n", best_triple_x[top_ctr][t]+1, best_triple_y[top_ctr][t]+1 );
-	}
-    }
-    exit (1);
-# endif
 
     /*********************************************/
     /*   main loop                               */
@@ -222,14 +211,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
 	F_current = F( y, y_type, NY, x_rotated, x_type, NX, alpha);
 
-# if 0	
-	printf ("\n***********************************\n");
-	printf (" %3d %8.3lf  %8.3lf   ", top_ctr,  best_rmsd[top_ctr], F_current);
-	vec_out ( best_quat[top_ctr], 4, "quat: ");
-	for (t=0; t<3; t++ ) {
-	    printf ("\t %3d  %3d \n", best_triple_x[top_ctr][t]+1, best_triple_y[top_ctr][t]+1 );
-	}
-# endif
 	/* find map which uses the 2 triples as anchors */
 	no_anchors = 3;
 	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + (*map_ctr),
@@ -242,7 +223,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 		map_unstable = 1;
 	    }
 	}
-	if ( map_unstable) continue;
+	if (map_unstable) continue;
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
@@ -636,13 +617,6 @@ int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directio
 	    aux   = distance_x-distance_y;
 	    rmsd += aux*aux;
 	    norm ++;
-# if 0
-	    printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-		    set_of_directions_x[a], set_of_directions_x[b], 
-		    set_of_directions_y[a], set_of_directions_y[b]); 
-	    printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-		    distance_x,  distance_y, fabs (distance_x-distance_y));
-# endif
 	}
 	
     }
@@ -744,12 +718,7 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 	}
 
 	rmsd /= norm;
-	rmsd = sqrt(rmsd);
-
-# if 0
-	printf ("%2d  %2d : rmsd %8.3lf\n", i+1, j+1, rmsd);
-# endif
-	
+	rmsd = sqrt(rmsd);	
 
 	/* if rmsd is bigger than the cutoff, lose this from the mapping */
 	if ( rmsd > cutoff_rmsd) {

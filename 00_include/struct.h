@@ -87,7 +87,8 @@ typedef struct {
     int print_header;     /* print header in the short output file  */
     int report_no_sse_overlap; /*produce short output line even when
 				 there is no overlap in the SSE type */
-    int  postprocess;     /* produce an output for postprocessing */ 
+    int postprocess;     /* produce an output for postprocessing */
+    int preproc_only;
     char pdbf_tgt[BUFFLEN];  /* for postprocessing, we'll need the full set of
 			     coordinates - the path to PDB file */
     char pdbf_qry[BUFFLEN];

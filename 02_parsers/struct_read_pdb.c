@@ -1,12 +1,16 @@
 # include "struct.h"
 
-
+/*****************************************************************/
+/*  this thing is ignoring HETATMS ... I need a parser           */
+/*  that recognizes posttrans modifications from ligands ...     */
+/*  or I just need to apply the transformation to the original pdb */
 
 
 # define DELETE  -789
 
 int read_pdb ( char * pdbname,  char chain, Protein * protein) {
     
+    int retval;
     FILE * fptr = NULL;
     
     /* open file */
@@ -15,7 +19,9 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
 	fprintf (stderr, "Cno %s.\n", pdbname);
 	return ERR_NO_FILE_OR_CHAIN;
     }
-    fill_protein_info (fptr, chain, protein);
+
+    retval = fill_protein_info (fptr, chain, protein);
+    if (retval) return retval;
     
     fclose(fptr);
     return 0;
@@ -42,8 +48,6 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     
     int has_backbone (Residue * sequence, int from, int to);
     
- 
-    
     /********************************************/
     /********************************************/
     /* cleanup                                  */
@@ -60,13 +64,13 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
 	if ( resctr ) {
-	    if ( ! strncmp(line,"TER", 3) ||  ! strncmp(line,"END", 3) ||  line[PDB_ATOM_CHAINID] != old_chain)
+	    if ( ! strncmp(line,"END", 3) ||  (chain && line[PDB_ATOM_CHAINID] != old_chain) )
 		break;
 	}
 	if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
 	chain_found  = 1;
 	
-	if( ! strncmp(line,"ATOM", 4) ||  ! strncmp(line,"HETATM", 6)){
+	if( ! strncmp(line,"ATOM", 4)){
 	    
 	    if (  strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
 		
@@ -77,7 +81,6 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 		resctr ++;
 	    }
 	} 
-	
     }
 
     /* sanity: */
@@ -85,9 +88,11 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 	fprintf (stderr, "Chain %c not found.\n", chain);
 	return ERR_NO_FILE_OR_CHAIN;
     }
-    
+
     no_res = resctr;
-   
+    
+    if ( !no_res ) return -1;  /* take it as the end of the read */
+    
     /* allocate space */
     sequence = emalloc ( no_res*sizeof (Residue));
     if ( ! sequence ) return 1;
@@ -109,12 +114,12 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 	
 	
 	if ( resctr > -1) {
-	    if  (! strncmp(line,"TER", 3) ||  ! strncmp(line,"END", 3)  ||  line[PDB_ATOM_CHAINID] != old_chain)
+	    if  (! strncmp(line,"END", 3)  ||  (chain && line[PDB_ATOM_CHAINID] != old_chain))
 	    break;
 	}
 	if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
 	
-	if( ! strncmp(line,"ATOM", 4) ||  ! strncmp(line,"HETATM", 6)){
+	if( ! strncmp(line,"ATOM", 4) ){
  	   /* if it's a hydrogen - skip */
 	    if ( line[PDB_ATOM_ATOM_NAME] == 'H'
 		 ||  line[PDB_ATOM_ATOM_NAME+1] == 'H') continue;
@@ -132,7 +137,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 		
 		resctr ++;
 		if ( resctr >= no_res ) {
-		    fprintf (stderr, "Error reading pdb: rectr:%d   no res: %d\n",
+		    fprintf (stderr, "Error reading pdb: resctr:%d   no res: %d\n",
 			     resctr, no_res);
 		    return ERR_NONSENSE;
 		}
@@ -228,7 +233,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     for (resctr=0; resctr < no_res; resctr ++ ) {
 	retval = string_clean (sequence[resctr].pdb_id, PDB_ATOM_RES_NO_LEN+1);
 	if ( retval ) {
-	    fprintf (stderr, "Error in read_pdb(): empty id string for residue %d.\n", resctr);
+	    fprintf (stderr, "Error in read_pdb(): empty id string for residue with sequential no %d.\n", resctr);
 	    return ERR_NONSENSE;
 	}
     }

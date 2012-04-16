@@ -31,7 +31,7 @@ int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, 
 int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
 
     /* read in  the infor from the PDB file             */
-    fill_protein_info (fptr, chain, protein);
+    if (fill_protein_info (fptr, chain, protein)) return 1;
 
     /* find positions of SSEs on the sequence           */
     if ( structure2sse (protein)) {
@@ -59,7 +59,7 @@ int db_input (FILE * fptr, Descr * descr) {
 
     int no_of_elements = 0;
     int no_of_helices  = 0, no_of_strands = 0;
-    int type, retval;
+    int retval;
     int element_ctr    = 0; 
     int descr_initialized =0;
     char line[BUFFLEN];
@@ -97,23 +97,15 @@ int db_input (FILE * fptr, Descr * descr) {
 			 line);
 		return 1;
 	    } 
-		
-	} else if (  (!strncmp(line, "HELIX", 5)) ||
-		    (!strncmp(line, "STRAND", 6))  ) {
+
+	    
+	} else if ((!strncmp(line, "HELIX", 5)) || (!strncmp(line, "STRAND", 6))  ) {
 	    
 	    if ( ! descr_initialized ) {
 		descr_initialized = 1;
 		if ( (retval = descr_init(descr) ) ) return retval;
 	    }
 
-	    
-	    /* type check */
-	    sscanf ( line, "%*s %d ", &type);
-	    
-	    /* if (  options.use_perp || */
-            /* 		  (!options.use_perp  && type != PERP) ) { */
-		
-		
 	    /* store element info */
 	    if ( element_ctr >= descr->no_of_elements ) {
 		fprintf (stderr, "number of elements (%d) in %s\n",
@@ -124,7 +116,7 @@ int db_input (FILE * fptr, Descr * descr) {
 	    }
 	    element = descr->element + element_ctr;
 	    /* the third field is an unused field (used to be sheet id, which was abandoned*/
-	    sscanf ( line, "%*s %d  %*d   %d %s %s %lf %lf %lf %lf %lf %lf \n",
+	    sscanf ( line, "%*s %d  %d  %s %s %lf %lf %lf %lf %lf %lf \n",
 		     &(descr->element[element_ctr].type),
 		     &(element->length), element->begin_id, element->end_id,
 		     element->p, element->p+1, element->p+2, 
@@ -132,7 +124,6 @@ int db_input (FILE * fptr, Descr * descr) {
 	    descr->element[element_ctr].length = element->length;
 
 	    element_ctr++;
-	    /*  } */
 	    
 	    
 	} 
@@ -193,8 +184,8 @@ int alloc_element (Descr * descr) {
     
     return 0;
 }
-/****************************************************************/
 
+/****************************************************************/
 int descr_init ( Descr * descr ) {
 		
     int retval;

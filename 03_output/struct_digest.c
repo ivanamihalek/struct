@@ -13,6 +13,8 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 	    } else {
 		sprintf (outname, "digest.struct_out");
 	    }
+	    sprintf (options.outname, "%s", outname);
+	    
 	} else {
 	    sprintf (outname, "%s.struct_out", options.outname);
 	}
