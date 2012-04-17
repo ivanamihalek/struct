@@ -40,7 +40,7 @@ use_endgap
 !sheet_cosine .98
 
 
-!verbose
+verbose
 
 !outn
 
@@ -48,15 +48,6 @@ use_endgap
 min_no_SSEs 4
 
 
-!postp
+postp
 
 
- pdbf_tgt 1d4xG.pdb
- chain_tgt G
- pdbf_qry 2d8bA.pdb
- chain_qry A
-
-!pdbf_qry 1d4xG.pdb
-!chain_qry G
-!pdbf_tgt 2d8bA.pdb
-!chain_tgt A
