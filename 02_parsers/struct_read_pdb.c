@@ -63,11 +63,11 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     old_chain = '\0';
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
-	if ( resctr ) {
+	if (resctr) {
 	    if ( ! strncmp(line,"END", 3) ||  (chain && line[PDB_ATOM_CHAINID] != old_chain) )
 		break;
 	}
-	if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
+	if (chain  && line[PDB_ATOM_CHAINID] != chain) continue;
 	chain_found  = 1;
 	
 	if( ! strncmp(line,"ATOM", 4)){

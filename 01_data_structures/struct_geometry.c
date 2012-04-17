@@ -3,6 +3,8 @@
 
 int protein_shutdown (Protein * protein) {
 
+    if ( ! protein) return 0;
+    
     protein->length = 0;
     if (protein->sequence) free(protein->sequence);
     

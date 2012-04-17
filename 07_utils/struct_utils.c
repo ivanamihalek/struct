@@ -14,11 +14,9 @@ void * emalloc(int  size)
 
 
 
-FILE * efopen(char * name, char * mode)
-{
+FILE * efopen(char * name, char * mode) {
 
     FILE * fp;
-
 
     if ((fp = fopen(name, mode)) == NULL) {
 	fprintf (stderr,  
@@ -27,14 +25,11 @@ FILE * efopen(char * name, char * mode)
     }
 
     return fp;
-
 }
 
 
-
-
-/* allocate a char matrix with subscript range m[nrl..nrh][ncl..nch] 
- */
+/**********************************************************************/  
+/* allocate a char matrix with subscript range m[nrl..nrh][ncl..nch]  */
 char **chmatrix(int rows, int columns){
     char **m;
     int i;

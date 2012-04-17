@@ -2,6 +2,283 @@
 
 Options options;
 
+/*****************************************************************************/
+/*****************************************************************************/
+int main ( int argc, char * argv[]) {
+
+
+    char tgt_chain = '\0', qry_chain = '\0';
+    char *tgt_filename = NULL, *qry_filename = NULL, *cmd_filename = NULL;
+    int retval, qry_done, tgt_done;
+    int db_ctr, db_effective_ctr;
+    int tgt_input_type, qry_input_type;
+    clock_t CPU_time_begin, CPU_time_end;
+    FILE *qry_fptr    = NULL, *tgt_fptr = NULL, *digest = NULL;
+    Protein qry_structure = {0};
+    Protein tgt_structure = {0};
+    Descr qry_descr   = {{0}};
+    Descr tgt_descr   = {{0}};
+    Representation qry_rep = {0};
+    Representation tgt_rep = {0};
+    List_of_maps list = {NULL};
+    Score score;
+    
+    int compare_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list, Score *score);   
+    int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
+			char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr);
+    int read_cmd_file (char *filename);
+    int set_default_options ();
+    
+    if ( argc < 2 ) {
+	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
+		  "[ -in2 <pdb/db qry file>] [ -c2 <qry chain>] [ -p <parameter file>].\n",
+		  argv[0]);
+	exit (1);
+    }
+
+    /* set defaults: */
+    set_default_options ();
+
+    /* process cmd line input */
+    if (parse_cmd_line (argc, argv, &tgt_filename, &tgt_chain,
+			&qry_filename, &qry_chain, &cmd_filename)) return 1;
+
+    /* process the command (parameters) file, if provided */
+    if (cmd_filename && read_cmd_file(cmd_filename))  return 1;
+
+   
+    
+    /**********************************************************************/
+    /* check if the tgt file is  present and readable; open               */
+    if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) return 1;
+    /* figure out whether we have a pdb or db input:                      */
+    tgt_input_type = check_input_type (tgt_fptr);
+    if ( tgt_input_type != PDB && tgt_input_type != DB ) {
+	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
+	exit (1);
+    }
+    /*do something about the names for the output:                        */
+    if ( tgt_input_type==PDB) {
+	improvize_name (tgt_filename, tgt_chain, tgt_descr.name);
+    }
+
+    /* the same for the qry file, but may not be necessary if we are      */
+    /* preprocessing only                                                 */
+    if ( qry_filename) {
+	if ( ! (qry_fptr = efopen(qry_filename, "r"))) return 1;
+	qry_input_type = check_input_type (qry_fptr);
+	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
+	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
+	    exit (1);
+	}
+	if ( qry_input_type==PDB) {
+	    improvize_name (qry_filename, qry_chain, qry_descr.name);
+	}
+    }
+
+
+    if (options.preproc_only) {
+	/*************************************************************/
+	/*************************************************************/
+	/*************************************************************/
+	/* preprocessing only :                                      */
+	tgt_done = 0;
+	db_ctr   = 0;
+	while ( ! tgt_done) {
+	    db_ctr++;
+	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, &tgt_descr);
+	    if ( retval != 0  ) { /* I don't know how to recover if this is a concat of PDB files      */
+				  /* actually if I want to concatenate I have another problem: rewind  */
+		                  /* so PDB input should be completley                                 */
+				  /* rewritten to acommodate this possibility                          */
+		tgt_done = 1;
+		continue;
+	    }
+	    descr_out (NULL, &tgt_descr);
+ 	}
+   
+    } else {	
+	/**********************************************************************/
+	/* read in the table of integral values                               */
+	/* the array int_table in struct_table.c                              */
+	if ( read_integral_table (options.path) ) {
+	    fprintf (stderr, "In data file  %s.\n\n", options.path);
+	    exit (1);
+	}
+	set_up_exp_table ();
+   
+	/***********************************************************************/
+	/* initialize the digest file: concise report on the comparison scores */
+	/*   for each pair of the structures we are looking at                 */
+	init_digest (&qry_descr, &tgt_descr, &digest);
+ 	/*************************************************************/
+	/*************************************************************/
+	/*************************************************************/
+	/* compare pairs from tgt and qry lists :                    */
+	list_alloc (&list, INIT_ALLOC_NO_VECS, INIT_ALLOC_NO_VECS);
+	qry_done = 0;
+	retval = -1;
+	db_effective_ctr = 0;
+	CPU_time_begin = clock();   
+	while ( ! qry_done) {
+	
+	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
+	    if ( retval == 1 ) {
+		continue;
+	    } else if ( retval == -1 ) {
+		qry_done = 1;
+		continue;
+	    }
+	    descr_out (NULL, &qry_descr);
+
+	    /*******************************/
+	    /* loop over target  database :*/
+	    rewind (tgt_fptr);
+	    tgt_done = 0;
+	    db_ctr   = 0;
+	    db_effective_ctr = 0;
+	    CPU_time_begin = clock();
+	    retval = -1;
+    
+	    while ( ! tgt_done) {
+		db_ctr++;
+		retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, &tgt_descr);
+		if ( retval == 1 ) {
+		    continue;
+		} else if ( retval == -1 ) {
+		    tgt_done = 1;
+		    continue;
+		} 
+		descr_out (NULL, &tgt_descr);
+
+		/* min number of elements */
+		int helix_overlap =
+		    (qry_descr.no_of_helices < tgt_descr.no_of_helices) ?
+		    qry_descr.no_of_helices : tgt_descr.no_of_helices;
+		int strand_overlap =
+		    (qry_descr.no_of_strands < tgt_descr.no_of_strands) ?
+		    qry_descr.no_of_strands : tgt_descr.no_of_strands;
+
+		memset (&score, 0, sizeof(Score));
+		
+		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
+
+		    rep_initialize (&tgt_rep, &tgt_descr);
+		    rep_initialize (&qry_rep, &qry_descr);
+    
+		    /*************************************************************/
+		    /*************************************************************/
+		    /*  here is the core: comparison of reduced representations  */
+		    retval = compare_reduced_reps ( &tgt_rep, &qry_rep, &list, &score);
+		    if (retval) { /* this might be printf (rather than fprintf)
+				     bcs perl has a problem interceptign stderr */
+			printf (" error comparing   db:%s  query:%s \n",
+				tgt_descr.name, qry_descr.name);
+			exit (retval);
+		    }
+		    db_effective_ctr ++;
+		    write_digest(&qry_descr, &tgt_descr, digest, &score);
+		   
+		    if (options.verbose) {
+			write_maps (stdout, &tgt_descr, &qry_descr, &list);
+		    }
+
+		    if (options.postprocess) {
+			align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
+					&qry_descr, &qry_structure, &qry_rep, &list, &score);
+			write_tfmd_pdb (&tgt_structure, &list, &tgt_descr, &qry_descr);
+		    }
+		    
+		    rep_shutdown (&tgt_rep);
+		    rep_shutdown (&qry_rep);
+    
+		} else if (options.report_no_sse_overlap) {
+		    /* write all zeros to the digest file  */
+		    write_digest(&qry_descr, &tgt_descr, digest, &score);
+		}
+	    }
+	}
+
+	CPU_time_end = clock();
+	close_digest(CPU_time_begin, CPU_time_end, digest);
+ 
+	if (options.verbose ) {
+	    printf ("\n\nlooked at %d db entries.\n",
+		 db_effective_ctr);
+	    printf ("the output written to %s.\n\n", options.outname);
+	}
+	
+	list_shutdown (&list); /* defined in utils */
+    }
+
+    descr_shutdown (&qry_descr);
+    descr_shutdown (&tgt_descr);
+    
+    protein_shutdown (&qry_structure);
+    protein_shutdown (&tgt_structure);
+
+    if (qry_fptr) fclose (qry_fptr);  
+    if (tgt_fptr) fclose (tgt_fptr);
+    
+    return 0;
+    
+}
+
+/**************************************************************************************/
+/**************************************************************************************/
+/**************************************************************************************/
+int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
+		    char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr) {
+
+    int argi;
+
+    *tgt_filename_ptr =  NULL;
+    *qry_filename_ptr =  NULL;
+
+    *tgt_chain_ptr = '\0';
+    *qry_chain_ptr = '\0';
+   
+    *cmd_filename_ptr = NULL;
+
+
+    for (argi=1; argi<argc; argi+=2) {
+	
+	if ( argv[argi][0] != '-' ) {
+	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
+	    return 1;
+	} else if (  argi+1 >= argc ) {
+	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
+	    return 1;
+	} else if ( ! strncmp (argv[argi], "-in1", 4)) {
+	    *tgt_filename_ptr = argv[argi+1];
+	} else if ( ! strncmp (argv[argi], "-in2", 4)) {
+	    *qry_filename_ptr = argv[argi+1];
+	} else if ( ! strncmp (argv[argi], "-c1", 3)) {
+	    *tgt_chain_ptr = argv[argi+1][0];
+	} else if ( ! strncmp (argv[argi], "-c2", 3)) {
+	    *qry_chain_ptr = argv[argi+1][0];
+	} else if ( ! strncmp (argv[argi], "-p", 2)) {
+	    *cmd_filename_ptr = argv[argi+1];
+	} else {
+	    fprintf (stderr, "Unrecognized option: %s\n",  argv[argi]);
+	    return 1;
+	}
+	
+
+    }
+
+    if  (!*qry_filename_ptr)
+	options.preproc_only = 1;/*automatically assume preprocessing only */
+    
+    
+    return 0;
+
+}
+
+
+
+/**************************************************************************/
+
 int set_default_options () {
     /* set the default options */
     memset (&options, 0, sizeof(Options) );
@@ -78,517 +355,4 @@ int set_default_options () {
     return 0;
 }
 
-/***************************************************/
-/***************************************************/
-/***************************************************/
-/***************************************************/
-int main ( int argc, char * argv[]) {
 
-
-    char tgt_chain = '\0', qry_chain = '\0';
-    char *tgt_filename = NULL, *qry_filename = NULL, *cmd_filename = NULL;
-    int retval, qry_done, tgt_done;
-    int db_ctr, db_effective_ctr;
-    int tgt_input_type, qry_input_type;
-    clock_t CPU_time_begin, CPU_time_end;
-    FILE *qry_fptr = NULL, *tgt_fptr = NULL, *digest = NULL;
-    Protein qry_protein;
-    Protein tgt_protein;
-    Descr qry_descr = {{0}};
-    Descr tgt_descr  = {{0}};
-    Score score;
-    
-    int compare (Descr * descr1, Descr *descr2, Score *score);
-    int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
-			char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr);
-    int read_cmd_file (char *filename);
-     
-    if ( argc < 2 ) {
-	fprintf ( stderr,
-		  "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
-		  "[ -in2 <pdb/db qry file>]  [ -c2 <qry chain>] [ -p <parameter file>].\n",
-		  argv[0]);
-	exit (1);
-    }
-
-    /* set defaults: */
-    set_default_options ();
-
-    /* process cmd line input */
-    if ( parse_cmd_line (argc, argv, &tgt_filename, &tgt_chain,
-			 &qry_filename, &qry_chain, &cmd_filename)) return 1;
-
-    /* process the command (parameters) file, if provided */
-    if ( cmd_filename && read_cmd_file(cmd_filename))  return 1;
-
-   
-    
-    /**********************************************************************/
-    /* check if the tgt file is  present and readable; open               */
-    if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) return 1;
-    /* figure out whether we have a pdb or db input:                      */
-    tgt_input_type = check_input_type (tgt_fptr);
-    if ( tgt_input_type != PDB && tgt_input_type != DB ) {
-	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
-	exit (1);
-    }
-    /*do something about the names for the output:                        */
-    if ( tgt_input_type==PDB) {
-	improvize_name (tgt_filename, tgt_chain, tgt_descr.name);
-    }
-
-    /* the same for the qry file, but may not be necessary if we are      */
-    /* preprocessing only                                                 */
-    if ( qry_filename) {
-	if ( ! (qry_fptr = efopen(qry_filename, "r"))) return 1;
-	qry_input_type = check_input_type (qry_fptr);
-	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
-	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
-	    exit (1);
-	}
-	if ( qry_input_type==PDB) {
-	    improvize_name (qry_filename, qry_chain, qry_descr.name);
-	}
-    }
-
-
-    if (! options.preproc_only) {
-	/**********************************************************************/
-	/* read in the table of integral values                               */
-	/* the array int_table in struct_table.c                              */
-	if ( read_integral_table (options.path) ) {
-	    fprintf (stderr, "In data file  %s.\n\n", options.path);
-	    exit (1);
-	}
-	set_up_exp_table ();
-   
-	/***********************************************************************/
-	/* initialize the digest file: concise report on the comparison scores */
-	/*   for each pair of the structures we are looking at                 */
-	init_digest (&qry_descr, &tgt_descr, &digest);
-    }
-
-    if (options.preproc_only) {
-	/*************************************************************/
-	/*************************************************************/
-	/*************************************************************/
-	/* preprocessing only :                                      */
-	tgt_done = 0;
-	db_ctr   = 0;
-	while ( ! tgt_done) {
-	    db_ctr++;
-	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_protein, &tgt_descr);
-	    if ( retval != 0  ) { /* I don't know how to revoer if this is a concat of PDB files */
-		tgt_done = 1;
-		continue;
-	    }
-	    descr_out (NULL, &tgt_descr);
- 	}
-   
-    } else {
-	
-	/*************************************************************/
-	/*************************************************************/
-	/*************************************************************/
-	/* compare pairs from tgt and qry lists :                    */
-	qry_done = 0;
-	retval = -1;
-	db_effective_ctr = 0;
-	CPU_time_begin = clock();   
-	while ( ! qry_done) {
-	
-	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_protein, &qry_descr);
-	    if ( retval == 1 ) {
-		continue;
-	    } else if ( retval == -1 ) {
-		qry_done = 1;
-		continue;
-	    }
-	    descr_out (NULL, &qry_descr);
-
-	    /*******************************/
-	    /* loop over target  database :*/
-	    rewind (tgt_fptr);
-	    tgt_done = 0;
-	    db_ctr   = 0;
-	    db_effective_ctr = 0;
-	    CPU_time_begin = clock();
-	    retval = -1;
-    
-	    while ( ! tgt_done) {
-		db_ctr++;
-		retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_protein, &tgt_descr);
-		if ( retval == 1 ) {
-		    continue;
-		} else if ( retval == -1 ) {
-		    tgt_done = 1;
-		    continue;
-		} 
-		descr_out (NULL, &tgt_descr);
-
-		/* min number of elements */
-		int helix_overlap =
-		    (qry_descr.no_of_helices < tgt_descr.no_of_helices) ?
-		    qry_descr.no_of_helices : tgt_descr.no_of_helices;
-		int strand_overlap =
-		    (qry_descr.no_of_strands < tgt_descr.no_of_strands) ?
-		    qry_descr.no_of_strands : tgt_descr.no_of_strands;
-
-		memset (&score, 0, sizeof(Score));
-		
-		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
-		    /***************************************/
-		    /***************************************/
-		    /*  here is the core of the operation: */
-		    retval = compare ( &tgt_descr, &qry_descr, &score);
-		    if (retval) { /* this might be printf (rather than fprintf)
-				 bcs perl has a problem interceptign stderr */
-			printf (" error comparing   db:%s  query:%s \n",
-				tgt_descr.name, qry_descr.name);
-			exit (retval);
-		    }
-		    write_digest(&qry_descr, &tgt_descr, digest, &score);
-		    db_effective_ctr ++;
-		   
-		} else if (options.report_no_sse_overlap) {
-		    /* write all zeros to the digest file  */
-		    write_digest(&qry_descr, &tgt_descr, digest, &score);
-		}
-	    
-
-	    }
-	}
-
-	CPU_time_end = clock();
-	close_digest(CPU_time_begin, CPU_time_end, digest);
- 
-	if (options.verbose ) {
-	    printf ("\n\nlooked at %d db entries.\n",
-		 db_effective_ctr);
-	    printf ("the output written to %s.\n\n", options.outname);
-	}
-	/**************************************************/
-	/* housekeeping, good for tracking memory leaks   */    
-	map_consistence (0, 0, NULL, NULL, NULL, NULL, NULL); 
-	compare (NULL, NULL, NULL);
-    }
-
-    descr_shutdown (&qry_descr);
-    descr_shutdown (&tgt_descr);
-    
-    if (qry_fptr)  fclose (qry_fptr);  
-    if (tgt_fptr) fclose (tgt_fptr);
-    
-    return 0;
-    
-}
-
-/**************************************************************************************/
-/**************************************************************************************/
-/**************************************************************************************/
-int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
-		    char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr) {
-
-    int argi;
-
-    *tgt_filename_ptr =  NULL;
-    *qry_filename_ptr =  NULL;
-
-    *tgt_chain_ptr = '\0';
-    *qry_chain_ptr = '\0';
-   
-    *cmd_filename_ptr = NULL;
-
-
-    for (argi=1; argi<argc; argi+=2) {
-	
-	if ( argv[argi][0] != '-' ) {
-	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
-	    return 1;
-	} else if (  argi+1 >= argc ) {
-	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
-	    return 1;
-	} else if ( ! strncmp ( argv[argi], "-in1", 4) ) {
-	    *tgt_filename_ptr = argv[argi+1];
-	} else if ( ! strncmp ( argv[argi], "-in2", 4) ) {
-	    *qry_filename_ptr = argv[argi+1];
-	} else if ( ! strncmp ( argv[argi], "-c1",  3) ) {
-	    *tgt_chain_ptr = argv[argi+1][0];
-	} else if ( ! strncmp ( argv[argi], "-c2",  3) ) {
-	    *qry_chain_ptr = argv[argi+1][0];
-	} else if ( ! strncmp ( argv[argi], "-p",  2) ) {
-	    *cmd_filename_ptr = argv[argi+1];
-	} else {
-	    fprintf (stderr, "Unrecognized option: %s\n",  argv[argi]);
-	    return 1;
-	}
-	
-
-    }
-
-    if  (!*qry_filename_ptr)
-	options.preproc_only = 1;/*automatically assume preprocessing only */
-    
-    
-    return 0;
-
-}
-
-
-
-
-int compare (Descr * descr1, Descr *descr2, Score *score) {
-    /* descr 1 is db or target, descr2 is query - important in postprocessing*/
-    int retval;
-    int map_ctr, best_ctr, i;
-    int NX, NY, NX_eff, NY_eff;
-    Representation X_rep = {0}, Y_rep= {0};
-    Map * current_map;
-
-    static Map * map = NULL;
-    static int map_max   = MAP_MAX*9;
-    static int best_max  = MAP_MAX;
-    static int *map_best = NULL;
-    static int NX_allocated = 0, NY_allocated = 0;
-    /* TODO: go back to map lineage description */
-    
-    int construct_representation (double ** x, int *x_type, int *x_length,
-		  int * NX_effective, Descr * descr,
-		  int ** represents, int * is_rep_by);
-    int match_clustering (Representation* X_rep, Representation* Y_rep,
-			  Map * map, int map_max,
-			  int * map_ctr, int * map_best, int best_max,  int parent_map);
-    int recursive_map_out (Map * map, int map_ctr, 
-		       Descr * descr1, Descr * descr2, 
-		       Protein *protein1, Protein *protein2, 
-		       int depth);
-    int rec_map_out_for_postproc (Map * map, int map_ctr, 
-				  Representation *X_rep, Representation *Y_rep, int depth);
-   
-    /****************************************/
-    /*  shutdown                            */
-    /****************************************/
-    if ( !descr1  ) {
-
-	//exit(0);
-	if ( ! map ) return 0;
-	
-	for ( map_ctr= 0; map_ctr< map_max; map_ctr++) {
-	    if ( free_map(map+map_ctr) ) return 1;
-	}
-	free (map_best);
-	free (map);
-	map = NULL;
-	
-	return 0;
-    }
-
-
-    /****************************************/
-    /*  arrays for immediate consumption    */
-    /****************************************/
-    /* needs to come first to figure out NX */
-    rep_initialize (&X_rep, descr1);
-    rep_initialize (&Y_rep, descr2);
-
-    
-    /****************************************/
-    /*  initialization                      */
-    /****************************************/
-    /*  shorthands   */
-    NX     = X_rep.N_full;
-    NX_eff = X_rep.N_compact;
-    NY     = Y_rep.N_full;
-    NY_eff = Y_rep.N_compact;
- 
-   
-    if ( ! map ) { /*only on the first call */
-	/* 3 submaps for each map - depth no larger than 2 (? TODO)*/
-	map = emalloc (map_max*sizeof(Map) );/* TODO is this enough? */
-	if ( !map) return 1;
-	map_best    = emalloc (map_max*sizeof(int));
-	if (!map_best) return 1;
-	NX_allocated = NX;
-	NY_allocated = NY;
-	for ( map_ctr= 0; map_ctr<map_max; map_ctr++) {
-	    if ( initialize_map(map+map_ctr, NX, NY) ) return 1;
-	}
-    }
-    
- 	    
- 
-   /* the size has increased case */ 
-    if ( NX > NX_allocated || NY > NY_allocated  ) {
-	for ( map_ctr= 0; map_ctr< map_max; map_ctr++) {
-	    if ( map) if ( free_map(map+map_ctr) ) return 1;
-	    if ( initialize_map(map+map_ctr, NX, NY) ) return 1;
-	}
-	NX_allocated = NX;
-	NY_allocated = NY;
-    }
-
-    for ( map_ctr= 0; map_ctr<map_max; map_ctr++) {
-	(map+map_ctr)->x2y_size = NX;
-	(map+map_ctr)->y2x_size = NY;
-    }
-    
-
-    /****************************************/
-    /*  look for complementary maps         */
-    /****************************************/
-    map_ctr = 0;
-  
-    retval = complement_match (&X_rep, &Y_rep, map, map_max,
-			       &map_ctr, map_best, best_max, -1);
-    if (retval) {
-	rep_shutdown (&X_rep);
-	rep_shutdown (&Y_rep);
-	return retval;
-    }
-
-   
-    /****************************************/
-    /*   output the best case stats         */
-    /****************************************/
-    memset (score, 0, sizeof(Score) );
-    best_ctr = 0;
-    while (  map_best[best_ctr] >  -1 ) {
-	best_ctr ++;
-    }
-    
-    if (best_ctr) {
-	int sub_map_ctr;
-	score -> z_score = map[map_best[0]].z_score;
-	score -> rmsd = map[map_best[0]].rmsd;
-	
-	score -> total_assigned_score =  map[map_best[0]].assigned_score;
-	
-	if ( score -> total_assigned_score >  0 ) {
-	    double avg_length_mismatch = 0;
-	    int j, map_size = 0;
-	    for (i=0; i < NX; i++ ) {
-		j =  map[map_best[0]].x2y[i];
-		if ( j <  0 )  continue;
-		avg_length_mismatch += fabs(X_rep.length[i] - Y_rep.length[j]);
-		map_size++;
-	    }
-	    if (map_size) avg_length_mismatch /= map_size;
-	    score -> avg_length_mismatch = avg_length_mismatch;
-	    
-	} else {
-	    score -> avg_length_mismatch = 0;
-	}
-	score -> number_of_maps =1;
-
-	current_map = map + map_best[0];
-	score -> w_submap_z_score = map[map_best[0]].z_score;
-	sub_map_ctr = 0;
-	while ( current_map->submatch_best && current_map->submatch_best[0] > -1 ) {
-
-	    current_map = map + current_map->submatch_best[0];
-	    if (  current_map->z_score >= 0 ) continue;
-	    score -> total_assigned_score += current_map->assigned_score;
-	    score -> w_submap_z_score     *=  current_map->z_score;
-	    score -> number_of_maps ++;
-	    if ( sub_map_ctr < 3) {
-		score->q_rmsd[sub_map_ctr] = quat_rmsd ( (map + map_best[0])->q, current_map->q);
-	    }
-	    
-	    sub_map_ctr++;
-	}
-
-	int size2  = descr2->no_of_strands + descr2->no_of_helices;
-	int size1 = descr1->no_of_strands + descr1->no_of_helices;
-	if ( size1 > size2 ) {
-	    score->fraction_assigned = score->total_assigned_score/size2;
-	} else {
-	    score->fraction_assigned = score->total_assigned_score/size1;
-	}
-
- 
-	
-	score -> w_submap_z_score  = fabs(score -> w_submap_z_score);
-
-	/****************************************/
-	/*     postprocess - find the actual tf */
-	/* 	   & mapping on the bb level        */
-	/****************************************/
-	if (options.postprocess) {
-	    Protein qry_structure = {0};
-	    Protein tgt_structure = {0};
-	    /* input CA coordinates for the vectors
-	       -- for now the input should be a little different
-	       if we are expecting to postprocess -- we will use the
-	       original pdb */
-	    /* the last arg is 1 in postprocessing */
-	    retval = read_pdb (options.pdbf_qry, options.chain_qry, &qry_structure);
-	    if ( retval) {
-		fprintf ( stderr, "Error reading %s, chain %c; retval %d\n",
-			  options.pdbf_qry, options.chain_qry, retval);
-		return 1;
-	    }
-	    retval = read_pdb (options.pdbf_tgt, options.chain_tgt, &tgt_structure);
-	    if (retval ) {
-		fprintf ( stderr, "Error reading %s, chain %c; retval %d\n",
-			  options.pdbf_tgt,  options.chain_tgt, retval);
-		return 1;
-	    }
-	    /* for now,  we will just postprocess the  best map */
-
-	    best_ctr = 0;
-	    map_ctr = map_best[best_ctr];
-	
-	    postprocess (descr1, &tgt_structure, &X_rep,
-	    		 descr2, &qry_structure, &Y_rep,
-	    		 map+map_ctr, score);
-	    rec_map_out_for_postproc (map, map_ctr, &X_rep, &Y_rep, 0); 
-
-	    if (options.verbose ) {
-		recursive_map_out (map, map_ctr, descr1, descr2, 
-				   &qry_structure, &tgt_structure, 0);
-	    }
-	    protein_shutdown (&qry_structure);
-	    protein_shutdown (&tgt_structure);
-	    
-	} else {
-    
-	    /****************************************/
-	    /*     output the maps                  */
-	    /****************************************/
-	    if (options.verbose ) {
-		best_ctr = 0;
-		while (best_ctr< options.number_maps_out  && best_ctr < map_max
-		       &&  (map_ctr = map_best[best_ctr]) > -1  
-		       &&  map[map_best[best_ctr]].z_score <  options.z_max_out  ) {
-		    recursive_map_out (map, map_ctr, descr1, descr2, NULL, NULL, 0);
-		    best_ctr++;
-		}
-	    }
-	}
-    } /* end if best_ctr */
-
-    /****************************************/
-    /*  shutting down                       */
-    /****************************************/
-    rep_shutdown (&X_rep);
-    rep_shutdown (&Y_rep);
-    
-    return 0;
-    
-}
-
-/**************************************************************************/
-double quat_rmsd (double parent_map_q[4], double  current_map_q[4]) {
-    
-    double rmsd = 0.0;
-    double aux;
-    int i;
-
-    for (i=0; i<4; i++) {
-	aux   = parent_map_q[i] - current_map_q[i];
-	rmsd += aux*aux;
-    }
-    rmsd /= 4;
-    
-    return sqrt(rmsd);
-}

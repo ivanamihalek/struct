@@ -1,17 +1,22 @@
 # include "struct.h"
 
-
-//# define DEBUG
-
+/**************************************************************/
+/*  postprocess - find the actual tf                          */
+/* 	   & mapping on the bb level                          */
+/**************************************************************/
 int smith_waterman_2 (int max_i, int max_j, double **similarity,
 			  int *map_i2j, int * map_j2i, double * aln_score);
 
 # define MAX_DIST_TO_CONSIDER 9.0
 
-/********************************/
-int postprocess (Descr *descr1, Protein * protein1, Representation *rep1, 
-		 Descr *descr2, Protein * protein2, Representation *rep2, 
-                 Map *map, Score * score ){
+int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1, 
+		    Descr *descr2, Protein * protein2, Representation *rep2, 
+		    List_of_maps *list, Score *score) {
+    
+    /* for now,  we will just postprocess the  best map */
+    int best_ctr = 0;
+    int map_ctr = list->map_best[best_ctr];
+    Map *map = list->map+map_ctr;
 
     int no_res_1 = protein1->length, no_res_2= protein2->length;
     int resctr1, resctr2;
@@ -123,8 +128,9 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
 	memcpy (tmp,  element->end_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
 	element_1_end_pdb[element_ctr_1] = atoi (tmp);
     }
-   for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
-	printf ("orig  %3d  %3d  %3d \n", element_ctr_1 , element_1_begin_pdb[element_ctr_1], element_1_end_pdb[element_ctr_1]);
+    for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
+	printf ("orig  %3d  %3d  %3d \n", element_ctr_1 ,
+		element_1_begin_pdb[element_ctr_1], element_1_end_pdb[element_ctr_1]);
     }
 
 
@@ -160,7 +166,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
 	if ( num_pdb_id == element_1_begin_pdb[element_ctr_1] ) {
 	    element_1_begin [element_ctr_1] = resctr1;
 	}
-	/* also if there is some diagreement about where the first element starts: */
+	/* also if there is some disagreement about where the first element starts: */
 	if ( ! resctr1 && num_pdb_id >= element_1_begin_pdb[element_ctr_1] ) {
 	    element_1_begin [element_ctr_1] = resctr1;
 	}
@@ -527,27 +533,7 @@ int postprocess (Descr *descr1, Protein * protein1, Representation *rep1,
     quat_to_R (q, R);
  
     
-# ifdef DEBUG
-    printf ("in postp function: rmsd %8.4lf \n", rmsd );
-
-    printf ("size  %4d  %4d\n", no_res_1, no_res_2);
-    printf ("residue-level map: \n");
-    for (resctr1=0; resctr1<no_res_1; resctr1++) {
-	find_Calpha ( protein1, resctr1, ca1 );
-	point_rot_tr (ca1, R, T, rotated_ca1);
-
-	resctr2 = residue_map_i2j[resctr1];
-
-	if ( resctr2 < 0 ) continue;
-	
-	if (find_Calpha (protein2, resctr2,  ca2)) continue;
-
-	d = two_point_distance (rotated_ca1, ca2);
-	printf ("%3d --> %3d   %8.4lf  %8.4lf    \n", resctr1, resctr2, d, similarity[resctr1][resctr2] );
-   }
-    exit (1);
-# endif
-    
+   
     aln_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
     map_size  = alignment_size (residue_map_i2j, protein1->length);		
 
@@ -973,70 +959,4 @@ int find_Calpha ( Protein *protein, int  resctr, double ca[3] ){
     return 0;
 
 }
-
-/************************************************************/
-/************************************************************/
-
-
-
-# if 0
-    printf ("protein1 length: %d \n",no_res_1);
-    descr_out (stdout, descr1);
-    for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
-	printf ("SSE %2d begins at %3d(%s)   ends at %3d (%s) \n",
-		element_ctr_1,
-		element_1_begin [element_ctr_1], protein1->sequence[element_1_begin [element_ctr_1]].pdb_id,
-		element_1_end [element_ctr_1], protein1->sequence[element_1_end [element_ctr_1]].pdb_id);
-	
-    }
-    printf ("protein2 length: %d \n",no_res_2);
-    descr_out (stdout, descr2);
-    for (element_ctr_2=0; element_ctr_2 < descr2->no_of_elements; element_ctr_2++) {
-	printf ("SSE %2d begins at %3d(%s)   ends at %3d (%s) \n",
-		element_ctr_2,
-		element_2_begin [element_ctr_2], protein2->sequence[element_2_begin [element_ctr_2]].pdb_id,
-		element_2_end [element_ctr_2], protein2->sequence[element_2_end [element_ctr_2]].pdb_id);
-	
-    }
-
-    return 0;
-
-    for (resctr1=0; resctr1< no_res_1; resctr1++) {
-	printf (" %d  type %d \n", resctr1+1, type_1[resctr1]);
-    }
-    for (resctr2=0; resctr2< no_res_2; resctr2++) {
-	printf (" %d  type %d \n", resctr2+1, type_2[resctr2] );
-    }
-    exit (1);
-# endif
- 
-	
-# if 0
-	/* 	printf (" %4d: %5.2lf %5.2lf %5.2lf   %4d: %5.2lf %5.2lf %5.2lf  %8.2lf \n", */
-/* 			resctr1, rotated_ca1[0], rotated_ca1[1],  rotated_ca1[2], */
-/* 			resctr2, ca2[0], ca2[1], ca2[2], */
-/* 			d); */
-
-
-	d = 0;
-	for (i=0; i<3; i++) {
-	    aux = rotated_tr[i] - rep2->translation[element_ctr_2][i];
-	    d += aux*aux;
-	}
-
-
-	printf ("elmts %2d--> %2d, cm distance= %6.2lf \n",
-		element_ctr_1+1, element_ctr_2+1, sqrt(d));
-# if 0
-    for ( i =0; i < 3; i++ ) {
-	for ( j =0; j < 3; j++ ) {
-	    printf ("%8.3lf ",  R[i][j]);
-	}
-	printf ("%8.3lf \n", T[i]);
-    }
-    printf ("alignment score extended: %8.2f,   map size: %d,  rmsd: %8.2f\n\n", aln_score, map_size, rmsd);
-# endif
-
-# endif
-
 

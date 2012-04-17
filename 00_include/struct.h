@@ -190,6 +190,19 @@ typedef struct {
     
 } Map;
 
+
+typedef struct {
+
+    Map * map;
+    int map_max;
+    int best_max;
+    int *map_best;
+    int NX_allocated;
+    int NY_allocated;
+
+} List_of_maps;
+
+
 typedef struct {
     double total_assigned_score;
     double fraction_assigned;
@@ -246,12 +259,15 @@ extern double exp_table [TABLE_SIZE];
 /* function declarations :    */
 /******************************/
 
-int check_gap_lengths  (Map * map, double *gap_score );
-int check_input_type (FILE *fptr);
-int close_digest (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
-int complement_match (Representation* X_rep, Representation* Y_rep,
-		      Map * map, int map_max,
-		      int * map_ctr, int * map_best, int best_max, int parent_map);
+int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
+		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep,
+		    List_of_maps *list, Score *score);
+int check_gap_lengths (Map * map, double *gap_score );
+int check_input_type  (FILE *fptr);
+int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
+int compare_descr     (Descr *descr1, Descr *descr2, List_of_maps *list, Score *score);
+int complement_match  (Representation* X_rep, Representation* Y_rep, Map * map, int map_max,
+		       int * map_ctr, int * map_best, int best_max, int parent_map);
 int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 				 Map *map );
 int descr_init ( Descr * description);
@@ -280,11 +296,13 @@ int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, 
 int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
+int list_alloc (List_of_maps * list, int NX, int NY);
+int list_shutdown (List_of_maps * list);
 double lookup ( double alpha, double beta);
 int map_assigned_score ( Representation *X_rep,  Map* map);
 int map_complementarity (Map *map1,Map *map2,  double *z);
 int map_consistence ( int NX, int NY, Map *map1, Map *map2,
-		     double *total_ptr, double * gap_score, FILE *fptr);
+		     double *total_ptr, double * gap_score);
 int mat_out (double A[4][4], char *name);
 int mat_mult (double new [4][4], double  A[4][4], double  B[4][4]);
 int mat_sum (double sum[4][4], double  new_term[4][4]);
@@ -292,17 +310,11 @@ int mat_diag ( double B[4][4], double eval[4], double evect[4][4] );
 int mat_exp (double expB[4][4], double B[4][4]);
 int match_length (int N, int *x2y);
 int multiply (double *quat1, double *quat2_in,
-		int conjugate,  double *product);
+	      int conjugate,  double *product);
 int needleman_wunsch (int max_i, int max_j, double **distance,
 		      int *map_i2j, int * map_j2i, double *aln_score);
-
-
 int normalized_cross (double *x, double *y, double * v, double *norm_ptr);
 int output (FILE * fptr,char *name, char chain,  Protein * protein);
-int postprocess (Descr *descr1, Protein * structure1, Representation *rep1, 
-		 Descr *descr2, Protein * structure2, Representation *rep2, 
-		 Map *map, Score * score);
-
 int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	       Protein *protein1, Protein *protein2,  int tab);
     
@@ -331,7 +343,8 @@ int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, doubl
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
 int write_digest(Descr *qry_descr, Descr *tgt_descr, FILE * digest, Score * score);
-
+int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list);
+int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr);
 int find_Calpha (Protein *protein, int  resctr, double ca[3] );
 double two_point_distance (double point1[3], double point2[3]);
 int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3]); 

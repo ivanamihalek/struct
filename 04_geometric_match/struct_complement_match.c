@@ -314,16 +314,13 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     /******************************************************/
     /* look for the sub-map of a couple of best hits      */
     /******************************************************/
-    /* initialization:*/
-    
-    map_consistence ( NX, NY, NULL, NULL, NULL, NULL, NULL); 
+     
     
     best_ctr = 0;
     while (  map_best[best_ctr] >  -1 ) {
 	best_ctr ++;
     }
 
-    //exit (1);
     
     if (best_ctr) {
 	int nr_maps = (best_ctr<options.number_maps_cpl)?
@@ -356,7 +353,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 		map_complementarity ( map+best_i, map + map_best[j], &z);
 			
 		map_consistence ( NX, NY, map+best_i, map + map_best[j],
-				  &total_assigned_score, &gap_score, NULL);
+				  &total_assigned_score, &gap_score);
 		consistent = ( (map+best_i)->assigned_score < total_assigned_score
 			       && (map + map_best[j])->assigned_score
 			       < total_assigned_score);

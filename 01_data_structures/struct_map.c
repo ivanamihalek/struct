@@ -38,6 +38,43 @@ int free_map (Map *map) {
 
     return 0;
 }
+/*********************************************************************/  
+int list_alloc (List_of_maps * list, int NX, int NY) {
+    
+    int map_ctr;
+    
+    list->map_max   = MAP_MAX*9;
+    list->best_max  = MAP_MAX;
+    
+    list->map = emalloc (list->map_max*sizeof(Map) );/* TODO is this enough? */
+    if ( !list->map) return 1;
+    
+    list->map_best    = emalloc (list->map_max*sizeof(int));
+    if (!list->map_best) return 1;
+    
+    list->NX_allocated = NX;
+    list->NY_allocated = NY;
+    for ( map_ctr= 0; map_ctr<list->map_max; map_ctr++) {
+	if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
+    }
+
+    return 0;
+}
+    
+/*********************************************************************/  
+int list_shutdown (List_of_maps * list) {
+    
+    if ( !list || ! list->map ) return 0;
+    int map_ctr;
+    for ( map_ctr= 0; map_ctr< list->map_max; map_ctr++) {
+	if ( free_map(list->map+map_ctr) ) return 1;
+    }
+    free (list->map_best);
+    free (list->map);
+    list->map = NULL;
+	
+    return 0;
+}
 
 /********************************/
 /********************************/
@@ -810,19 +847,17 @@ int map_complementarity (Map *map1, Map *map2,  double *z) {
 /********************************/
 /********************************/
 int map_consistence (  int NX, int NY,  Map *map1, Map *map2,
-		       double *total_ptr,  double *gap_score, FILE *fptr) {
+		       double *total_ptr,  double *gap_score) {
     int i,j;
     double val1, val2;
     double total = 0;
     double aln_score;
-    static Map combined_map = {0};
+    Map combined_map = {0};
 
 
-    if ( !map1  || !map2) { /* intialize and return */
-	if ( combined_map.x2y ) free_map (&combined_map);
-	if (NX && NY) if ( initialize_map (&combined_map, NX, NY) ) exit (1);
-	return 0;
-    }
+    if ( initialize_map (&combined_map, NX, NY) ) return 1;
+
+    
     if (!NX) NX = map1->x2y_size; /* TODO: rename */
     if (!NY) NY = map1->y2x_size; /* TODO: rename */
     
@@ -858,36 +893,11 @@ int map_consistence (  int NX, int NY,  Map *map1, Map *map2,
 	}
 	combined_map.assigned_score = total;
     }
-    //if (gap_score) check_gap_lengths (&combined_map, gap_score);
-    /* find z-score for each map separately */
-    
-     
-    if (fptr) {
-	fprintf (fptr," map 1 matches %d \n", map1->matches );
-	fprintf (fptr," map 2 matches %d \n", map2->matches );
-	fprintf (fptr," combined  matches %d \n", combined_map.matches);
-	if (gap_score) 
-	fprintf (fptr," gap score %8.3lf\n", *gap_score);
-	print_map (fptr, &combined_map, NULL, NULL,  NULL, NULL, 0);
-	
-	if (0) {
-	    fprintf (fptr,"image:\n");
-	    for (i=0; i<NX; i++) {
-		for (j=0; j<NY; j++) {
-		    if (  combined_map.image[i][j] < -9 ) {
-			fprintf (fptr,"%6s ", "  X  " );
-		    } else {
-			fprintf (fptr,"%6.2lf ", combined_map.image[i][j]);
-		    }
-		}
-		fprintf (fptr,"\n");
-	    }
-	    fprintf (fptr,"aln score: %6.2lf\n", aln_score);
-	}
-	
-    }
     /* pass NULL for total_ptr  if I don't need it */
-    if (total_ptr) *total_ptr =   combined_map.assigned_score ; 
+    if (total_ptr) *total_ptr =   combined_map.assigned_score ;
+    
+    free_map (&combined_map);
+    
     return  0;
 }
 /***************************************/

@@ -325,3 +325,17 @@ double qnorm (double *quat) {
     }
     return sqrt(norm);
 }
+double quat_rmsd (double parent_map_q[4], double  current_map_q[4]) {
+    
+    double rmsd = 0.0;
+    double aux;
+    int i;
+
+    for (i=0; i<4; i++) {
+	aux   = parent_map_q[i] - current_map_q[i];
+	rmsd += aux*aux;
+    }
+    rmsd /= 4;
+    
+    return sqrt(rmsd);
+}

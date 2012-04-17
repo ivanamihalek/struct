@@ -54,13 +54,31 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
 
 /* output for a human reader (in verbose option)*/
 
+int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list) {
+
+    int map_ctr;
+    int best_ctr = 0;
+    int recursive_map_out (Map * map, int map_ctr, Descr * descr1, Descr * descr2, 
+			   Protein *protein1, Protein *protein2, int depth);
+    
+    while (best_ctr< options.number_maps_out  && best_ctr < list->map_max
+	   &&  (map_ctr = list->map_best[best_ctr]) > -1  
+	   &&  list->map[map_ctr].z_score < options.z_max_out) {
+	recursive_map_out (list->map, map_ctr, descr1, descr2, NULL, NULL, 0);
+	best_ctr++;
+    }
+
+    return 0;
+}
+
+/************************************************/
 int recursive_map_out (Map * map, int map_ctr, 
 		       Descr * descr1, Descr * descr2,
 		       Protein *protein1, Protein *protein2,
 		       int depth) {
     
     int ctr;
- 
+    
     if ( ! depth) {
 	printf ("####################################\n");
 	printf ("**  %s   %s ", descr1->name, descr2->name);
