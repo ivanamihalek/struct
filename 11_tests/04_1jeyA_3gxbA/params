@@ -46,12 +46,4 @@ use_endgap
 min_no_SSEs 4
 
 
-
-
-
 postp
-pdbf_tgt 3gxbA.pdb
-chain_tgt A
-pdbf_qry  1jeyA.pdb
-chain_qry A
-verbose

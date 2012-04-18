@@ -9,17 +9,20 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
     
     /* for now,  we will just postprocess the  best map */
     int best_ctr = 0;
-    int map_ctr = list->map_best[best_ctr];
+    int map_ctr  = list->map_best[best_ctr];
     double ** R;
     char filename[MEDSTRING] = {'\0'};
     Map *map = list->map+map_ctr;
     Residue * sequence_new = emalloc (tgt_protein->length*sizeof(Residue));
     if (!sequence_new) return 1;
     
-    if ( ! (R=dmatrix(3,3) ) ) return 1; /* compiler is bugging me otherwise */
+    if (!(R=dmatrix(3,3))) return 1; /* compiler is bugging me otherwise */
    
     quat_to_R (map->q, R);
 
+    /* copy the overall info about types, number of atoms etc from the original sequence*/ 
+    memcpy (sequence_new, tgt_protein->sequence, tgt_protein->length*sizeof(Residue));
+    /* trnasform the coordinates */ 
     transform_pdb (R, map->T, tgt_protein->sequence, tgt_protein->length, sequence_new);
 
     sprintf (filename, "%s.rot_onto_%s.pdb", tgt_descr->name, qry_descr->name);

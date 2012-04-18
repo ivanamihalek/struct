@@ -174,14 +174,6 @@ int read_cmd_file (char *filename) {
     }
     fclose (fptr);
     
-    /* if we are doing the postprocessing there should
-       be two pdbfiles specified */
-    if ( options.postprocess && (!options.pdbf_tgt[0] || !options.pdbf_qry[0]) ) {
-	fprintf (log, "postp option should be accompanied by two pdb file names\n");
-	fprintf (log,"(options pdbf1 and pdbf2, followed by the full path).\n");
-	return 1;
-    }
-
     
     return 0;
 }

@@ -5,8 +5,6 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
 			      Representation *X_rep, Representation *Y_rep, int depth) {
     
     static FILE * fptr = NULL;
-    int print_map_for_postproc (FILE *fptr,  Map * map,
-				Representation *X_rep, Representation *Y_rep);
     int print_transformation (FILE* fptr, Map * map, int depth);
 
     if ( ! depth) {
@@ -17,15 +15,7 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
 	fptr  = efopen (outname, "w");
 	if ( !fptr) exit (1);
 
-	//fprintf (fptr, "map");
-	if (map[map_ctr].submatch_best && map[map_ctr].submatch_best[0]) {
-	    //fprintf (fptr, " with submap");
-	}
-	//fprintf (fptr, "\n");
-    } else {
-	//fprintf (fptr, "submap");
-    }
-    //print_map_for_postproc (fptr,  map+map_ctr, X_rep, Y_rep);
+    } 
     print_transformation   (fptr,  map+map_ctr, depth);
 
 			  
@@ -35,7 +25,7 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
 	sub_best_ctr = 0;
 	while (  (sub_map_ctr = map[map_ctr].submatch_best[sub_best_ctr] ) > -1 ) {
 	    if ( depth < 1 )  {/* TODO this is only two submaps*/
-		rec_map_out_for_postproc ( map, sub_map_ctr, X_rep, Y_rep, depth+1); 
+		rec_map_out_for_postproc (map, sub_map_ctr, X_rep, Y_rep, depth+1); 
 	    }
 	    sub_best_ctr ++;
 	    if (sub_best_ctr==1) break; /*TODO check this cutoff out --output only the best */
@@ -48,9 +38,9 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
     return 0;
     
 }
-/************************************************/
-/************************************************/
-/************************************************/
+/************************************************************************************/
+/************************************************************************************/
+/************************************************************************************/
 
 /* output for a human reader (in verbose option)*/
 
@@ -71,7 +61,7 @@ int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list) {
     return 0;
 }
 
-/************************************************/
+/************************************************************************************/
 int recursive_map_out (Map * map, int map_ctr, 
 		       Descr * descr1, Descr * descr2,
 		       Protein *protein1, Protein *protein2,
@@ -134,9 +124,9 @@ int print_transformation (FILE* fptr, Map * map, int depth){
     
 }
 
-/************************************************/
-/************************************************/
-/************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
 int print_transformation_0 (FILE* fptr, Map * map, int depth){
 
     double **R;
@@ -156,9 +146,9 @@ int print_transformation_0 (FILE* fptr, Map * map, int depth){
     
 }
 
-/************************************************/
-/************************************************/
-/************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
 int print_map_for_postproc (FILE *fptr, Map * map,
 			    Representation *X_rep,  Representation *Y_rep) {
     
@@ -208,9 +198,10 @@ int print_map_for_postproc (FILE *fptr, Map * map,
     
     return 0;
 }
-/************************************************/
-/************************************************/
-/************************************************/
+
+/*********************************************************************************/
+/*********************************************************************************/
+/*********************************************************************************/
 int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	       Protein * protein1, Protein *protein2, int tab) {
     
@@ -261,7 +252,7 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
     //print_transformation   (fptr,  map, 0);
 
     /* output the alignment */
-    if (options.postprocess) {
+    if (options.postprocess && protein1 && protein2) {
 	
 	int pos, last_pos, chunk;
 	int last_mapped_x, last_mapped_y;
@@ -272,14 +263,8 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	int format_almt_line (Protein * protein, int * aligned_residues,
 			      int first_pos, int last_pos, int chunk_size, char ret_str[]);
 	
-	if ( !protein1 || ! protein2 ) {
-	    fprintf (stderr, "From print_map(): postprocessing without structure (?).\n");
-	    return 1;
-	}
 	if ( !(aligned_seq_x= emalloc ( (protein1->length + protein2->length)*sizeof(int)))) return 1;
 	if ( !(aligned_seq_y= emalloc ( (protein1->length + protein2->length)*sizeof(int)))) return 1;
-	
-
 	
 	last_mapped_x = map->x2y_residue_l_size-1;
 	while (last_mapped_x>=0 && map->x2y_residue_level[last_mapped_x] < 0 ) last_mapped_x--;
@@ -288,35 +273,6 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	last_mapped_y = map->y2x_residue_l_size-1;
 	while (last_mapped_y>=0 && map->y2x_residue_level[last_mapped_y] < 0 ) last_mapped_y--;
 	last_mapped_y++;
-    
-# if 0 
-	for (i=0; i<map->x2y_residue_l_size; i++) {
-	    j = map->x2y_residue_level[i];
-	    /* looks like I've switched the two around someplace */
-	    printf ("**  %2d  %3s %2c ", i, protein2->sequence[i].pdb_id, 
-		    protein2->sequence[i].res_type_short);
-	    if ( j >= 0 ) {
-		printf ("**  %2d  %3s  %2c ", j, protein2->sequence[j].pdb_id,
-			protein1->sequence[j].res_type_short);
-	    }
-
-	    printf ("\n");
-	}
-
-	for (j=0; j<map->y2x_residue_l_size; j++) {
-	    i = map->y2x_residue_level[j];
-	    /* looks like I've switched the two around someplace */
-	    printf ("**  %2d  %3s %2c ", j, protein2->sequence[j].pdb_id, 
-		    protein2->sequence[j].res_type_short);
-	    if ( i >= 0 ) {
-		printf ("**  %2d  %3s  %2c ", i, protein2->sequence[i].pdb_id,
-			protein1->sequence[i].res_type_short);
-	    }
-
-	    printf ("\n");
-	}
-	exit (1);
-# endif
     
 	
 	first_mapped_x = -1;
@@ -345,14 +301,6 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 
 
 
-
-# if 0	    
-	printf ("first mapped x: %d\n", first_mapped_x);
-	printf ("first mapped y: %d\n", first_mapped_y);
-	printf ("last  mapped x: %d\n", last_mapped_x);
-	printf ("last  mapped y: %d\n", last_mapped_y);
-# endif	
-	
 	i=first_mapped_x; j=first_mapped_y; pos = 0;
 	while (i<map->x2y_residue_l_size ||  j<map->y2x_residue_l_size) {
 	    

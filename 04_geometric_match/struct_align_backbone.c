@@ -128,10 +128,6 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 	memcpy (tmp,  element->end_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
 	element_1_end_pdb[element_ctr_1] = atoi (tmp);
     }
-    for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
-	printf ("orig  %3d  %3d  %3d \n", element_ctr_1 ,
-		element_1_begin_pdb[element_ctr_1], element_1_end_pdb[element_ctr_1]);
-    }
 
 
     for (element_ctr_2=0; element_ctr_2 < descr2->no_of_elements; element_ctr_2++) {

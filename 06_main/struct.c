@@ -11,7 +11,7 @@ int main ( int argc, char * argv[]) {
     char *tgt_filename = NULL, *qry_filename = NULL, *cmd_filename = NULL;
     int retval, qry_done, tgt_done;
     int db_ctr, db_effective_ctr;
-    int tgt_input_type, qry_input_type;
+    int tgt_input_type = 0, qry_input_type = 0;
     clock_t CPU_time_begin, CPU_time_end;
     FILE *qry_fptr    = NULL, *tgt_fptr = NULL, *digest = NULL;
     Protein qry_structure = {0};
@@ -47,8 +47,6 @@ int main ( int argc, char * argv[]) {
     if (cmd_filename && read_cmd_file(cmd_filename))  return 1;
 
    
-    
-    /**********************************************************************/
     /* check if the tgt file is  present and readable; open               */
     if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) return 1;
     /* figure out whether we have a pdb or db input:                      */
@@ -61,7 +59,8 @@ int main ( int argc, char * argv[]) {
     if ( tgt_input_type==PDB) {
 	improvize_name (tgt_filename, tgt_chain, tgt_descr.name);
     }
-
+    
+    /**********************************************************************/
     /* the same for the qry file, but may not be necessary if we are      */
     /* preprocessing only                                                 */
     if ( qry_filename) {
@@ -74,8 +73,13 @@ int main ( int argc, char * argv[]) {
 	if ( qry_input_type==PDB) {
 	    improvize_name (qry_filename, qry_chain, qry_descr.name);
 	}
+	if (options.postprocess) {
+	    if (tgt_input_type != PDB  ||  qry_input_type != PDB) {
+		fprintf ( stderr, "Both input files must be PDB to do the postprocessing.\n");
+		exit (1);
+	    }
+	}
     }
-
 
     if (options.preproc_only) {
 	/*************************************************************/
@@ -129,7 +133,6 @@ int main ( int argc, char * argv[]) {
 		qry_done = 1;
 		continue;
 	    }
-	    descr_out (NULL, &qry_descr);
 
 	    /*******************************/
 	    /* loop over target  database :*/
@@ -149,7 +152,6 @@ int main ( int argc, char * argv[]) {
 		    tgt_done = 1;
 		    continue;
 		} 
-		descr_out (NULL, &tgt_descr);
 
 		/* min number of elements */
 		int helix_overlap =
@@ -171,7 +173,7 @@ int main ( int argc, char * argv[]) {
 		    /*  here is the core: comparison of reduced representations  */
 		    retval = compare_reduced_reps ( &tgt_rep, &qry_rep, &list, &score);
 		    if (retval) { /* this might be printf (rather than fprintf)
-				     bcs perl has a problem interceptign stderr */
+				     bcs perl has a problem intercepting stderr */
 			printf (" error comparing   db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 			exit (retval);
@@ -203,8 +205,8 @@ int main ( int argc, char * argv[]) {
 	close_digest(CPU_time_begin, CPU_time_end, digest);
  
 	if (options.verbose ) {
-	    printf ("\n\nlooked at %d db entries.\n",
-		 db_effective_ctr);
+	    printf ("\n\nlooked at %d db entries.\n", db_effective_ctr);
+	    printf ("CPU:  %10.3lf s\n", (double)(CPU_time_end-CPU_time_begin)/CLOCKS_PER_SEC );
 	    printf ("the output written to %s.\n\n", options.outname);
 	}
 	
