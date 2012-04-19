@@ -52,8 +52,8 @@ typedef struct {
     double tol;           /* ? */
     double z_max_store;   /* z-score cutoff to store a map */
     double z_max_out;     /* z-score cutoff for map output  */
-    double F_guess_max;   /* max  value of F for an intial guess    */
-    double F_eff_max;     /* max  value of F after gradient descent */
+    double F_guess_max;   /* max value of F for an intial guess    */
+    double F_eff_max;     /* max value of F after gradient descent */
     double z_max_corr;    /* max value of z for which two maps are */
 			  /* considered correlated */
     double z_min_compl;   /* min value of z for which two maps are */
@@ -64,16 +64,18 @@ typedef struct {
     double gap_open;      /* gap penalties for the pairwise alignment */
     double gap_extend;
     double endgap;
-    
-    double far_away_cosine; /* minimum cosine for F_effective estimate*/
-
+    double threshold_distance; /* the max distance for exhaustive search
+				  for init triple of SSEs */
+    double far_away_cosine;    /* minimum cosine for F_effective estimate */
     double H_length_mismatch_tol; /* tolerance for the difference in length
 				     in matched helices */
     double S_length_mismatch_tol; /* tolerance for the difference in length
 				     in matched strands */
     
     int min_no_SSEs;      /* min number of SSEs we are willing to consider as a hit */
-    int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch */
+    int exhaustive;       /* try all SSE triples (within the threshold (above)
+			     instead of consecutive only            */
+    int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */
     int number_maps_cpl;  /* number of top scoring maps among which to   */
@@ -82,7 +84,6 @@ typedef struct {
     int grad_max_step;    /* max number of steps in  gradient descent */
     int exp_table_size;   /* size of the lookup table for the exp funcion */
     int verbose;          /* toggles verbose output */
-    int use_perp;         /* use direction perp to beta sheet? */
     int use_length;       /* use length of SSEs in the structure matching */
     int print_header;     /* print header in the short output file  */
     int report_no_sse_overlap; /*produce short output line even when
@@ -299,9 +300,9 @@ int input  (FILE * fptr, Descr * description);
 int list_alloc (List_of_maps * list, int NX, int NY);
 int list_shutdown (List_of_maps * list);
 double lookup ( double alpha, double beta);
-int map_assigned_score ( Representation *X_rep,  Map* map);
-int map_complementarity (Map *map1,Map *map2,  double *z);
-int map_consistence ( int NX, int NY, Map *map1, Map *map2,
+int map_assigned_score (Representation *X_rep,  Map* map);
+int map_complementarity (Map *map1, Map *map2, double *z);
+int map_consistence (int NX, int NY, Map *combined_map, Map *map1, Map *map2,
 		     double *total_ptr, double * gap_score);
 int mat_out (double A[4][4], char *name);
 int mat_mult (double new [4][4], double  A[4][4], double  B[4][4]);
@@ -342,6 +343,7 @@ int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, doubl
 
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
+int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list);
 int write_digest(Descr *qry_descr, Descr *tgt_descr, FILE * digest, Score * score);
 int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list);
 int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr);

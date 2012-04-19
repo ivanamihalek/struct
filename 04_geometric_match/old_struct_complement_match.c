@@ -1,25 +1,14 @@
 # include "struct.h"
-# include "sys/time.h"
 
 # define  TOP_RMSD 30
 # define  BAD_RMSD 10.0
 # define JACKFRUIT 8
 
-
-int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-				  double **best_quat);
-   
-int find_best_triples_greedy(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-			     double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-			     double **best_quat);
-
-
 /****************************************/
 int complement_match (Representation* X_rep, Representation* Y_rep,
 		      Map * map, int map_max,
 		      int * map_ctr, int * map_best, int best_max, int parent_map){
-	
+			
     Penalty_parametrization penalty_params; /* for SW */
     double **x    = X_rep->full;
     int * x_type  = X_rep->full_type;
@@ -30,7 +19,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     
     double F_effective = 0.0;
     double F_current;
-    double q[4] = {0.0};
+    double q[4] = {0.0}, q_init[4] = {0.0};
     double **x_rotated = NULL;
     double **tr_x_rotated = NULL;
     double **R;
@@ -42,12 +31,12 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
     int *x_type_fudg, *y_type_fudg;
     int *anchor_x, *anchor_y, no_anchors;
-    int no_top_rmsd = TOP_RMSD;
-    int top_ctr;
+    int no_top_rmsd = TOP_RMSD, chunk;
+    int x_ctr, y_ctr, top_ctr;
     int **best_triple_x;
     int **best_triple_y;
-    int retval; 
-    int done = 0;
+    int x_triple[3], y_triple[3];
+    int retval, done = 0;
     int best_ctr;
     int i, j;
     int t;
@@ -89,8 +78,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     int store_sorted (Map * map, int NX, int NY, int *map_best, int map_max,
 		      double * z_best, int best_ctr,
 		      double z_scr, int  my_map_ctr, int *stored);
-  
-  
+    
+	    
+    
     map_best[0] = -1; /* it is the end-of-array flag */
     if ( *map_ctr >= map_max ) {
 	fprintf (stderr, "Map array undersized.\n");
@@ -116,12 +106,15 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
     penalty_params.custom_gap_penalty_x = NULL;
     penalty_params.custom_gap_penalty_y = NULL;
+    //if ( ! (penalty_params.custom_gap_penalty_x = emalloc(NX*sizeof(double) )) ) return 1; 
+    //if ( ! (penalty_params.custom_gap_penalty_y = emalloc(NY*sizeof(double) )) ) return 1; 
     /***********************/
     
     /***********************/
     /* expected quantities */
     /***********************/
     avg = avg_sq = stdev = 0.0;
+    //if (options.postprocess) {
     if (0) {
 	if (F_moments (x, x_type, NX, y, y_type, NY, alpha, &avg, &avg_sq, &stdev)) return 1;
     }
@@ -138,36 +131,78 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     penalty_params.endgap_special_treatment = options.use_endgap;
     /***********************/
 
-
     /***************************************/
-    /* find reasonable triples of SSEs      */
+    /* find reasonble triples of SSEs      */
     /* that correspond in type             */
     /*  and can be mapped onto each other  */
     /***************************************/
-    
-    if (options.exhaustive) {
-	/*
-	 * Exhaustive search for all triplets
-	 */
-	find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-				       best_triple_x, best_triple_y, best_quat);
-    } else {
-    
-	/*
-	 * Greedy search - old algorithm
-	 */
-  	find_best_triples_greedy (X_rep, Y_rep, no_top_rmsd, best_rmsd,  
-			      best_triple_x, best_triple_y, best_quat);
+    for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
+	best_rmsd[top_ctr] = BAD_RMSD+1;
+	best_triple_x[top_ctr][0] = -1;
+    }
+	
+    for (x_ctr=0; x_ctr < NX-2 && !done; x_ctr++) {
+	
+	for (y_ctr=0; y_ctr < NY-2 && !done; y_ctr++) {
+
+	    if ( y_type[y_ctr] != x_type[x_ctr] ) continue;
+	    
+	    x_triple[0] = x_ctr;
+	    y_triple[0] = y_ctr;
+	    
+	    if (find_next_triple (x, y,  x_type, y_type,
+				  NX, NY,  x_triple, y_triple) ){
+		continue;
+	    }
+
+	    if ( x_triple[1] < 0 ||  x_triple[2] < 0 ) continue;
+	    if ( y_triple[1] < 0 ||  y_triple[2] < 0 ) continue;
+
+	    /* do these three have  kind-of similar layout in space?*/
+	    /* is handedness the same? */
+	    if ( ! same_hand_triple ( X_rep, x_triple, Y_rep, y_triple, 3)) continue;
+	    
+	    /* are distances comparab;e? */
+	    if (distance_of_nearest_approach ( X_rep, x_triple,
+					       Y_rep, y_triple, 3, &rmsd)) continue;
+	    if ( rmsd > cutoff_rmsd) continue;
+	    
+	    /* find q_init that maps the two triples as well as possible*/
+	    if ( opt_quat ( x,  NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
+
+
+	    for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
+		
+		if (  rmsd <= best_rmsd[top_ctr] ) {
+			    
+		    chunk = no_top_rmsd - top_ctr -1;
+
+		    if (chunk) {
+			memmove (best_rmsd+top_ctr+1, best_rmsd+top_ctr, chunk*sizeof(double)); 
+			memmove (best_quat[top_ctr+1],
+				 best_quat[top_ctr], chunk*4*sizeof(double)); 
+			memmove (best_triple_x[top_ctr+1],
+				 best_triple_x[top_ctr], chunk*3*sizeof(int)); 
+			memmove (best_triple_y[top_ctr+1],
+				 best_triple_y[top_ctr], chunk*3*sizeof(int)); 
+		    }
+		    best_rmsd[top_ctr] = rmsd;
+		    memcpy (best_quat[top_ctr], q_init, 4*sizeof(double)); 
+		    memcpy (best_triple_x[top_ctr], x_triple, 3*sizeof(int)); 
+		    memcpy (best_triple_y[top_ctr], y_triple, 3*sizeof(int)); 
+		    break;
+		}
+	    }
+	    
+	}
     }
 
-    
 
     /*********************************************/
     /*   main loop                               */
     /*********************************************/
-    for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
-
-
+    for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
+	
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
 	quat_to_R (best_quat[top_ctr], R);
@@ -178,12 +213,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
 	/* find map which uses the 2 triples as anchors */
 	no_anchors = 3;
-
-
 	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + (*map_ctr),
 		   best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
-	
 	x2y = ( map + (*map_ctr) ) ->x2y;
 	map_unstable  = 0;
 	for (t=0; t<3; t++ ) {
@@ -191,12 +223,14 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 		map_unstable = 1;
 	    }
 	}
-	if ( map_unstable) continue;
+	if (map_unstable) continue;
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
 		      Y_rep, best_triple_y[top_ctr],  3,  map + (*map_ctr), cutoff_rmsd );
 	
+	//printf ("map after culling by dna:\n");
+	//print_map (stdout, map+ (*map_ctr), NULL, NULL,  NULL, NULL, 1);
 
 	/* monte that optimizes the aligned vectors only */
 	for (i=0; i<NX; i++) {
@@ -220,14 +254,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
 
 	if ( opt_quat ( x,  NX, anchor_x, y, NY, anchor_y, no_anchors, q, &rmsd)) continue;
-
-
 	
 	retval = monte_carlo ( alpha,  x, x_type_fudg, NX,
 			       y,  y_type_fudg, NY, q, &F_current);
-
-
-
 	if (retval) return retval;
 
 	
@@ -241,6 +270,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	store_image (X_rep, Y_rep, R,  alpha, map + (*map_ctr));
 	map_assigned_score ( X_rep, map + (*map_ctr));
 
+	//printf ("map  %2d  assigned score:   %8.3lf      z_score: %8.3lf \n\n",
+	//	*map_ctr+1, (map + (*map_ctr)) -> assigned_score, z_scr);
+
 
         /*   store the map that passed all the filters down to here*/
 	my_map_ctr = *map_ctr;
@@ -253,6 +285,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	memcpy ( map[my_map_ctr].q, q, 4*sizeof(double) );
 		
 	/* recalculate the assigned score*/
+
+	
+	//if (top_ctr==24) exit (1);
 
 	/************************/
 	/* store sorted         */
@@ -272,82 +307,68 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	     < options.tol )  done = 1;
 
 
-
-
     }
-
-
+    map_best[best_ctr] = -1;
+  
     
     /******************************************************/
     /* look for the sub-map of a couple of best hits      */
-    /* if the requested number of complementary maps to   */
-    /* to output is zero, then do not go in here          */
     /******************************************************/
-    if (options.number_maps_out) { 
-	/* initialization:*/
-
-	Map combined_map = {0};
-	if (NX && NY) if ( initialize_map (&combined_map, NX, NY) ) exit (1);
+     
     
-  
-	map_best[best_ctr] = -1;
-  
-	best_ctr = 0;
-	while (  map_best[best_ctr] >  -1 ) {
-	    best_ctr ++;
-	}
+    best_ctr = 0;
+    while (  map_best[best_ctr] >  -1 ) {
+	best_ctr ++;
+    }
 
     
-	if ( best_ctr) {
-	    int nr_maps = (best_ctr<options.number_maps_cpl)?
-		best_ctr : options.number_maps_cpl;
-	    int best_i;
-	    int consistent;
-	    double z;
-	    double total_assigned_score, score, best_score = -100;
-	    double gap_score;
+    if (best_ctr) {
+	int nr_maps = (best_ctr<options.number_maps_cpl)?
+	    best_ctr : options.number_maps_cpl;
+	int best_i;
+	int consistent;
+	double z;
+	double total_assigned_score, score, best_score = -100;
+	double gap_score;
 
-	    for (i=0; i<nr_maps; i++) { /* look for the complement */
-		best_i =  map_best[i];
+	for (i=0; i<nr_maps; i++) { /* look for the complement */
+	    best_i =  map_best[i];
 	    
-		/*intialize the (list of) submatch map(s) */
-		if ( !map[best_i].submatch_best) {
-		    /* for now look for a single map only */
-		    /* TODO - would it be worth any to look at more maps?*/ 
-		    int map_max = 1;
-		    map[best_i].submatch_best = emalloc (map_max*sizeof(int) );
-		    if (! map[best_i].submatch_best) return 1;
-		}
-		map[best_i].submatch_best[0]    = -1;
-		map[best_i].score_with_children =  0;
-		map[best_i].compl_z_score       =  0;
+	    /*intialize the (list of) submatch map(s) */
+	    if ( !map[best_i].submatch_best) {
+		/* for now look for a single map only */
+		/* TODO - would it be worth any to look at more maps?*/ 
+		int map_max = 1;
+		map[best_i].submatch_best = emalloc (map_max*sizeof(int) );
+		if (! map[best_i].submatch_best) return 1;
+	    }
+	    map[best_i].submatch_best[0]    = -1;
+	    map[best_i].score_with_children =  0;
+	    map[best_i].compl_z_score       =  0;
 	    
-		for (j=0; j<best_ctr; j++) {
+	    for (j=0; j<best_ctr; j++) {
 
-		    if (i==j) continue;
+		if (i==j) continue;
 		
-		    map_complementarity ( map+best_i, map + map_best[j], &z);
-
-		    map_consistence (NX, NY, &combined_map, map+best_i, map + map_best[j],
-				     &total_assigned_score, &gap_score);
-		    consistent = ( (map+best_i)->assigned_score < total_assigned_score
-				   && (map + map_best[j])->assigned_score
-				   < total_assigned_score);
-		    if ( consistent ) {
-			score = total_assigned_score;
-			if (  score > best_score ) {
-			    best_score = score;
-			    map[best_i].submatch_best[0] = map_best[j];
-			    map[best_i].score_with_children = total_assigned_score;
-			    map[best_i].compl_z_score = z;
-			}
+		map_complementarity ( map+best_i, map + map_best[j], &z);
+			
+		map_consistence ( NX, NY, map+best_i, map + map_best[j],
+				  &total_assigned_score, &gap_score);
+		consistent = ( (map+best_i)->assigned_score < total_assigned_score
+			       && (map + map_best[j])->assigned_score
+			       < total_assigned_score);
+		if ( consistent ) {
+		    score = total_assigned_score;
+		    if (  score > best_score ) {
+			best_score = score;
+			map[best_i].submatch_best[0] = map_best[j];
+			map[best_i].score_with_children = total_assigned_score;
+			map[best_i].compl_z_score = z;
 		    }
 		}
-
 	    }
+
 	}
-    
-	free_map (&combined_map);
     }
     
     /**********************/
@@ -369,8 +390,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     if (penalty_params.custom_gap_penalty_x) free (penalty_params.custom_gap_penalty_x);
     if (penalty_params.custom_gap_penalty_y) free (penalty_params.custom_gap_penalty_y);
     /*********************/
-
-
     
     return 0;
 }
@@ -551,7 +570,6 @@ int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
 }
 
 /**********************************************************/
-
 int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directions_x,
 	       Representation * Y_rep, int *set_of_directions_y,
 	       int set_size,  double * rmsd_ptr) {
@@ -596,13 +614,6 @@ int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directio
 	    aux   = distance_x-distance_y;
 	    rmsd += aux*aux;
 	    norm ++;
-# if 0
-	    printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-		    set_of_directions_x[a], set_of_directions_x[b], 
-		    set_of_directions_y[a], set_of_directions_y[b]); 
-	    printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-		    distance_x,  distance_y, fabs (distance_x-distance_y));
-# endif
 	}
 	
     }
@@ -704,12 +715,7 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 	}
 
 	rmsd /= norm;
-	rmsd = sqrt(rmsd);
-
-# if 0
-	printf ("%2d  %2d : rmsd %8.3lf\n", i+1, j+1, rmsd);
-# endif
-	
+	rmsd = sqrt(rmsd);	
 
 	/* if rmsd is bigger than the cutoff, lose this from the mapping */
 	if ( rmsd > cutoff_rmsd) {
@@ -836,280 +842,4 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
 }
 
 /************************************/
-
 /************************************/
-
-
-/***************************************/
-/* find reasonable triples of SSEs      */
-/* that correspond in type             */
-/*  and can be mapped onto each other  */
-/***************************************/
-
-/**
- * 
- * @param X_rep
- * @param Y_rep
- * @param no_top_rmsd
- * @param best_rmsd
- * @param best_triple_x
- * @param best_triple_y
- * @param best_quat
- * @return 
- */
-
-int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-        double **best_quat) {
-
-    int top_ctr, i, j, k, l, m, n;
-    double **x = X_rep->full;
-    int * x_type = X_rep->full_type;
-    int NX = X_rep->N_full;
-    double **y = Y_rep->full;
-    int * y_type = Y_rep->full_type;
-    int NY = Y_rep->N_full;
-    int x_triple[3], y_triple[3];
-    int chunk;
-    double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
-    double rmsd;
-    double q_init[4] = {0.0};
-    double ** cmx = X_rep->cm;
-    double ** cmy = Y_rep->cm;
-    double threashold_dist = options.threshold_distance;
-
-    printf (" exhaust \n");
-
-    /***************************************/
-    /* find reasonable triples of SSEs      */
-    /* that correspond in type             */
-    /*  and can be mapped onto each other  */
-    /***************************************/
-    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-        best_rmsd[top_ctr] = BAD_RMSD + 1;
-        best_triple_x[top_ctr][0] = -1;
-    }
-
-    /*
-     * Exhaustive search through a 6D space - ugly code
-     */
-
-    for (i = 0; i < NX - 2; ++i) {
-        x_triple[0] = i;
-        for (j = 0; j < NY - 2; ++j) {
-            if (x_type[i] != y_type[j]) continue;
-            y_triple[0] = j;
-            for (k = i + 1; k < NX -1 ; ++k) {
-                if (two_point_distance(cmx[i],cmx[k]) > threashold_dist) continue;
-                x_triple[1] = k;
-                for (l = j + 1; l < NY -1 ; ++l) {
-                    if (x_type[k] != y_type[l]) continue;
-                    if (two_point_distance(cmy[j],cmy[l]) > threashold_dist) continue;
-                    y_triple[1] = l;
-                    for (m = k + 1; m < NX; ++m) {
-                        if (two_point_distance(cmx[i],cmx[m]) > threashold_dist) continue;
-                        if (two_point_distance(cmx[k],cmx[m]) > threashold_dist) continue;
-                        x_triple[2] = m;
-                        for (n = l + 1; n < NY; ++n) {
-                            if (two_point_distance(cmy[j],cmy[n]) > threashold_dist) continue;
-                            if (two_point_distance(cmy[l],cmy[n]) > threashold_dist) continue;
-                            if (x_type[m] != y_type[n]) continue;
-                            y_triple[2] = n;
-                            
-                            if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
-
-			    if (distance_of_nearest_approach(X_rep, x_triple,
-                                    Y_rep, y_triple, 3, &rmsd)) continue;
-                            
-                            if (rmsd > cutoff_rmsd) continue;
-
-                            if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
-                               for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-
-                                if (rmsd <= best_rmsd[top_ctr]) {
-
-                                    chunk = no_top_rmsd - top_ctr - 1;
-
-                                    if (chunk) {
-                                        memmove(best_rmsd + top_ctr + 1, best_rmsd + top_ctr, chunk * sizeof (double));
-                                        memmove(best_quat[top_ctr + 1],
-                                                best_quat[top_ctr], chunk * 4 * sizeof (double));
-                                        memmove(best_triple_x[top_ctr + 1],
-                                                best_triple_x[top_ctr], chunk * 3 * sizeof (int));
-                                        memmove(best_triple_y[top_ctr + 1],
-                                                best_triple_y[top_ctr], chunk * 3 * sizeof (int));
-                                    }
-                                    best_rmsd[top_ctr] = rmsd;
-                                    memcpy(best_quat[top_ctr], q_init, 4 * sizeof (double));
-                                    memcpy(best_triple_x[top_ctr], x_triple, 3 * sizeof (int));
-                                    memcpy(best_triple_y[top_ctr], y_triple, 3 * sizeof (int));
-                                    
-                                    break;
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    return 0;
-
-}
-
-int find_best_triples_greedy(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-        double **best_quat) {
-
-    int x_ctr, y_ctr, top_ctr;
-    double **x = X_rep->full;
-    int * x_type = X_rep->full_type;
-    int NX = X_rep->N_full;
-    double **y = Y_rep->full;
-    int * y_type = Y_rep->full_type;
-    int NY = Y_rep->N_full;
-    int x_triple[3], y_triple[3];
-    int chunk;
-    double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
-    double rmsd;
-    double q_init[4] = {0.0};
-    int done = 0;
-
-    /***************************************/
-    /* find reasonable triples of SSEs      */
-    /* that correspond in type             */
-    /*  and can be mapped onto each other  */
-    /***************************************/
-
-    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-        best_rmsd[top_ctr] = BAD_RMSD + 1;
-        best_triple_x[top_ctr][0] = -1;
-    }
-
-
-
-
-    for (x_ctr = 0; x_ctr < NX - 2 && !done; x_ctr++) {
-
-        for (y_ctr = 0; y_ctr < NY - 2 && !done; y_ctr++) {
-
-            if (y_type[y_ctr] != x_type[x_ctr]) continue;
-
-            x_triple[0] = x_ctr;
-            y_triple[0] = y_ctr;
-
-            if (find_next_triple(x, y, x_type, y_type,
-                    NX, NY, x_triple, y_triple)) {
-                continue;
-            }
-
-            if (x_triple[1] < 0 || x_triple[2] < 0) continue;
-            if (y_triple[1] < 0 || y_triple[2] < 0) continue;
-
-            // do these three have  kind-of similar layout in space?
-            // is handedness the same? 
-            if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
-
-            // are distances comparab;e? 
-            if (distance_of_nearest_approach(X_rep, x_triple,
-                    Y_rep, y_triple, 3, &rmsd)) continue;
-            if (rmsd > cutoff_rmsd) continue;
-
-            // find q_init that maps the two triples as well as possible
-            if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
-
-            for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-
-                if (rmsd <= best_rmsd[top_ctr]) {
-
-                    chunk = no_top_rmsd - top_ctr - 1;
-
-                    if (chunk) {
-                        memmove(best_rmsd + top_ctr + 1, best_rmsd + top_ctr, chunk * sizeof (double));
-                        memmove(best_quat[top_ctr + 1],
-                                best_quat[top_ctr], chunk * 4 * sizeof (double));
-                        memmove(best_triple_x[top_ctr + 1],
-                                best_triple_x[top_ctr], chunk * 3 * sizeof (int));
-                        memmove(best_triple_y[top_ctr + 1],
-                                best_triple_y[top_ctr], chunk * 3 * sizeof (int));
-                    }
-                    best_rmsd[top_ctr] = rmsd;
-                    memcpy(best_quat[top_ctr], q_init, 4 * sizeof (double));
-                    memcpy(best_triple_x[top_ctr], x_triple, 3 * sizeof (int));
-                    memcpy(best_triple_y[top_ctr], y_triple, 3 * sizeof (int));
-
-                    break;
-                }
-            }
-
-        }
-    }
-    return 0;
-}
-
-
-int find_submaps(int NX, int NY, Map * map, int * map_best){
-
-    Map combined_map = {0};
-    if (NX && NY) if ( initialize_map (&combined_map, NX, NY) ) exit (1);
-    int i, j;
-    int best_ctr = 0;
-   
-    while (  map_best[best_ctr] >  -1 ) {
-	best_ctr ++;
-    }
-
-    
-    if (best_ctr) {
-	int nr_maps = (best_ctr<options.number_maps_cpl)?
-	    best_ctr : options.number_maps_cpl;
-	int best_i;
-	int consistent;
-	double z;
-	double total_assigned_score, score, best_score = -100;
-	double gap_score;
-
-	for (i=0; i<nr_maps; i++) { /* look for the complement */
-	    best_i =  map_best[i];
-	    
-	    /*intialize the (list of) submatch map(s) */
-	    if ( !map[best_i].submatch_best) {
-		/* for now look for a single map only */
-		/* TODO - would it be worth any to look at more maps?*/ 
-		int map_max = 1;
-		map[best_i].submatch_best = emalloc (map_max*sizeof(int) );
-		if (! map[best_i].submatch_best) return 1;
-	    }
-	    map[best_i].submatch_best[0]    = -1;
-	    map[best_i].score_with_children =  0;
-	    map[best_i].compl_z_score       =  0;
-	    
-	    for (j=0; j<best_ctr; j++) {
-
-		if (i==j) continue;
-		
-		map_complementarity (map+best_i, map + map_best[j], &z);
-			
-		map_consistence (NX, NY, &combined_map, map+best_i, map + map_best[j],
-				 &total_assigned_score, &gap_score);
-		consistent = ((map+best_i)->assigned_score < total_assigned_score
-			      && (map + map_best[j])->assigned_score < total_assigned_score);
-		if ( consistent ) {
-		    score = total_assigned_score;
-		    if (  score > best_score ) {
-			best_score = score;
-			map[best_i].submatch_best[0] = map_best[j];
-			map[best_i].score_with_children = total_assigned_score;
-			map[best_i].compl_z_score = z;
-		    }
-		}
-	    }
-
-	}
-    }
-    
-    free_map (&combined_map);
-    return 0;
-}

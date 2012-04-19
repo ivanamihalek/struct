@@ -20,6 +20,7 @@ int initialize_map (Map *map, int NX, int NY ) {
 
     return 0;
 }
+
 /********************************/
 int free_map (Map *map) {
 
@@ -846,18 +847,13 @@ int map_complementarity (Map *map1, Map *map2,  double *z) {
 /********************************/
 /********************************/
 /********************************/
-int map_consistence (  int NX, int NY,  Map *map1, Map *map2,
+int map_consistence (  int NX, int NY, Map * combined_map, Map *map1, Map *map2,
 		       double *total_ptr,  double *gap_score) {
     int i,j;
     double val1, val2;
     double total = 0;
     double aln_score;
-    Map combined_map = {0};
 
-
-    if ( initialize_map (&combined_map, NX, NY) ) return 1;
-
-    
     if (!NX) NX = map1->x2y_size; /* TODO: rename */
     if (!NY) NY = map1->y2x_size; /* TODO: rename */
     
@@ -867,36 +863,34 @@ int map_consistence (  int NX, int NY,  Map *map1, Map *map2,
 	    val2 =  map2->image[i][j];
 
 	    if ( val1 > val2) {
-		combined_map.image[i][j]  = val1;
-		combined_map.cosine[i][j] = map1->cosine[i][j];
+		combined_map->image[i][j]  = val1;
+		combined_map->cosine[i][j] = map1->cosine[i][j];
 	    } else {
-		combined_map.image[i][j]  = val2;
-		combined_map.cosine[i][j] = map2->cosine[i][j];
+		combined_map->image[i][j]  = val2;
+		combined_map->cosine[i][j] = map2->cosine[i][j];
 	    }
 	}
     }
       
 
     /* Needleman on combined image */
-    needleman_wunsch (NX, NY, combined_map.image,
-		      combined_map.x2y,  combined_map.y2x, &aln_score );
+    needleman_wunsch (NX, NY, combined_map->image,
+		      combined_map->x2y,  combined_map->y2x, &aln_score );
     /* how do lengths compare? */
-    combined_map.matches = match_length (NX, combined_map.x2y);
+    combined_map->matches = match_length (NX, combined_map->x2y);
 
-    if ( ! combined_map.matches ) {
-	combined_map.assigned_score = 0.0;
+    if ( ! combined_map->matches ) {
+	combined_map->assigned_score = 0.0;
     } else {
 	for (i=0; i<NX; i++) {
-	    j = combined_map.x2y[i];
+	    j = combined_map->x2y[i];
 	    if (j<0) continue;
-	    total += combined_map.image[i][j];
+	    total += combined_map->image[i][j];
 	}
-	combined_map.assigned_score = total;
+	combined_map->assigned_score = total;
     }
     /* pass NULL for total_ptr  if I don't need it */
-    if (total_ptr) *total_ptr =   combined_map.assigned_score ;
-    
-    free_map (&combined_map);
+    if (total_ptr) *total_ptr = combined_map->assigned_score;
     
     return  0;
 }

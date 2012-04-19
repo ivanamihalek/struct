@@ -52,3 +52,4 @@ min_no_SSEs 4
 postp
 
 verbose
+exhaustive

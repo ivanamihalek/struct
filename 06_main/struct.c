@@ -82,10 +82,10 @@ int main ( int argc, char * argv[]) {
     }
 
     if (options.preproc_only) {
-	/*************************************************************/
-	/*************************************************************/
-	/*************************************************************/
-	/* preprocessing only :                                      */
+	/***********************************************************************/
+	/***********************************************************************/
+	/***********************************************************************/
+	/* preprocessing only :                                                */
 	tgt_done = 0;
 	db_ctr   = 0;
 	while ( ! tgt_done) {
@@ -115,10 +115,10 @@ int main ( int argc, char * argv[]) {
 	/* initialize the digest file: concise report on the comparison scores */
 	/*   for each pair of the structures we are looking at                 */
 	init_digest (&qry_descr, &tgt_descr, &digest);
- 	/*************************************************************/
-	/*************************************************************/
-	/*************************************************************/
-	/* compare pairs from tgt and qry lists :                    */
+ 	/***********************************************************************/
+	/***********************************************************************/
+	/***********************************************************************/
+	/* compare pairs from tgt and qry lists :                              */
 	list_alloc (&list, INIT_ALLOC_NO_VECS, INIT_ALLOC_NO_VECS);
 	qry_done = 0;
 	retval = -1;
@@ -326,24 +326,27 @@ int set_default_options () {
 	= 0.0;
     options.endgap
 	= 0.0;
+    options.threshold_distance
+	= 15.0;
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
         = 0.8;
     options.grid_size     /* minimal number of points for the sphere grid */
 	= 400;
     options.number_maps_cpl /* number of top scoring maps among which to   */
                             /* look for a complement */ 
-	= 10;
+	= 0;
     options.number_maps_out /* number of top scoring maps to output     */
-	= 5;
+	= 0;
     options.grad_max_step   /* max number of steps in  gradient descent */
 	= 100;
     options.exp_table_size  /* size of the lookup table for the exp funcion */
 	= TABLE_SIZE;       /* note: changing exp table size not implemented */
+
+    options.exhaustive     = 0; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
-    options.use_perp = 0;
     
-    options.verbose = 0;
-    options.print_header = 0;
+    options.verbose        = 0;
+    options.print_header   = 0;
     options.report_no_sse_overlap = 0;
     
     /* penalizing the length mismatch */

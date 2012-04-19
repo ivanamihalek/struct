@@ -1,7 +1,7 @@
 # include "struct.h"
 
 /* how many vars of each type need to be read in: */
-# define DOUBLES 17
+# define DOUBLES 18
 # define INTS    6
 # define STRINGS 4
 # define CHARACTERS 2
@@ -24,7 +24,9 @@ int read_cmd_file (char *filename) {
 	&(options.z_max_corr),  &(options.z_min_compl), 
 	&(options.grad_step_size), &(options.grad_stop_tol),
 	&(options.far_far_away),  &(options.gap_open),
-	&(options.gap_extend) , &(options.endgap),  &(options.far_away_cosine),
+	&(options.gap_extend) , &(options.endgap),
+	&(options.threshold_distance),
+	&(options.far_away_cosine),
 	&(options.H_length_mismatch_tol), &(options.H_length_mismatch_tol)};
     char * names_of_doubles[DOUBLES] = {
 	"merge_cosine",
@@ -33,7 +35,8 @@ int read_cmd_file (char *filename) {
 	"z_max_corr", "z_min_compl",
 	"grad_step_size", "grad_stop_tol",
 	"far_far_away",  "gap_open",   
-	"gap_extend", "endgap",  "far_away_cosine", "h_tol", "s_tol"};
+	"gap_extend", "endgap", "threshold_distance", 
+	"far_away_cosine", "h_tol", "s_tol"};
     
     int * ptrs_to_ints[INTS] = {
 	&(options.grid_size), &(options.number_maps_cpl),
@@ -129,20 +132,8 @@ int read_cmd_file (char *filename) {
 	}
 
 	/* some hacking for switches */ 
-	if ( ! token_assigned  &&  !strcmp (token[0], "verbose")  ) {
-	    options.verbose = 1;
-	    token_assigned  = 1;
-	}
 
-	if ( ! token_assigned  &&  !strcmp (token[0], "smith")  ) {
-	    options.smith_waterman = 1;
-	    token_assigned = 1;
-	}
 
-	if ( ! token_assigned  &&  !strcmp (token[0], "perp")  ) {
-	    options.use_perp = 1;
-	    token_assigned = 1;
-	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "length")  ) {
 	    options.use_length = 1;
 	    token_assigned = 1;
@@ -151,18 +142,31 @@ int read_cmd_file (char *filename) {
 	    options.print_header = 1;
 	    token_assigned = 1;
 	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "postp")  ) {
+	    options.postprocess = 1;
+	    token_assigned = 1;
+	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "report_no_sse_overlap")  ) {
 	    options.report_no_sse_overlap = 1;
+	    token_assigned = 1;
+	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "smith")  ) {
+	    options.smith_waterman = 1;
 	    token_assigned = 1;
 	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "use_endgap")  ) {
 	    options.use_endgap = 1;
 	    token_assigned = 1;
 	}
-	if ( ! token_assigned  &&  !strcmp (token[0], "postp")  ) {
-	    options.postprocess = 1;
+	if ( ! token_assigned  &&  !strcmp (token[0], "verbose")  ) {
+	    options.verbose = 1;
+	    token_assigned  = 1;
+	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "exhaustive")  ) {
+	    options.exhaustive = 1;
 	    token_assigned = 1;
 	}
+
 
 	
 	if ( ! token_assigned){
