@@ -186,9 +186,10 @@ int main ( int argc, char * argv[]) {
 		    }
 
 		    if (options.postprocess) {
-			align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
-					&qry_descr, &qry_structure, &qry_rep, &list, &score);
-			write_tfmd_pdb (&tgt_structure, &list, &tgt_descr, &qry_descr);
+			align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
+					 &qry_descr, &qry_structure, &qry_rep, &list, &score);
+			write_tfmd_pdb  (&tgt_structure, &list, &tgt_descr, &qry_descr);
+			write_alignment (&tgt_structure, &qry_structure, &list);
 		    }
 		    
 		    rep_shutdown (&tgt_rep);
