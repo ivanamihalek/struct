@@ -103,16 +103,10 @@ int calculate_neighbors_distances(Protein *protein, Neighbors * neighbors) {
     for(i = length - 4; i < length; ++i) {
         return_missing_data_distances(&neighbors[i]);
     }
-/*
-    
-    for (i = 0; i < length; ++i) {
-        printf("%lf\t%lf\t%lf\n", neighbors[i].dist2, neighbors[i].dist3, neighbors[i].dist4);
-        
-    }
-*/
     
     return 0;
 }
+
 
 /**
  *  Function that changes structure types to 'C' if the number of consecutive upstream structures ('H' or 'E')
@@ -235,20 +229,32 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
         .count_min = 3,
         .weight_thr = 2
     };
+    Ideal_struct ideal_310 = {
+        .struct_type = 'H',
+        .ideal_rec = {5.14, 6, 8.63},
+        .count_min = 3,
+        .weight_thr = 2
+    };
     
     
     for (i=0; i < length; ++i) {
-        if (neighbors[i].dist2 == MISSING_DATA) continue;
+        if (neighbors[i].dist2 == MISSING_DATA ) continue;
         is_struct = is_regular_struct(neighbors +i, &ideal_helix);
         if (is_struct) {
             protein->sequence[i].belongs_to_helix = 1;
             continue;
         }
+        is_struct = is_regular_struct(neighbors +i, &ideal_310);
+        if (is_struct) {
+            protein->sequence[i].belongs_to_helix = 1;
+            continue;
+        }
+        
         is_struct = is_regular_struct(neighbors +i, &ideal_strand);
         if (is_struct) {
             protein->sequence[i].belongs_to_strand = 1;
+            continue;
         }
-        
     }
     
     clean_short_structures(&ideal_helix, &ideal_strand, protein);
@@ -307,7 +313,7 @@ int structure2sse (Protein *protein) {
         return 1;
     }
     calculate_neighbors_distances(protein, neighbors);
-    
+
     determine_sec_structure(neighbors, protein);
     free(neighbors);
     enumerate_structures(protein);
@@ -315,8 +321,6 @@ int structure2sse (Protein *protein) {
     
     /* fill protein->sequence[resctr].belongs_to_helix or
        protein->sequence[resctr].belongs_to_strand */
-
-    
     
     return 0;
 }

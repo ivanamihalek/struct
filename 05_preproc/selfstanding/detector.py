@@ -5,6 +5,7 @@ from Bio.PDB.PDBParser import PDBParser
 # parameters
 pattern_vector_alpha = [5.43, 5.05, 6.20]
 pattern_vector_beta = [6.2, 9.5, 12.4]
+pattern_vector_310 = [5.14, 6, 8.63]
 alpha_count_min = 4
 beta_count_min = 3
 
@@ -107,6 +108,22 @@ def find_alpha(distances, sec_structures):
             sec_structures[rec[0]][1] = "H"
 
 ####################################################
+# function that finds 310 helicies and in accordance 
+# chain the secondary structure values for particular residue.
+# Values are stored in sec_structures dictionary
+####################################################
+
+def find_310(distances, sec_structures):
+    threshold = 1.8
+    for rec in distances:
+        if (rec[1] == None):
+            continue
+        if distance(rec[1:len(rec)+1], pattern_vector_310) < threshold:
+            sec_structures[rec[0]][1] = "H"
+
+
+
+####################################################
 # function that returns a dictionary of the secundary structures
 # - key - residue number
 # - value a list of (chain_id, secondary_structure, coordinates)
@@ -122,6 +139,7 @@ def find_ss(distances, coord_list):
         
     find_alpha(distances, sec_structures)
     find_beta(distances, sec_structures)
+#    find_310(distances, sec_structures)
     clean_short_structures(sec_structures)
     return sec_structures
 
