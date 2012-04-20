@@ -1,25 +1,3 @@
-/*
-This source code is part of deconSTRUCT,
-protein structure database search and backbone alignment application.
-Written by Ivana Mihalek, with contributions from Mile Sikic.
-Copyright (C) 2012 Ivana Mihalek.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
-
-Contact: ivana.mihalek@gmail.com.
-*/
-
 # include "struct.h"
 
 Options options;
@@ -141,7 +119,6 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* compare pairs from tgt and qry lists :                              */
-	list_alloc (&list, INIT_ALLOC_NO_VECS, INIT_ALLOC_NO_VECS);
 	qry_done = 0;
 	retval = -1;
 	db_effective_ctr = 0;
@@ -208,10 +185,16 @@ int main ( int argc, char * argv[]) {
 		    }
 
 		    if (options.postprocess) {
-			align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
+			retval = align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
 					 &qry_descr, &qry_structure, &qry_rep, &list, &score);
+			if (  retval) {
+			    printf (" error doing bb alignment   db:%s  query:%s \n",
+				    tgt_descr.name, qry_descr.name);
+			    exit (retval);
+			}
 			write_tfmd_pdb  (&tgt_structure, &list, &tgt_descr, &qry_descr);
 			write_alignment (&tgt_structure, &qry_structure, &list);
+			
 		    }
 		    
 		    rep_shutdown (&tgt_rep);

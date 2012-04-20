@@ -1,25 +1,3 @@
-/*
-This source code is part of deconSTRUCT,
-protein structure database search and backbone alignment application.
-Written by Ivana Mihalek, with contributions from Mile Sikic.
-Copyright (C) 2012 Ivana Mihalek.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
-
-Contact: ivana.mihalek@gmail.com.
-*/
-
 # include "struct.h"
 # include "sys/time.h"
 
@@ -898,7 +876,7 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
     double q_init[4] = {0.0};
     double ** cmx = X_rep->cm;
     double ** cmy = Y_rep->cm;
-    double threashold_dist = options.threshold_distance;
+    double threshold_dist = options.threshold_distance;
 
     printf (" exhaust \n");
 
@@ -922,19 +900,19 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
             if (x_type[i] != y_type[j]) continue;
             y_triple[0] = j;
             for (k = i + 1; k < NX -1 ; ++k) {
-                if (two_point_distance(cmx[i],cmx[k]) > threashold_dist) continue;
+                if (two_point_distance(cmx[i],cmx[k]) > threshold_dist) continue;
                 x_triple[1] = k;
                 for (l = j + 1; l < NY -1 ; ++l) {
                     if (x_type[k] != y_type[l]) continue;
-                    if (two_point_distance(cmy[j],cmy[l]) > threashold_dist) continue;
+                    if (two_point_distance(cmy[j],cmy[l]) > threshold_dist) continue;
                     y_triple[1] = l;
                     for (m = k + 1; m < NX; ++m) {
-                        if (two_point_distance(cmx[i],cmx[m]) > threashold_dist) continue;
-                        if (two_point_distance(cmx[k],cmx[m]) > threashold_dist) continue;
+                        if (two_point_distance(cmx[i],cmx[m]) > threshold_dist) continue;
+                        if (two_point_distance(cmx[k],cmx[m]) > threshold_dist) continue;
                         x_triple[2] = m;
                         for (n = l + 1; n < NY; ++n) {
-                            if (two_point_distance(cmy[j],cmy[n]) > threashold_dist) continue;
-                            if (two_point_distance(cmy[l],cmy[n]) > threashold_dist) continue;
+                            if (two_point_distance(cmy[j],cmy[n]) > threshold_dist) continue;
+                            if (two_point_distance(cmy[l],cmy[n]) > threshold_dist) continue;
                             if (x_type[m] != y_type[n]) continue;
                             y_triple[2] = n;
                             

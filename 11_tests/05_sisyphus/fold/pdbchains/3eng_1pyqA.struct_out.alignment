@@ -1,0 +1,21 @@
+% alignment:
+%
+%   67 SRIISVNGAAAH  78 
+%  177 ADNPSF...SFR 185 
+%
+%
+% distances of the aligned Ca's:
+%
+% pdb_id_1  type_1    distance  pdb_id_2  type_2
+     67        S        5.67     177        A 
+     68        R        2.13     178        D 
+     69        I        2.48     179        N 
+     70        I        2.15     180        P 
+     71        S        2.17     181        S 
+     72        V        0.79     182        F 
+     73        N           -       -        - 
+     74        G           -       -        - 
+     75        A           -       -        - 
+     76        A        2.30     183        S 
+     77        A        1.14     184        F 
+     78        H        1.12     185        R 

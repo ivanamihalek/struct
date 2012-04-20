@@ -1,25 +1,3 @@
-/*
-This source code is part of deconSTRUCT,
-protein structure database search and backbone alignment application.
-Written by Ivana Mihalek, with contributions from Mile Sikic.
-Copyright (C) 2012 Ivana Mihalek.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
-
-Contact: ivana.mihalek@gmail.com.
-*/
-
 # include "struct.h"
 
 
@@ -382,28 +360,6 @@ int find_map ( Penalty_parametrization * penalty_params,
 	 }    
     }
 
-# if 0	
-    /* for F effective, go back to the compact rep */
-    F_eff = 0;
-    for (i_rep=0; i_rep<X_rep->N_compact; i_rep++ ) {
-	for (ctr=1; ctr <= X_rep->represents[i_rep][0]; ctr++) {
-	    i = X_rep->represents[i_rep][ctr];
-	    j = map->x2y[i];
-	    
-	    if ( j<0) continue;
-	    
-	    /* get rid of small cosines here (x2y is coming from SW or NW)
-	       it can call something mapped even if the cosine is poor */
-	    if ( map->cosine[i][j] < options.far_away_cosine) {
-		map->x2y[i] = -1; 
-		//map->y2x[j] = -1; /*everything crashes; investigate later */
-	    } else {
-		F_eff --;
-		break; /*count only once */
-	    }
-	}
-    }
-# endif
 
     
     *F_effective = F_eff;
