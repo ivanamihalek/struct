@@ -1,3 +1,24 @@
+/*
+This source code is part of deconSTRUCT,
+protein structure database search and backbone alignment application.
+Written by Ivana Mihalek, with contributions from Mile Sikic.
+Copyright (C) 2012 Ivana Mihalek.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see<http://www.gnu.org/licenses/>.
+
+Contact: ivana.mihalek@gmail.com.
+*/
 # include "struct.h"
 
 /**************************************************************/
@@ -249,17 +270,6 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
     quat_to_R (q, R);
     current_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
 
-# ifdef DEBUG
-    int i,j;
-    
-    printf (" before MC:  total: %8.3lf   aln: %8.3lf   aln fixed: %8.3lf  \n\n",
-    		    total_score, aln_score, current_score);
-    for (i=0; i<3; i++) {
-	for (j=0; j<3; j++) fprintf (stdout,"%8.3lf ", R[i][j]);
-	fprintf (stdout,"%8.3lf  \n", T[i]);
-    }
-
-# endif
 
     /*********************************************************/
     /* fiddle iteratively with the transformation            */
@@ -570,7 +580,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 
  
      
-    return 1;
+    return 0;
 }
 
 

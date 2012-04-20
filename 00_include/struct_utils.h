@@ -35,7 +35,6 @@ Contact: ivana.mihalek@gmail.com.
 # define MEDSTRING   100
 # define SHORTSTRING  25
 
-# define INIT_ALLOC_NO_VECS 100
 
 int  cluster_counter (int  no_of_things, int **neighbors, 
 		      int *no_of_clusters, int **clusters);

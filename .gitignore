@@ -24,6 +24,7 @@ struct
 
 # Logs and databases #
 ######################
+11_tests
 *.log
 *.sql
 *.sqlite
