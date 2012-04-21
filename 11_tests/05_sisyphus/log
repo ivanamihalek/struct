@@ -1,0 +1,2346 @@
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/3eng/1iw7D.pdb -in2 pdbchains/3eng/3eng.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1efcA/1nrkA.pdb -in2 pdbchains/1efcA/1efcA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1ptf/1j5yA.pdb -in2 pdbchains/1ptf/1ptf.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1rie/1vckA.pdb -in2 pdbchains/1rie/1rie.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1rie/1zin.pdb -in2 pdbchains/1rie/1rie.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r3fA/1q7hA.pdb -in2 pdbchains/1r3fA/1r3fA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1h5pA/1oqjA.pdb -in2 pdbchains/1h5pA/1h5pA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1h5pA/1mr1C.pdb -in2 pdbchains/1h5pA/1h5pA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r5lA/1o6uA.pdb -in2 pdbchains/1r5lA/1r5lA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r5lA/1h4xA.pdb -in2 pdbchains/1r5lA/1r5lA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r5lA/1buz.pdb -in2 pdbchains/1r5lA/1r5lA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r5lA/1th8B.pdb -in2 pdbchains/1r5lA/1r5lA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1r5lA/1vc1A.pdb -in2 pdbchains/1r5lA/1r5lA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/1p8cA.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/1p8cD.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/1p8cE.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/2cwqB.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/2cwqC.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/2af7A.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/2af7C.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1kncA/2af7E.pdb -in2 pdbchains/1kncA/1kncA.pdb -p ../params.
+Error running /Users/ivana/kode/03_struct/struct -in1 pdbchains/1ie0A/1j6xA.pdb -in2 pdbchains/1ie0A/1ie0A.pdb -p ../params.
+1    41 -  46    86 -  93
+  3 -->  8     S    0.93    2.2e-01    50 -  61   100 - 107
+  4 --> 10     S    0.97    5.5e-01    65 -  69   116 - 122
+  6 --> 13     S    0.98    6.8e-01    80 -  91   178 - 188
+total assigned score   2.3719 
+
+
+looked at 1 db entries.
+CPU:       0.006 s
+the output written to 3eng_1uheA.struct_out.
+
+1eu1
+ exhaust 
+####################################
+**  1eu1A   3eng 
+map:   7      geometric z_score:  0.000 
+ 43 -->  1     S    1.00    9.1e-01   636 - 642     3 -   8
+ 45 -->  6     S    0.97    5.1e-01   665 - 670    71 -  75
+ 47 -->  7     S    0.98    6.1e-01   684 - 688    86 -  93
+ 48 -->  8     S    0.98    6.4e-01   694 - 701   100 - 107
+ 49 --> 10     S    1.00    9.9e-01   708 - 712   116 - 122
+ 53 --> 13     S    0.97    5.1e-01   759 - 763   178 - 188
+total assigned score   4.1682 
+
+
+looked at 1 db entries.
+CPU:       0.045 s
+the output written to 3eng_1eu1A.struct_out.
+
+1dms
+ exhaust 
+####################################
+**  1dms   3eng 
+map:   5      geometric z_score:  0.000 
+ 44 -->  1     S    0.99    7.4e-01   636 - 642     3 -   8
+ 48 -->  7     S    0.99    8.2e-01   684 - 688    86 -  93
+ 49 -->  8     S    0.99    8.6e-01   694 - 700   100 - 107
+ 50 --> 10     S    0.98    6.7e-01   709 - 712   116 - 122
+ 54 --> 13     S    1.00    9.1e-01   757 - 763   178 - 188
+total assigned score   4.0074 
+
+
+looked at 1 db entries.
+CPU:       0.049 s
+the output written to 3eng_1dms.struct_out.
+
+1aa6
+ exhaust 
+####################################
+**  1aa6   3eng 
+map:  13      geometric z_score:  0.000 
+ 45 -->  1     S    0.99    8.2e-01   574 - 580     3 -   8
+ 48 -->  6     S    1.00    9.3e-01   605 - 609    71 -  75
+ 50 -->  7     S    0.95    3.1e-01   623 - 628    86 -  93
+ 51 -->  8     S    0.99    8.7e-01   632 - 639   100 - 107
+ 52 --> 10     S    0.99    8.4e-01   648 - 651   116 - 122
+ 53 --> 13     S    0.97    5.4e-01   679 - 686   178 - 188
+total assigned score   4.3058 
+
+
+looked at 1 db entries.
+CPU:       0.049 s
+the output written to 3eng_1aa6.struct_out.
+
+1kqf
+ exhaust 
+####################################
+**  1kqfA   3eng 
+map:   1      geometric z_score:  0.000 
+ 49 -->  1     S    0.97    5.5e-01   889 - 895     3 -   8
+ 52 -->  6     S    0.91    1.4e-01   916 - 921    71 -  75
+ 54 -->  7     S    0.96    4.1e-01   935 - 939    86 -  93
+ 55 -->  8     S    1.00    9.7e-01   946 - 951   100 - 107
+total assigned score   2.0667 
+
+
+looked at 1 db entries.
+CPU:       0.051 s
+the output written to 3eng_1kqfA.struct_out.
+
+1h0h
+ exhaust 
+####################################
+**  1h0hA   3eng 
+map:   1      geometric z_score:  0.000 
+ 49 -->  1     S    0.99    7.2e-01   849 - 855     3 -   8
+ 52 -->  6     S    0.93    1.9e-01   878 - 883    71 -  75
+ 54 -->  7     S    0.97    5.6e-01   897 - 901    86 -  93
+ 55 -->  8     S    1.00    9.6e-01   907 - 913   100 - 107
+total assigned score   2.4362 
+
+
+looked at 1 db entries.
+CPU:       0.050 s
+the output written to 3eng_1h0hA.struct_out.
+
+1tmo
+ exhaust 
+####################################
+**  1tmo   3eng 
+map:   1      geometric z_score:  0.000 
+ 48 -->  6     S    0.94    2.8e-01   693 - 697    71 -  75
+ 49 -->  7     S    0.96    3.7e-01   705 - 710    86 -  93
+ 54 --> 10     S    1.00    1.0e+00   776 - 779   116 - 122
+total assigned score   1.6540 
+
+
+looked at 1 db entries.
+CPU:       0.043 s
+the output written to 3eng_1tmo.struct_out.
+
+1g8k
+ exhaust 
+####################################
+**  1g8kA   3eng 
+map:   2      geometric z_score:  0.000 
+ 48 -->  1     S    0.99    8.2e-01   695 - 701     3 -   8
+ 51 -->  6     S    0.96    4.1e-01   724 - 729    71 -  75
+ 53 -->  7     S    0.99    7.4e-01   742 - 747    86 -  93
+ 54 -->  8     S    0.93    2.0e-01   755 - 760   100 - 107
+ 55 --> 10     S    1.00    9.5e-01   767 - 771   116 - 122
+ 57 --> 13     S    0.95    3.1e-01   800 - 808   178 - 188
+ 58 --> 14     H    0.99    8.5e-01   810 - 814   190 - 195
+total assigned score   4.2800 
+
+
+looked at 1 db entries.
+CPU:       0.053 s
+the output written to 3eng_1g8kA.struct_out.
+
+2nap
+ exhaust 
+####################################
+**  2napA   3eng 
+map:   1      geometric z_score:  0.000 
+ 40 -->  1     S    0.97    5.5e-01   610 - 616     3 -   8
+ 43 -->  6     S    0.87    5.4e-02   639 - 644    71 -  75
+ 45 -->  7     S    0.98    5.8e-01   658 - 662    86 -  93
+ 46 -->  8     S    1.00    9.7e-01   668 - 674   100 - 107
+total assigned score   2.1554 
+
+
+looked at 1 db entries.
+CPU:       0.038 s
+the output written to 3eng_2napA.struct_out.
+
+1ogy
+ exhaust 
+####################################
+**  1ogyA   3eng 
+map:   1      geometric z_score:  0.000 
+ 44 -->  1     S    0.99    7.5e-01   687 - 691     3 -   8
+ 49 -->  7     S    1.00    9.1e-01   735 - 739    86 -  93
+ 50 -->  8     S    1.00    9.3e-01   745 - 750   100 - 107
+ 51 --> 10     S    1.00    9.7e-01   761 - 765   116 - 122
+total assigned score   3.5633 
+
+
+looked at 1 db entries.
+CPU:       0.045 s
+the output written to 3eng_1ogyA.struct_out.
+
+1q16
+ exhaust 
+####################################
+**  1q16A   3eng 
+map:   1      geometric z_score:  0.000 
+ 28 -->  6     S    1.00    9.1e-01   337 - 343    71 -  75
+ 31 -->  7     S    1.00    9.4e-01   372 - 376    86 -  93
+ 32 -->  8     S    0.99    8.6e-01   381 - 384   100 - 107
+total assigned score   2.6988 
+
+
+looked at 1 db entries.
+CPU:       0.072 s
+the output written to 3eng_1q16A.struct_out.
+
+1vlf
+ exhaust 
+####################################
+**  1vlfM   3eng 
+map:   5      geometric z_score:  0.000 
+ 54 -->  1     S    1.00    9.2e-01   731 - 737     3 -   8
+ 57 -->  7     S    1.00    9.2e-01   787 - 791    86 -  93
+ 58 -->  8     S    0.99    7.8e-01   795 - 804   100 - 107
+ 59 --> 10     S    1.00    9.8e-01   811 - 815   116 - 122
+ 60 --> 13     S    0.99    7.7e-01   862 - 866   178 - 188
+total assigned score   4.3746 
+
+
+looked at 1 db entries.
+CPU:       0.052 s
+the output written to 3eng_1vlfM.struct_out.
+
+1qcs
+ exhaust 
+####################################
+**  1qcsA   3eng 
+map:   5      geometric z_score:  0.000 
+  1 -->  1     S    0.99    8.2e-01     7 -  10     3 -   8
+  3 -->  6     S    0.98    6.1e-01    20 -  23    71 -  75
+  4 -->  7     S    0.99    7.6e-01    31 -  37    86 -  93
+  5 -->  8     S    0.96    4.5e-01    42 -  50   100 - 107
+  6 --> 10     S    1.00    9.5e-01    58 -  61   116 - 122
+  8 --> 13     S    0.99    7.4e-01    74 -  84   178 - 188
+total assigned score   4.3473 
+
+
+looked at 1 db entries.
+CPU:       0.015 s
+the output written to 3eng_1qcsA.struct_out.
+
+1cr5
+ exhaust 
+####################################
+**  1cr5A   3eng 
+map:   2      geometric z_score:  0.000 
+  2 -->  6     S    0.99    8.4e-01    43 -  46    71 -  75
+  3 -->  8     S    0.97    5.5e-01    62 -  69   100 - 107
+  4 --> 10     S    1.00    9.1e-01    77 -  80   116 - 122
+  6 --> 13     S    0.96    4.2e-01    94 - 101   178 - 188
+total assigned score   2.7243 
+
+
+looked at 1 db entries.
+CPU:       0.014 s
+the output written to 3eng_1cr5A.struct_out.
+
+1cz5
+ exhaust 
+####################################
+**  1cz5A   3eng 
+map:   6      geometric z_score:  0.000 
+  3 -->  6     S    0.99    8.3e-01    22 -  25    71 -  75
+  5 -->  7     S    1.00    9.1e-01    38 -  43    86 -  93
+  6 -->  8     S    0.90    1.0e-01    50 -  55   100 - 107
+  8 --> 10     S    0.99    8.5e-01    64 -  68   116 - 122
+ 10 --> 13     S    0.92    1.7e-01    82 -  94   178 - 188
+total assigned score   2.8508 
+
+
+looked at 1 db entries.
+CPU:       0.015 s
+the output written to 3eng_1cz5A.struct_out.
+
+1e32
+ exhaust 
+####################################
+**  1e32A   3eng 
+map:   5      geometric z_score:  0.000 
+  2 -->  6     S    1.00    9.1e-01    36 -  40    71 -  75
+  4 -->  7     S    0.99    8.4e-01    53 -  59    86 -  93
+  5 -->  8     S    0.92    1.8e-01    66 -  72   100 - 107
+  6 --> 10     S    0.99    7.2e-01    80 -  83   116 - 122
+  8 --> 13     S    0.99    7.7e-01    97 - 103   178 - 188
+total assigned score   3.4158 
+
+
+looked at 1 db entries.
+CPU:       0.029 s
+the output written to 3eng_1e32A.struct_out.
+
+1wlf
+ exhaust 
+####################################
+**  1wlfA   3eng 
+map:   1      geometric z_score:  0.000 
+  2 -->  6     S    0.98    6.2e-01    27 -  30    71 -  75
+  4 -->  7     S    0.99    7.6e-01    43 -  48    86 -  93
+  5 -->  8     S    0.96    4.3e-01    52 -  61   100 - 107
+  6 --> 10     S    0.99    8.8e-01    71 -  75   116 - 122
+  8 --> 13     S    0.98    6.8e-01    88 -  95   178 - 188
+total assigned score   3.3567 
+
+
+looked at 1 db entries.
+CPU:       0.012 s
+the output written to 3eng_1wlfA.struct_out.
+
+1iw7
+ exhaust 
+ error doing bb alignment   db:1iw7D  query:3eng 
+1twf
+ exhaust 
+####################################
+**  1twfA   3eng 
+map:   1      geometric z_score:  0.000 
+ 10 -->  6     S    1.00    9.2e-01   166 - 175    71 -  75
+ 11 -->  7     S    0.98    7.1e-01   179 - 184    86 -  93
+ 12 -->  8     S    1.00    9.1e-01   195 - 201   100 - 107
+total assigned score   2.5380 
+
+
+looked at 1 db entries.
+CPU:       0.079 s
+the output written to 3eng_1twfA.struct_out.
+
+1efc
+1b23
+ exhaust 
+####################################
+**  1b23P   1efcA 
+map:   2      geometric z_score:  0.000 
+ 18 --> 17     S    1.00    9.9e-01   218 - 224   207 - 213
+ 20 --> 18     S    1.00    9.9e-01   233 - 241   222 - 230
+ 21 --> 19     S    1.00    9.8e-01   243 - 246   232 - 235
+ 22 --> 20     S    0.99    8.2e-01   249 - 254   239 - 243
+ 23 --> 21     S    1.00    9.2e-01   260 - 266   248 - 254
+ 24 --> 22     S    1.00    9.4e-01   283 - 288   271 - 276
+ 25 --> 23     S    0.99    7.5e-01   301 - 304   288 - 292
+ 27 --> 26     S    0.99    7.6e-01   336 - 342   324 - 329
+ 28 --> 27     S    0.99    8.3e-01   346 - 354   333 - 342
+ 29 --> 28     S    0.99    8.8e-01   365 - 372   352 - 360
+ 30 --> 29     S    1.00    9.6e-01   375 - 379   363 - 367
+ 31 --> 31     S    0.99    7.9e-01   396 - 399   384 - 387
+total assigned score  10.6176 
+
+
+looked at 1 db entries.
+CPU:       0.053 s
+the output written to 1efcA_1b23P.struct_out.
+
+1exm
+ exhaust 
+####################################
+**  1exmA   1efcA 
+map:   2      geometric z_score:  0.000 
+ 18 --> 17     S    1.00    9.1e-01   218 - 224   207 - 213
+ 19 --> 18     S    1.00    9.3e-01   233 - 241   222 - 230
+ 20 --> 19     S    1.00    9.5e-01   243 - 246   232 - 235
+ 21 --> 20     S    1.00    9.9e-01   250 - 254   239 - 243
+ 22 --> 21     S    0.99    8.7e-01   260 - 266   248 - 254
+ 23 --> 22     S    1.00    9.7e-01   283 - 288   271 - 276
+ 24 --> 23     S    0.98    7.0e-01   301 - 304   288 - 292
+ 26 --> 26     S    1.00    9.6e-01   336 - 341   324 - 329
+ 27 --> 27     S    0.99    7.6e-01   345 - 354   333 - 342
+ 28 --> 28     S    1.00    9.2e-01   365 - 372   352 - 360
+ 29 --> 29     S    1.00    9.4e-01   375 - 379   363 - 367
+ 30 --> 30     S    1.00    9.2e-01   382 - 387   370 - 375
+ 31 --> 31     S    0.99    8.3e-01   396 - 399   384 - 387
+total assigned score  11.6438 
+
+
+looked at 1 db entries.
+CPU:       0.053 s
+the output written to 1efcA_1exmA.struct_out.
+
+1d2e
+ exhaust 
+####################################
+**  1d2eA   1efcA 
+map:   2      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.9e-01    55 -  63     8 -  17
+  2 -->  2     H    0.98    7.0e-01    69 -  83    23 -  35
+  3 -->  3     S    0.80    1.2e-02    86 -  89    38 -  43
+  4 -->  4     H    1.00    9.1e-01    91 -  95    45 -  49
+  5 -->  5     S    1.00    9.9e-01    96 - 100    50 -  54
+  6 -->  6     S    1.00    9.9e-01   104 - 115    58 -  69
+  7 -->  7     S    1.00    9.4e-01   119 - 126    72 -  80
+  8 -->  8     H    1.00    9.8e-01   129 - 137    83 -  91
+  9 -->  9     S    1.00    9.9e-01   145 - 150    99 - 104
+ 10 --> 10     H    1.00    9.0e-01   158 - 170   112 - 123
+ 11 --> 11     S    0.99    7.6e-01   174 - 178   128 - 132
+ 12 --> 12     H    0.99    8.3e-01   188 - 205   142 - 159
+ 13 --> 13     S    0.99    8.3e-01   212 - 217   166 - 171
+ 14 --> 14     H    0.97    4.6e-01   219 - 223   173 - 178
+ 15 --> 15     H    1.00    9.0e-01   232 - 245   181 - 197
+ 16 --> 16     S    1.00    9.2e-01   246 - 250   198 - 202
+ 17 --> 17     S    0.99    8.3e-01   255 - 261   207 - 213
+ 19 --> 20     S    0.99    8.8e-01   287 - 291   239 - 243
+ 20 --> 21     S    0.99    8.4e-01   296 - 302   248 - 254
+ 21 --> 22     S    1.00    9.9e-01   319 - 324   271 - 276
+ 22 --> 24     S    0.98    7.1e-01   345 - 348   297 - 300
+ 23 --> 25     S    1.00    9.2e-01   350 - 358   302 - 310
+ 24 --> 26     S    0.99    8.1e-01   372 - 378   324 - 329
+ 25 --> 27     S    0.97    5.7e-01   381 - 390   333 - 342
+ 26 --> 28     S    0.99    7.5e-01   401 - 408   352 - 360
+ 27 --> 30     S    1.00    9.4e-01   418 - 423   370 - 375
+ 28 --> 31     S    0.99    7.8e-01   432 - 435   384 - 387
+total assigned score  22.1443 
+
+
+looked at 1 db entries.
+CPU:       0.054 s
+the output written to 1efcA_1d2eA.struct_out.
+
+1f60
+ exhaust 
+####################################
+**  1f60A   1efcA 
+map:   3      geometric z_score:  0.000 
+  1 -->  1     S    0.97    4.6e-01     2 -  13     8 -  17
+  5 -->  7     S    1.00    9.3e-01    84 -  92    72 -  80
+ 18 --> 17     S    1.00    9.5e-01   241 - 247   207 - 213
+ 19 --> 18     S    1.00    9.7e-01   256 - 264   222 - 230
+ 20 --> 20     S    1.00    9.2e-01   273 - 276   239 - 243
+ 21 --> 21     S    0.98    6.4e-01   280 - 286   248 - 254
+ 22 --> 22     S    0.99    8.1e-01   303 - 308   271 - 276
+ 23 --> 23     S    0.99    8.4e-01   321 - 324   288 - 292
+ 24 --> 24     S    1.00    9.4e-01   329 - 333   297 - 300
+ 25 --> 25     S    1.00    9.9e-01   336 - 344   302 - 310
+ 26 --> 26     S    0.97    5.1e-01   353 - 358   324 - 329
+ 29 --> 28     S    0.99    8.3e-01   394 - 402   352 - 360
+ 30 --> 29     S    0.99    7.6e-01   405 - 410   363 - 367
+ 32 --> 31     S    0.99    8.4e-01   432 - 435   384 - 387
+total assigned score  11.3925 
+
+
+looked at 1 db entries.
+CPU:       0.051 s
+the output written to 1efcA_1f60A.struct_out.
+
+1skq
+ exhaust 
+####################################
+**  1skqA   1efcA 
+map:   4      geometric z_score:  0.000 
+  5 -->  7     S    1.00    9.5e-01    82 -  89    72 -  80
+  6 -->  8     H    0.98    6.8e-01    96 - 104    83 -  91
+  7 -->  9     S    0.96    3.9e-01   110 - 115    99 - 104
+ 10 --> 11     S    0.99    8.2e-01   145 - 149   128 - 132
+ 12 --> 13     S    0.96    4.5e-01   185 - 191   166 - 171
+ 13 --> 15     H    0.99    7.6e-01   214 - 219   181 - 197
+ 15 --> 17     S    0.99    7.8e-01   230 - 236   207 - 213
+ 16 --> 18     S    0.99    7.5e-01   245 - 253   222 - 230
+ 17 --> 20     S    1.00    9.8e-01   262 - 265   239 - 243
+ 18 --> 21     S    0.97    5.5e-01   269 - 275   248 - 254
+ 19 --> 22     S    0.98    6.5e-01   292 - 297   271 - 276
+ 20 --> 23     S    0.96    4.2e-01   309 - 313   288 - 292
+ 22 --> 25     S    0.99    7.5e-01   324 - 331   302 - 310
+ 23 --> 26     S    0.99    8.2e-01   341 - 346   324 - 329
+ 24 --> 27     S    0.96    3.7e-01   350 - 357   333 - 342
+ 25 --> 28     S    1.00    9.1e-01   382 - 390   352 - 360
+ 26 --> 29     S    0.97    5.6e-01   393 - 398   363 - 367
+ 27 --> 30     S    0.92    1.9e-01   407 - 411   370 - 375
+ 28 --> 31     S    0.99    7.6e-01   420 - 423   384 - 387
+total assigned score  12.5288 
+
+
+looked at 1 db entries.
+CPU:       0.049 s
+the output written to 1efcA_1skqA.struct_out.
+
+1kk0
+ exhaust 
+####################################
+**  1kk0A   1efcA 
+map:   3      geometric z_score:  0.000 
+  1 -->  2     H    0.99    7.4e-01    20 -  29    23 -  35
+  2 -->  4     H    0.97    4.9e-01    38 -  41    45 -  49
+  6 -->  8     H    0.89    9.7e-02    92 -  95    83 -  91
+  7 -->  9     S    1.00    9.3e-01   108 - 113    99 - 104
+  8 --> 10     H    0.99    7.5e-01   122 - 133   112 - 123
+  9 --> 11     S    1.00    9.1e-01   138 - 142   128 - 132
+ 10 --> 12     H    1.00    9.8e-01   151 - 164   142 - 159
+ 11 --> 13     S    0.96    4.0e-01   173 - 178   166 - 171
+ 12 --> 15     H    0.98    6.8e-01   184 - 196   181 - 197
+ 13 --> 16     S    0.93    2.3e-01   197 - 202   198 - 202
+total assigned score   6.1998 
+
+
+looked at 1 db entries.
+CPU:       0.035 s
+the output written to 1efcA_1kk0A.struct_out.
+
+1s0u
+ exhaust 
+####################################
+**  1s0uA   1efcA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.8e-01    37 -  41     8 -  17
+  2 -->  2     H    0.99    7.6e-01    49 -  56    23 -  35
+  6 -->  8     H    1.00    9.6e-01   119 - 128    83 -  91
+  7 -->  9     S    1.00    9.4e-01   135 - 140    99 - 104
+  8 --> 10     H    1.00    9.3e-01   149 - 160   112 - 123
+  9 --> 11     S    1.00    9.4e-01   165 - 169   128 - 132
+ 10 --> 12     H    0.99    8.9e-01   178 - 191   142 - 159
+ 11 --> 13     S    0.95    3.0e-01   200 - 204   166 - 171
+ 12 --> 15     H    1.00    9.2e-01   213 - 223   181 - 197
+ 13 --> 16     S    0.98    6.9e-01   224 - 229   198 - 202
+total assigned score   8.2996 
+
+
+looked at 1 db entries.
+CPU:       0.044 s
+the output written to 1efcA_1s0uA.struct_out.
+
+1r5b
+ exhaust 
+####################################
+**  1r5bA   1efcA 
+map:   6      geometric z_score:  0.000 
+ 14 --> 17     S    0.99    7.6e-01   466 - 472   207 - 213
+ 15 --> 18     S    0.99    8.7e-01   480 - 487   222 - 230
+ 17 --> 21     S    0.99    7.2e-01   503 - 509   248 - 254
+ 18 --> 22     S    0.99    8.2e-01   527 - 533   271 - 276
+ 19 --> 23     S    0.99    7.6e-01   544 - 547   288 - 292
+ 21 --> 25     S    1.00    9.1e-01   558 - 565   302 - 310
+ 23 --> 26     S    0.99    7.5e-01   575 - 580   324 - 329
+ 24 --> 28     S    0.97    5.6e-01   618 - 621   352 - 360
+ 25 --> 29     S    0.96    4.3e-01   626 - 631   363 - 367
+ 26 --> 31     S    1.00    9.3e-01   653 - 656   384 - 387
+total assigned score   7.5022 
+
+
+looked at 1 db entries.
+CPU:       0.044 s
+the output written to 1efcA_1r5bA.struct_out.
+
+1pj5
+ exhaust 
+####################################
+**  1pj5A   1efcA 
+map:   3      geometric z_score:  0.000 
+ 57 --> 26     S    1.00    9.1e-01   775 - 778   324 - 329
+ 58 --> 27     S    1.00    9.2e-01   784 - 791   333 - 342
+ 59 --> 30     S    0.99    7.8e-01   798 - 803   370 - 375
+ 60 --> 31     S    1.00    9.2e-01   808 - 815   384 - 387
+total assigned score   3.5259 
+
+
+looked at 1 db entries.
+CPU:       0.139 s
+the output written to 1efcA_1pj5A.struct_out.
+
+1nrk
+1wos
+ exhaust 
+####################################
+**  1wosA   1efcA 
+map:   9      geometric z_score:  0.000 
+ 23 --> 25     S    0.99    8.2e-01   278 - 285   302 - 310
+ 24 --> 26     S    0.99    8.0e-01   294 - 297   324 - 329
+ 25 --> 27     S    1.00    9.1e-01   302 - 307   333 - 342
+ 26 --> 28     S    0.99    7.6e-01   318 - 325   352 - 360
+total assigned score   3.3024 
+
+
+looked at 1 db entries.
+CPU:       0.038 s
+the output written to 1efcA_1wosA.struct_out.
+
+1vlo
+ exhaust 
+####################################
+**  1vloA   1efcA 
+map:   2      geometric z_score:  0.000 
+ 21 --> 26     S    1.00    9.9e-01   294 - 300   324 - 329
+ 22 --> 27     S    0.98    6.8e-01   304 - 310   333 - 342
+ 23 --> 28     S    0.94    2.8e-01   322 - 329   352 - 360
+ 24 --> 31     S    0.98    5.8e-01   348 - 351   384 - 387
+total assigned score   2.5324 
+
+
+looked at 1 db entries.
+CPU:       0.025 s
+the output written to 1efcA_1vloA.struct_out.
+
+1ptf
+1sph
+ exhaust 
+####################################
+**  1sphA   1ptf 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.4e-01     3 -   7     1 -   7
+  2 -->  2     H    0.98    6.9e-01    15 -  26    16 -  27
+  3 -->  4     S    1.00    9.4e-01    38 -  41    38 -  41
+  4 -->  5     H    1.00    9.9e-01    46 -  51    46 -  51
+  5 -->  6     S    1.00    9.4e-01    57 -  64    57 -  64
+  6 -->  7     H    1.00    9.6e-01    69 -  83    69 -  83
+total assigned score   5.4574 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1ptf_1sphA.struct_out.
+
+1poh
+ exhaust 
+####################################
+**  1poh   1ptf 
+map:   2      geometric z_score:  0.000 
+  1 -->  1     S    0.99    8.2e-01     1 -   7     1 -   7
+  2 -->  2     H    1.00    9.6e-01    15 -  27    16 -  27
+  3 -->  3     S    1.00    1.0e+00    30 -  34    30 -  34
+  4 -->  4     S    0.99    8.7e-01    38 -  41    38 -  41
+  5 -->  5     H    1.00    9.2e-01    46 -  51    46 -  51
+  6 -->  6     S    1.00    9.6e-01    57 -  64    57 -  64
+  7 -->  7     H    1.00    9.9e-01    69 -  81    69 -  83
+total assigned score   6.5138 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1ptf_1poh.struct_out.
+
+1pch
+ exhaust 
+####################################
+**  1pch   1ptf 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.8e-01     3 -   7     1 -   7
+  2 -->  2     H    1.00    9.6e-01    15 -  27    16 -  27
+  3 -->  3     S    0.98    6.7e-01    30 -  35    30 -  34
+  4 -->  4     S    1.00    9.5e-01    38 -  41    38 -  41
+  5 -->  5     H    1.00    9.8e-01    46 -  51    46 -  51
+  6 -->  6     S    0.99    7.7e-01    58 -  64    57 -  64
+  7 -->  7     H    1.00    9.1e-01    69 -  83    69 -  83
+total assigned score   6.2207 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1ptf_1pch.struct_out.
+
+1ka5
+ exhaust 
+####################################
+**  1ka5A   1ptf 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.6e-01     1 -   7     1 -   7
+  2 -->  2     H    0.99    8.2e-01    15 -  27    16 -  27
+  3 -->  3     S    0.99    7.7e-01    30 -  34    30 -  34
+  4 -->  5     H    1.00    9.3e-01    46 -  51    46 -  51
+  5 -->  7     H    1.00    9.4e-01    67 -  82    69 -  83
+total assigned score   4.4166 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1ptf_1ka5A.struct_out.
+
+1qr5
+ exhaust 
+####################################
+**  1qr5A   1ptf 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.2e-01     3 -   8     1 -   7
+  2 -->  2     H    0.99    8.5e-01    15 -  27    16 -  27
+  3 -->  3     S    0.99    7.6e-01    30 -  35    30 -  34
+  4 -->  4     S    1.00    9.7e-01    38 -  41    38 -  41
+  5 -->  5     H    0.98    5.9e-01    48 -  51    46 -  51
+  6 -->  6     S    1.00    9.1e-01    57 -  64    57 -  64
+  7 -->  7     H    1.00    9.4e-01    69 -  84    69 -  83
+total assigned score   5.9384 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1ptf_1qr5A.struct_out.
+
+1j5y
+1rie
+1brf
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1rie_1brfA.struct_out.
+
+1fqt
+ exhaust 
+####################################
+**  1fqtB   1rie 
+map:   2      geometric z_score:  0.000 
+  2 -->  2     S    0.99    7.5e-01    16 -  19    83 -  88
+  3 -->  3     S    1.00    9.6e-01    24 -  29    93 - 100
+  4 -->  5     S    0.99    7.5e-01    34 -  38   131 - 134
+  6 -->  8     S    1.00    1.0e+00    83 -  91   177 - 186
+total assigned score   3.4570 
+
+
+looked at 1 db entries.
+CPU:       0.006 s
+the output written to 1rie_1fqtB.struct_out.
+
+1q5w
+
+
+looked at 0 db entries.
+CPU:       0.000 s
+the output written to 1rie_1q5wA.struct_out.
+
+1vck
+ exhaust 
+ error doing bb alignment   db:1vckA  query:1rie 
+1zin
+ exhaust 
+ error doing bb alignment   db:1zin  query:1rie 
+1r3f
+1r3e
+ exhaust 
+####################################
+**  1r3eA   1r3fA 
+map:   2      geometric z_score:  0.000 
+  1 -->  1     S    0.98    6.7e-01    10 -  18     8 -  18
+  3 -->  3     S    0.99    8.6e-01    52 -  57    52 -  57
+  5 -->  6     S    1.00    9.3e-01    71 -  79    71 -  79
+  6 -->  7     S    1.00    9.1e-01    96 - 102    96 - 102
+  7 -->  8     H    0.99    7.5e-01   104 - 113   104 - 113
+ 12 --> 10     S    0.99    8.3e-01   166 - 173   165 - 173
+ 13 --> 11     H    0.99    8.2e-01   179 - 191   179 - 189
+ 14 --> 12     S    0.99    8.6e-01   192 - 196   192 - 196
+ 15 --> 13     S    0.99    8.8e-01   198 - 201   198 - 201
+ 18 --> 18     H    0.97    5.2e-01   244 - 250   257 - 265
+ 19 --> 19     S    0.95    3.4e-01   253 - 256   266 - 270
+ 21 --> 20     S    0.99    7.9e-01   271 - 276   278 - 283
+ 22 --> 21     S    0.95    3.3e-01   281 - 288   288 - 296
+total assigned score   9.5032 
+
+
+looked at 1 db entries.
+CPU:       0.024 s
+the output written to 1r3fA_1r3eA.struct_out.
+
+1sgv
+ exhaust 
+####################################
+**  1sgvA   1r3fA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    0.96    3.8e-01     5 -  12     8 -  18
+  2 -->  2     H    0.98    6.2e-01    18 -  28    24 -  34
+  3 -->  3     S    1.00    9.5e-01    46 -  51    52 -  57
+  5 -->  6     S    1.00    9.7e-01    65 -  73    71 -  79
+  6 -->  7     S    0.97    4.6e-01    90 -  93    96 - 102
+  7 -->  8     H    0.99    7.2e-01    99 - 108   104 - 113
+  9 -->  9     S    0.98    6.7e-01   151 - 155   156 - 162
+ 10 --> 10     S    0.97    4.8e-01   163 - 170   165 - 173
+ 11 --> 11     H    1.00    9.2e-01   175 - 188   179 - 189
+ 12 --> 12     S    1.00    9.5e-01   191 - 195   192 - 196
+ 13 --> 13     S    1.00    9.9e-01   197 - 200   198 - 201
+ 18 --> 19     S    0.93    1.9e-01   251 - 256   266 - 270
+ 19 --> 20     S    0.97    5.0e-01   261 - 266   278 - 283
+total assigned score   8.8060 
+
+
+looked at 1 db entries.
+CPU:       0.021 s
+the output written to 1r3fA_1sgvA.struct_out.
+
+1iq8
+ exhaust 
+####################################
+**  1iq8A   1r3fA 
+map:   1      geometric z_score:  0.000 
+ 42 --> 17     S    0.99    8.3e-01   507 - 511   250 - 255
+ 43 --> 18     H    1.00    9.7e-01   513 - 521   257 - 265
+ 44 --> 19     S    0.98    6.2e-01   522 - 525   266 - 270
+ 45 --> 20     S    1.00    9.2e-01   541 - 546   278 - 283
+ 46 --> 21     S    0.96    4.6e-01   550 - 558   288 - 296
+total assigned score   3.8034 
+
+
+looked at 1 db entries.
+CPU:       0.036 s
+the output written to 1r3fA_1iq8A.struct_out.
+
+1q7h
+ exhaust 
+ error doing bb alignment   db:1q7hA  query:1r3fA 
+1nxz
+ exhaust 
+####################################
+**  1nxzA   1r3fA 
+map:   3      geometric z_score:  0.000 
+  1 --> 17     S    0.99    7.7e-01     2 -   6   250 - 255
+  2 --> 19     S    0.97    5.5e-01    16 -  19   266 - 270
+  4 --> 20     S    0.92    1.6e-01    36 -  42   278 - 283
+  5 --> 21     S    0.99    7.4e-01    47 -  53   288 - 296
+total assigned score   2.2239 
+
+
+looked at 1 db entries.
+CPU:       0.016 s
+the output written to 1r3fA_1nxzA.struct_out.
+
+1vhk
+ exhaust 
+####################################
+**  1vhkA   1r3fA 
+map:   1      geometric z_score:  0.000 
+  7 --> 10     S    0.97    5.0e-01    78 -  84   165 - 173
+  8 --> 11     H    0.88    7.0e-02    91 - 101   179 - 189
+  9 --> 13     S    0.99    8.3e-01   106 - 111   198 - 201
+total assigned score   1.3983 
+
+
+looked at 1 db entries.
+CPU:       0.013 s
+the output written to 1r3fA_1vhkA.struct_out.
+
+1m8p
+ exhaust 
+####################################
+**  1m8pA   1r3fA 
+map:   2      geometric z_score:  0.000 
+  3 --> 17     S    1.00    9.8e-01    30 -  35   250 - 255
+  4 --> 18     H    0.98    6.7e-01    37 -  50   257 - 265
+  8 --> 20     S    0.99    8.4e-01   100 - 105   278 - 283
+  9 --> 21     S    0.96    4.0e-01   111 - 118   288 - 296
+total assigned score   2.8994 
+
+
+looked at 1 db entries.
+CPU:       0.035 s
+the output written to 1r3fA_1m8pA.struct_out.
+
+1g8f
+ exhaust 
+####################################
+**  1g8fA   1r3fA 
+map:   3      geometric z_score:  0.000 
+  3 --> 17     S    0.99    8.2e-01    31 -  36   250 - 255
+  4 --> 18     H    0.99    7.5e-01    38 -  51   257 - 265
+  8 --> 20     S    0.99    8.4e-01    99 - 103   278 - 283
+  9 --> 21     S    0.96    4.1e-01   109 - 116   288 - 296
+total assigned score   2.8179 
+
+
+looked at 1 db entries.
+CPU:       0.033 s
+the output written to 1r3fA_1g8fA.struct_out.
+
+1v47
+ exhaust 
+####################################
+**  1v47A   1r3fA 
+map:   1      geometric z_score:  0.000 
+  1 --> 17     S    0.98    7.1e-01     4 -   9   250 - 255
+  2 --> 18     H    1.00    9.9e-01    11 -  24   257 - 265
+  6 --> 20     S    0.99    8.3e-01    69 -  74   278 - 283
+  7 --> 21     S    0.99    8.3e-01    79 -  86   288 - 296
+total assigned score   3.3557 
+
+
+looked at 1 db entries.
+CPU:       0.020 s
+the output written to 1r3fA_1v47A.struct_out.
+
+1jhd
+ exhaust 
+####################################
+**  1jhdA   1r3fA 
+map:   3      geometric z_score:  0.000 
+  3 --> 17     S    1.00    9.8e-01    30 -  35   250 - 255
+  4 --> 18     H    0.96    3.8e-01    37 -  50   257 - 265
+  8 --> 20     S    1.00    9.9e-01    97 - 101   278 - 283
+  9 --> 21     S    0.87    5.2e-02   112 - 116   288 - 296
+total assigned score   2.3960 
+
+
+looked at 1 db entries.
+CPU:       0.024 s
+the output written to 1r3fA_1jhdA.struct_out.
+
+1h5p
+1cka
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1h5pA_1ckaA.struct_out.
+
+1aww
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1h5pA_1aww.struct_out.
+
+1gxi
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1h5pA_1gxiE.struct_out.
+
+1qkx
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1h5pA_1qkxA.struct_out.
+
+1oqj
+ exhaust 
+ error doing bb alignment   db:1oqjA  query:1h5pA 
+1mr1
+ exhaust 
+ error doing bb alignment   db:1mr1C  query:1h5pA 
+1l9l
+1m12
+ exhaust 
+####################################
+**  1m12A   1l9lA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    0.97    5.6e-01     2 -  19     1 -  16
+  2 -->  2     H    0.99    8.7e-01    24 -  36    22 -  34
+  3 -->  3     H    1.00    9.1e-01    40 -  50    38 -  48
+  4 -->  4     H    1.00    9.5e-01    54 -  63    52 -  60
+  5 -->  5     H    0.99    8.2e-01    67 -  76    65 -  68
+total assigned score   4.1106 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1l9lA_1m12A.struct_out.
+
+1of9
+ exhaust 
+####################################
+**  1of9A   1l9lA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    0.93    2.2e-01     4 -  15     1 -  16
+  3 -->  4     H    0.99    7.8e-01    40 -  50    52 -  60
+  5 -->  5     H    0.96    4.2e-01    66 -  73    65 -  68
+total assigned score   1.4118 
+
+
+looked at 1 db entries.
+CPU:       0.004 s
+the output written to 1l9lA_1of9A.struct_out.
+
+1o82
+ exhaust 
+####################################
+**  1o82A   1l9lA 
+map:   2      geometric z_score:  0.000 
+  1 -->  1     H    0.77    5.9e-03     8 -  19     1 -  16
+  2 -->  2     H    0.89    9.0e-02    24 -  33    22 -  34
+  3 -->  4     H    1.00    9.4e-01    36 -  44    52 -  60
+total assigned score   1.0408 
+
+
+looked at 1 db entries.
+CPU:       0.004 s
+the output written to 1l9lA_1o82A.struct_out.
+
+1nkl
+ exhaust 
+####################################
+**  1nkl   1l9lA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    0.98    5.8e-01     1 -  16     1 -  16
+  2 -->  2     H    1.00    9.1e-01    23 -  36    22 -  34
+  3 -->  3     H    1.00    9.1e-01    39 -  48    38 -  48
+  4 -->  4     H    0.95    3.5e-01    52 -  60    52 -  60
+  5 -->  5     H    0.98    6.2e-01    65 -  72    65 -  68
+total assigned score   3.3608 
+
+
+looked at 1 db entries.
+CPU:       0.004 s
+the output written to 1l9lA_1nkl.struct_out.
+
+1b12
+2mys
+ exhaust 
+####################################
+**  2mysA   1b12A 
+map:   1      geometric z_score:  0.000 
+ 13 -->  7     S    0.98    6.1e-01   249 - 253   152 - 156
+ 14 -->  8     S    1.00    9.1e-01   262 - 266   161 - 165
+ 26 --> 15     S    1.00    9.1e-01   456 - 467   258 - 262
+total assigned score   2.4337 
+
+
+looked at 1 db entries.
+CPU:       0.042 s
+the output written to 1b12A_2mysA.struct_out.
+
+1d0y
+ exhaust 
+####################################
+**  1d0yA   1b12A 
+map:   1      geometric z_score:  0.000 
+  3 -->  2     S    1.00    1.0e+00    31 -  36    97 - 103
+  5 -->  5     S    1.00    9.1e-01    57 -  62   128 - 133
+  6 -->  6     S    0.99    7.9e-01    66 -  71   140 - 146
+total assigned score   2.6977 
+
+
+looked at 1 db entries.
+CPU:       0.040 s
+the output written to 1b12A_1d0yA.struct_out.
+
+1qvi
+ exhaust 
+####################################
+**  1qviA   1b12A 
+map:   1      geometric z_score:  0.000 
+  3 -->  2     S    1.00    1.0e+00    31 -  36    97 - 103
+  5 -->  5     S    0.99    8.7e-01    54 -  58   128 - 133
+  6 -->  6     S    1.00    9.1e-01    63 -  68   140 - 146
+total assigned score   2.7727 
+
+
+looked at 1 db entries.
+CPU:       0.045 s
+the output written to 1b12A_1qviA.struct_out.
+
+1r5l
+1aua
+ exhaust 
+####################################
+**  1aua   1r5lA 
+map:   1      geometric z_score:  0.000 
+  2 -->  1     H    0.97    5.5e-01    30 -  46    27 -  36
+  3 -->  2     H    1.00    9.7e-01    54 -  65    48 -  59
+  4 -->  3     H    0.99    8.2e-01    68 -  84    62 -  78
+ 12 -->  9     S    0.92    1.6e-01   171 - 177   151 - 158
+total assigned score   2.4969 
+
+
+looked at 1 db entries.
+CPU:       0.015 s
+the output written to 1r5lA_1aua.struct_out.
+
+1o6u
+1h4x
+ exhaust 
+ error doing bb alignment   db:1h4xA  query:1r5lA 
+1buz
+ exhaust 
+ error doing bb alignment   db:1buz  query:1r5lA 
+1th8
+ exhaust 
+ error doing bb alignment   db:1th8B  query:1r5lA 
+1vc1
+ exhaust 
+ error doing bb alignment   db:1vc1A  query:1r5lA 
+1jw9
+1yov
+ exhaust 
+####################################
+**  1yovA   1jw9B 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    1.00    9.6e-01     6 -  11     5 -  10
+  2 -->  2     H    0.91    1.4e-01    13 -  16    12 -  16
+  3 -->  3     H    1.00    9.7e-01    21 -  28    22 -  29
+  4 -->  4     S    0.95    3.4e-01    30 -  34    30 -  35
+  5 -->  5     H    0.99    7.5e-01    39 -  50    40 -  51
+  6 -->  6     S    0.99    7.3e-01    56 -  60    56 -  65
+  8 -->  8     H    1.00    9.2e-01    84 -  95    85 -  96
+ 10 --> 10     H    0.96    4.1e-01   116 - 120   111 - 120
+ 11 --> 11     S    1.00    1.0e+00   124 - 127   123 - 126
+ 12 --> 12     H    0.99    8.3e-01   132 - 144   131 - 143
+ 13 --> 13     S    0.97    4.6e-01   146 - 154   145 - 150
+ 14 --> 14     S    1.00    9.3e-01   158 - 164   160 - 164
+total assigned score   8.4364 
+
+
+looked at 1 db entries.
+CPU:       0.036 s
+the output written to 1jw9B_1yovA.struct_out.
+
+1yov
+ exhaust 
+####################################
+**  1yovB   1jw9B 
+map:   3      geometric z_score:  0.000 
+  1 -->  2     H    1.00    9.7e-01    15 -  23    12 -  16
+  3 -->  3     H    0.96    4.4e-01    38 -  46    22 -  29
+  4 -->  4     S    0.98    6.1e-01    47 -  52    30 -  35
+  5 -->  5     H    0.99    8.7e-01    57 -  69    40 -  51
+  6 -->  6     S    0.97    5.2e-01    73 -  78    56 -  65
+  7 -->  7     H    1.00    1.0e+00    84 -  88    67 -  71
+  8 -->  8     H    1.00    9.7e-01   102 - 113    85 -  96
+  9 -->  9     S    0.99    7.5e-01   116 - 122   100 - 105
+ 10 --> 10     H    0.89    7.8e-02   131 - 135   111 - 120
+ 11 --> 11     S    1.00    9.0e-01   139 - 144   123 - 126
+ 12 --> 12     H    0.99    7.4e-01   147 - 159   131 - 143
+ 13 --> 13     S    0.98    6.1e-01   173 - 178   145 - 150
+ 14 --> 14     S    0.99    8.3e-01   188 - 191   160 - 164
+ 24 --> 16     H    0.99    8.7e-01   292 - 310   193 - 211
+ 25 --> 17     S    1.00    9.2e-01   319 - 324   221 - 225
+ 26 --> 18     S    1.00    9.6e-01   328 - 338   230 - 239
+total assigned score  12.0225 
+
+
+looked at 1 db entries.
+CPU:       0.028 s
+the output written to 1jw9B_1yovB.struct_out.
+
+1y8q
+ exhaust 
+####################################
+**  1y8qA   1jw9B 
+map:   3      geometric z_score:  0.000 
+  1 -->  1     H    1.00    9.1e-01    12 -  17     5 -  10
+  3 -->  3     H    0.99    8.8e-01    27 -  34    22 -  29
+  4 -->  4     S    0.99    8.3e-01    35 -  40    30 -  35
+  5 -->  5     H    0.99    8.4e-01    45 -  56    40 -  51
+  6 -->  6     S    0.99    8.7e-01    61 -  66    56 -  65
+  8 -->  8     H    1.00    9.7e-01    90 - 101    85 -  96
+  9 -->  9     S    1.00    9.0e-01   105 - 110   100 - 105
+ 11 --> 12     H    0.99    7.6e-01   135 - 147   131 - 143
+ 12 --> 13     S    0.97    5.6e-01   149 - 152   145 - 150
+ 13 --> 14     S    1.00    9.4e-01   164 - 167   160 - 164
+ 22 --> 16     H    1.00    9.1e-01   299 - 317   193 - 211
+ 23 --> 17     S    0.99    7.4e-01   326 - 330   221 - 225
+ 24 --> 18     S    0.99    7.6e-01   335 - 341   230 - 239
+total assigned score  10.8630 
+
+
+looked at 1 db entries.
+CPU:       0.022 s
+the output written to 1jw9B_1y8qA.struct_out.
+
+1y8q
+ exhaust 
+####################################
+**  1y8qB   1jw9B 
+map:   1      geometric z_score:  0.000 
+  1 -->  3     H    0.98    7.0e-01     8 -  15    22 -  29
+  2 -->  4     S    0.96    3.7e-01    17 -  21    30 -  35
+  3 -->  5     H    0.99    8.4e-01    26 -  38    40 -  51
+  4 -->  6     S    0.98    6.5e-01    42 -  47    56 -  65
+  5 -->  7     H    1.00    9.9e-01    53 -  57    67 -  71
+  6 -->  8     H    1.00    9.0e-01    71 -  80    85 -  96
+  7 -->  9     S    1.00    9.3e-01    86 -  91   100 - 105
+  8 --> 10     H    0.89    9.2e-02   102 - 107   111 - 120
+  9 --> 11     S    0.99    8.3e-01   110 - 115   123 - 126
+ 10 --> 12     H    1.00    9.7e-01   118 - 130   131 - 143
+ 11 --> 13     S    1.00    9.9e-01   133 - 137   145 - 150
+ 12 --> 14     S    1.00    9.5e-01   147 - 150   160 - 164
+total assigned score   9.2153 
+
+
+looked at 1 db entries.
+CPU:       0.035 s
+the output written to 1jw9B_1y8qB.struct_out.
+
+1zfn
+ exhaust 
+####################################
+**  1zfnA   1jw9B 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    0.99    8.3e-01     2 -  13     5 -  10
+  2 -->  3     H    0.99    8.9e-01    19 -  26    22 -  29
+  3 -->  4     S    0.98    6.1e-01    28 -  32    30 -  35
+  4 -->  5     H    1.00    9.6e-01    37 -  48    40 -  51
+  5 -->  6     S    0.99    7.5e-01    53 -  58    56 -  65
+  6 -->  7     H    1.00    9.8e-01    64 -  68    67 -  71
+  7 -->  8     H    1.00    9.1e-01    82 -  91    85 -  96
+  8 -->  9     S    1.00    9.6e-01    97 - 102   100 - 105
+  9 --> 10     H    0.98    6.7e-01   109 - 117   111 - 120
+ 10 --> 11     S    1.00    9.8e-01   120 - 123   123 - 126
+ 11 --> 12     H    1.00    1.0e+00   128 - 140   131 - 143
+ 12 --> 13     S    0.99    8.4e-01   142 - 146   145 - 150
+ 13 --> 14     S    0.97    5.1e-01   153 - 160   160 - 164
+ 15 --> 16     H    1.00    9.9e-01   190 - 208   193 - 211
+ 17 --> 17     S    0.99    8.9e-01   217 - 221   221 - 225
+ 18 --> 18     S    1.00    9.9e-01   226 - 235   230 - 239
+total assigned score  13.7805 
+
+
+looked at 1 db entries.
+CPU:       0.019 s
+the output written to 1jw9B_1zfnA.struct_out.
+
+1pyq
+1uhe
+
+
+looked at 0 db entries.
+CPU:       0.000 s
+the output written to 1pyqA_1uheB.struct_out.
+
+1uhe
+ exhaust 
+####################################
+**  1uheA   1pyqA 
+map:   1      geometric z_score:  0.000 
+  1 -->  4     H    1.00    1.0e+00    29 -  34    30 -  35
+  2 -->  5     S    1.00    9.6e-01    41 -  46    42 -  47
+  3 -->  6     S    1.00    9.9e-01    50 -  61    52 -  62
+  4 -->  7     S    0.98    6.3e-01    65 -  69    66 -  71
+  5 -->  8     H    0.88    6.4e-02    72 -  75    73 -  77
+  6 -->  9     S    1.00    1.0e+00    80 -  91    83 -  93
+  7 --> 10     H    1.00    9.3e-01    93 -  97    95 -  99
+  8 --> 11     S    0.98    6.1e-01    98 - 106   100 - 108
+total assigned score   6.1698 
+
+
+looked at 1 db entries.
+CPU:       0.005 s
+the output written to 1pyqA_1uheA.struct_out.
+
+1eu1
+ exhaust 
+####################################
+**  1eu1A   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 43 -->  2     S    0.90    1.1e-01   636 - 642    11 -  14
+ 45 -->  3     S    0.99    7.5e-01   665 - 670    25 -  28
+ 46 -->  4     H    0.93    2.2e-01   672 - 677    30 -  35
+ 47 -->  5     S    0.99    8.5e-01   684 - 688    42 -  47
+ 48 -->  6     S    1.00    9.6e-01   694 - 701    52 -  62
+ 53 -->  9     S    0.94    2.7e-01   759 - 763    83 -  93
+total assigned score   3.1748 
+
+
+looked at 1 db entries.
+CPU:       0.035 s
+the output written to 1pyqA_1eu1A.struct_out.
+
+1dms
+ exhaust 
+####################################
+**  1dms   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 44 -->  2     S    0.90    1.1e-01   636 - 642    11 -  14
+ 46 -->  3     S    0.99    7.8e-01   665 - 670    25 -  28
+ 47 -->  4     H    0.93    2.1e-01   672 - 677    30 -  35
+ 48 -->  5     S    0.99    8.2e-01   684 - 688    42 -  47
+ 49 -->  6     S    0.99    8.3e-01   694 - 700    52 -  62
+ 54 -->  9     S    0.99    7.8e-01   757 - 763    83 -  93
+total assigned score   3.5323 
+
+
+looked at 1 db entries.
+CPU:       0.035 s
+the output written to 1pyqA_1dms.struct_out.
+
+1aa6
+ exhaust 
+####################################
+**  1aa6   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 45 -->  2     S    0.91    1.3e-01   574 - 580    11 -  14
+ 48 -->  3     S    1.00    9.9e-01   605 - 609    25 -  28
+ 49 -->  4     H    0.96    3.7e-01   611 - 616    30 -  35
+ 50 -->  5     S    0.99    7.5e-01   623 - 628    42 -  47
+ 51 -->  6     S    0.99    7.6e-01   632 - 639    52 -  62
+ 53 -->  9     S    1.00    9.1e-01   679 - 686    83 -  93
+total assigned score   3.9007 
+
+
+looked at 1 db entries.
+CPU:       0.034 s
+the output written to 1pyqA_1aa6.struct_out.
+
+1kqf
+ exhaust 
+####################################
+**  1kqfA   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 52 -->  3     S    0.99    8.0e-01   916 - 921    25 -  28
+ 53 -->  4     H    0.99    8.3e-01   923 - 928    30 -  35
+ 54 -->  5     S    0.98    6.2e-01   935 - 939    42 -  47
+ 55 -->  6     S    0.97    5.0e-01   946 - 951    52 -  62
+ 57 -->  7     S    0.88    7.5e-02   964 - 971    66 -  71
+total assigned score   2.8230 
+
+
+looked at 1 db entries.
+CPU:       0.042 s
+the output written to 1pyqA_1kqfA.struct_out.
+
+1h0h
+ exhaust 
+####################################
+**  1h0hA   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 52 -->  3     S    1.00    9.2e-01   878 - 883    25 -  28
+ 53 -->  4     H    0.99    7.7e-01   885 - 890    30 -  35
+ 54 -->  5     S    0.97    5.7e-01   897 - 901    42 -  47
+ 55 -->  6     S    0.96    4.1e-01   907 - 913    52 -  62
+ 57 -->  7     S    0.89    8.3e-02   926 - 933    66 -  71
+total assigned score   2.7449 
+
+
+looked at 1 db entries.
+CPU:       0.044 s
+the output written to 1pyqA_1h0hA.struct_out.
+
+1tmo
+ exhaust 
+####################################
+**  1tmo   1pyqA 
+map:   2      geometric z_score:  0.000 
+ 46 -->  3     S    0.93    2.3e-01   674 - 679    25 -  28
+ 47 -->  4     H    0.96    4.1e-01   681 - 686    30 -  35
+ 48 -->  5     S    0.99    8.3e-01   693 - 697    42 -  47
+ 49 -->  6     S    0.98    6.8e-01   705 - 710    52 -  62
+ 54 -->  9     S    0.96    4.5e-01   776 - 779    83 -  93
+total assigned score   2.5952 
+
+
+looked at 1 db entries.
+CPU:       0.036 s
+the output written to 1pyqA_1tmo.struct_out.
+
+1g8k
+ exhaust 
+####################################
+**  1g8kA   1pyqA 
+map:   3      geometric z_score:  0.000 
+ 51 -->  3     S    0.96    4.2e-01   724 - 729    25 -  28
+ 52 -->  4     H    0.98    7.0e-01   731 - 736    30 -  35
+ 53 -->  5     S    0.99    7.6e-01   742 - 747    42 -  47
+ 54 -->  6     S    1.00    9.3e-01   755 - 760    52 -  62
+ 55 -->  7     S    0.90    1.2e-01   767 - 771    66 -  71
+ 57 -->  9     S    0.99    7.5e-01   800 - 808    83 -  93
+total assigned score   3.6759 
+
+
+looked at 1 db entries.
+CPU:       0.044 s
+the output written to 1pyqA_1g8kA.struct_out.
+
+2nap
+ exhaust 
+####################################
+**  2napA   1pyqA 
+map:   1      geometric z_score:  0.000 
+ 43 -->  3     S    0.96    4.1e-01   639 - 644    25 -  28
+ 44 -->  4     H    0.99    8.2e-01   646 - 651    30 -  35
+ 45 -->  5     S    1.00    9.1e-01   658 - 662    42 -  47
+ 46 -->  6     S    0.98    6.9e-01   668 - 674    52 -  62
+total assigned score   2.8304 
+
+
+looked at 1 db entries.
+CPU:       0.031 s
+the output written to 1pyqA_2napA.struct_out.
+
+1ogy
+ exhaust 
+####################################
+**  1ogyA   1pyqA 
+map:   4      geometric z_score:  0.000 
+ 47 -->  3     S    0.98    6.8e-01   716 - 721    25 -  28
+ 48 -->  4     H    0.98    6.2e-01   723 - 729    30 -  35
+ 49 -->  5     S    0.99    8.4e-01   735 - 739    42 -  47
+ 50 -->  6     S    0.93    2.3e-01   745 - 750    52 -  62
+ 51 -->  7     S    0.94    2.7e-01   761 - 765    66 -  71
+total assigned score   2.6381 
+
+
+looked at 1 db entries.
+CPU:       0.036 s
+the output written to 1pyqA_1ogyA.struct_out.
+
+1q16
+ exhaust 
+####################################
+**  1q16A   1pyqA 
+map:   2      geometric z_score:  0.000 
+ 74 -->  2     S    0.99    8.4e-01  1080 -1091    11 -  14
+ 76 -->  3     S    0.99    7.5e-01  1113 -1118    25 -  28
+ 77 -->  4     H    0.98    6.7e-01  1120 -1125    30 -  35
+ 78 -->  5     S    0.97    5.5e-01  1132 -1136    42 -  47
+ 79 -->  6     S    0.98    7.0e-01  1143 -1149    52 -  62
+ 80 -->  7     S    0.94    2.8e-01  1156 -1160    66 -  71
+total assigned score   3.7945 
+
+
+looked at 1 db entries.
+CPU:       0.061 s
+the output written to 1pyqA_1q16A.struct_out.
+
+1vlf
+ exhaust 
+####################################
+**  1vlfM   1pyqA 
+map:   4      geometric z_score:  0.000 
+ 56 -->  4     H    0.98    6.3e-01   775 - 780    30 -  35
+ 57 -->  5     S    0.99    8.8e-01   787 - 791    42 -  47
+ 58 -->  6     S    0.97    4.6e-01   795 - 804    52 -  62
+ 59 -->  7     S    0.93    2.1e-01   811 - 815    66 -  71
+ 60 -->  9     S    0.99    7.5e-01   862 - 866    83 -  93
+total assigned score   2.9315 
+
+
+looked at 1 db entries.
+CPU:       0.042 s
+the output written to 1pyqA_1vlfM.struct_out.
+
+1qcs
+ exhaust 
+####################################
+**  1qcsA   1pyqA 
+map:   1      geometric z_score:  0.000 
+  3 -->  3     S    1.00    9.4e-01    20 -  23    25 -  28
+  4 -->  5     S    1.00    9.1e-01    31 -  37    42 -  47
+  5 -->  6     S    1.00    9.1e-01    42 -  50    52 -  62
+  7 -->  8     H    0.98    6.7e-01    63 -  68    73 -  77
+  8 -->  9     S    0.97    5.3e-01    74 -  84    83 -  93
+total assigned score   3.9577 
+
+
+looked at 1 db entries.
+CPU:       0.011 s
+the output written to 1pyqA_1qcsA.struct_out.
+
+1cr5
+ exhaust 
+####################################
+**  1cr5A   1pyqA 
+map:   1      geometric z_score:  0.000 
+  3 -->  2     S    1.00    9.1e-01    62 -  69    11 -  14
+  4 -->  3     S    0.98    7.1e-01    77 -  80    25 -  28
+  5 -->  4     H    0.99    7.5e-01    82 -  87    30 -  35
+  6 -->  5     S    1.00    9.8e-01    94 - 101    42 -  47
+total assigned score   3.3537 
+
+
+looked at 1 db entries.
+CPU:       0.011 s
+the output written to 1pyqA_1cr5A.struct_out.
+
+1cz5
+ exhaust 
+####################################
+**  1cz5A   1pyqA 
+map:   4      geometric z_score:  0.000 
+  1 -->  2     S    1.00    9.7e-01     2 -  10    11 -  14
+  5 -->  5     S    1.00    9.6e-01    38 -  43    42 -  47
+  6 -->  6     S    0.97    5.1e-01    50 -  55    52 -  62
+  8 -->  7     S    0.98    6.8e-01    64 -  68    66 -  71
+ 10 -->  9     S    0.98    5.9e-01    82 -  94    83 -  93
+total assigned score   3.7067 
+
+
+looked at 1 db entries.
+CPU:       0.013 s
+the output written to 1pyqA_1cz5A.struct_out.
+
+1e32
+ exhaust 
+####################################
+**  1e32A   1pyqA 
+map:   4      geometric z_score:  0.000 
+  1 -->  2     S    0.98    5.9e-01    23 -  29    11 -  14
+  2 -->  3     S    0.98    6.2e-01    36 -  40    25 -  28
+  3 -->  4     H    0.98    5.8e-01    42 -  47    30 -  35
+  4 -->  5     S    0.99    8.4e-01    53 -  59    42 -  47
+  5 -->  6     S    0.98    6.9e-01    66 -  72    52 -  62
+  7 -->  8     H    0.93    1.9e-01    85 -  90    73 -  77
+  8 -->  9     S    0.98    6.8e-01    97 - 103    83 -  93
+total assigned score   4.1928 
+
+
+looked at 1 db entries.
+CPU:       0.025 s
+the output written to 1pyqA_1e32A.struct_out.
+
+1wlf
+ exhaust 
+####################################
+**  1wlfA   1pyqA 
+map:   2      geometric z_score:  0.000 
+  1 -->  2     S    0.98    6.4e-01    13 -  21    11 -  14
+  2 -->  3     S    0.98    6.9e-01    27 -  30    25 -  28
+  3 -->  4     H    0.99    8.2e-01    32 -  37    30 -  35
+  4 -->  5     S    1.00    9.1e-01    43 -  48    42 -  47
+  5 -->  6     S    0.97    5.1e-01    52 -  61    52 -  62
+  6 -->  7     S    0.87    5.6e-02    71 -  75    66 -  71
+  7 -->  8     H    0.92    1.7e-01    77 -  83    73 -  77
+  8 -->  9     S    0.96    3.9e-01    88 -  95    83 -  93
+total assigned score   4.1747 
+
+
+looked at 1 db entries.
+CPU:       0.010 s
+the output written to 1pyqA_1wlfA.struct_out.
+
+1bx4
+1lio
+ exhaust 
+####################################
+**  1lioA   1bx4A 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    0.94    2.7e-01    18 -  28    11 -  22
+  6 -->  6     H    1.00    9.3e-01    69 -  80    64 -  75
+  7 -->  7     S    0.99    8.4e-01    87 -  93    86 -  89
+  8 -->  8     H    1.00    9.6e-01    97 - 108    93 - 104
+  9 -->  9     S    0.99    8.7e-01   110 - 117   107 - 113
+ 10 --> 10     S    0.99    7.6e-01   121 - 129   117 - 126
+ 14 --> 14     S    1.00    9.3e-01   162 - 165   163 - 166
+ 15 --> 15     H    1.00    9.3e-01   167 - 170   168 - 171
+ 16 --> 16     H    1.00    9.1e-01   174 - 185   175 - 187
+ 18 --> 19     H    0.97    4.9e-01   207 - 214   206 - 214
+ 19 --> 20     S    1.00    9.8e-01   218 - 221   218 - 221
+ 20 --> 21     H    1.00    9.0e-01   224 - 231   223 - 232
+ 21 --> 22     H    0.98    6.2e-01   240 - 248   240 - 248
+ 22 --> 23     S    0.97    5.2e-01   271 - 277   257 - 264
+ 23 --> 25     S    1.00    9.5e-01   292 - 304   276 - 282
+ 24 --> 26     H    1.00    9.7e-01   312 - 327   294 - 310
+ 25 --> 27     H    0.99    8.2e-01   333 - 349   315 - 330
+total assigned score  13.6316 
+
+
+looked at 1 db entries.
+CPU:       0.037 s
+the output written to 1bx4A_1lioA.struct_out.
+
+1cjc
+1lqt
+ exhaust 
+####################################
+**  1lqtA   1cjcA 
+map:   3      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.8e-01     2 -   7     6 -  10
+  2 -->  2     H    1.00    9.8e-01    12 -  26    15 -  27
+  3 -->  3     S    0.98    5.9e-01    30 -  38    30 -  36
+  4 -->  4     H    1.00    9.5e-01    57 -  71    55 -  68
+  5 -->  6     H    0.99    8.3e-01    89 -  95    87 -  92
+  6 -->  7     S    1.00    9.2e-01    98 - 103    96 - 103
+  8 -->  9     H    1.00    9.0e-01   124 - 131   122 - 129
+ 10 --> 11     S    0.99    8.3e-01   148 - 153   146 - 149
+ 11 --> 12     H    1.00    9.2e-01   156 - 165   154 - 163
+ 12 --> 13     H    1.00    1.0e+00   169 - 173   167 - 171
+ 14 --> 15     S    1.00    9.6e-01   192 - 196   190 - 194
+ 15 --> 16     H    1.00    9.3e-01   208 - 215   206 - 213
+ 16 --> 17     S    0.99    8.5e-01   219 - 224   217 - 222
+ 18 --> 19     H    0.99    8.4e-01   242 - 255   239 - 252
+ 20 --> 22     S    1.00    9.2e-01   271 - 274   276 - 279
+ 21 --> 24     S    0.99    8.1e-01   285 - 295   293 - 301
+ 22 --> 25     S    0.97    5.1e-01   300 - 305   307 - 312
+ 23 --> 26     S    0.99    8.4e-01   307 - 313   314 - 320
+ 24 --> 27     S    0.99    8.9e-01   316 - 319   323 - 328
+ 25 --> 28     S    1.00    9.1e-01   322 - 327   330 - 334
+ 26 --> 29     H    1.00    9.1e-01   367 - 391   375 - 395
+ 27 --> 30     H    0.91    1.4e-01   401 - 412   405 - 415
+ 28 --> 32     H    1.00    9.1e-01   419 - 436   423 - 439
+ 29 --> 33     S    1.00    9.5e-01   440 - 443   444 - 447
+ 30 --> 34     H    0.98    7.0e-01   446 - 452   450 - 456
+total assigned score  20.9761 
+
+
+looked at 1 db entries.
+CPU:       0.051 s
+the output written to 1cjcA_1lqtA.struct_out.
+
+1gt8
+ exhaust 
+####################################
+**  1gt8A   1cjcA 
+map:   1      geometric z_score:  0.000 
+ 15 -->  1     S    0.98    6.3e-01   187 - 191     6 -  10
+ 16 -->  2     H    0.96    4.2e-01   196 - 208    15 -  27
+ 18 -->  4     H    0.98    6.1e-01   237 - 250    55 -  68
+ 22 -->  8     S    0.97    5.5e-01   286 - 289   105 - 109
+ 23 -->  9     H    0.97    5.2e-01   305 - 315   122 - 129
+ 25 --> 11     S    1.00    9.3e-01   333 - 336   146 - 149
+ 26 --> 12     H    1.00    9.5e-01   341 - 353   154 - 163
+ 27 --> 15     S    1.00    9.2e-01   357 - 361   190 - 194
+ 28 --> 16     H    0.99    8.2e-01   373 - 382   206 - 213
+ 29 --> 17     S    0.96    4.1e-01   383 - 387   217 - 222
+ 31 --> 24     S    1.00    9.1e-01   401 - 412   293 - 301
+ 33 --> 26     S    0.97    4.7e-01   424 - 429   314 - 320
+ 34 --> 27     S    0.99    7.5e-01   432 - 435   323 - 328
+total assigned score   8.8903 
+
+
+looked at 1 db entries.
+CPU:       0.106 s
+the output written to 1cjcA_1gt8A.struct_out.
+
+1ps9
+ exhaust 
+####################################
+**  1ps9A   1cjcA 
+map:  16      geometric z_score:  0.000 
+ 27 -->  3     S    1.00    9.3e-01   396 - 401    30 -  36
+ 29 -->  4     H    1.00    9.3e-01   421 - 436    55 -  68
+ 33 --> 11     S    0.98    6.2e-01   495 - 498   146 - 149
+ 34 --> 12     H    1.00    9.3e-01   503 - 512   154 - 163
+ 37 --> 15     S    0.99    7.7e-01   554 - 559   190 - 194
+ 39 --> 21     S    0.89    9.6e-02   586 - 589   271 - 274
+ 43 --> 27     S    0.98    6.3e-01   618 - 628   323 - 328
+total assigned score   4.9062 
+
+
+looked at 1 db entries.
+CPU:       0.067 s
+the output written to 1cjcA_1ps9A.struct_out.
+
+1o94
+ exhaust 
+####################################
+**  1o94A   1cjcA 
+map:  10      geometric z_score:  0.000 
+ 30 -->  2     H    0.99    7.6e-01   398 - 409    15 -  27
+ 31 -->  3     S    0.99    8.2e-01   412 - 417    30 -  36
+ 33 -->  4     H    1.00    9.2e-01   437 - 456    55 -  68
+ 35 -->  6     H    1.00    9.1e-01   471 - 476    87 -  92
+ 36 -->  7     S    1.00    9.4e-01   481 - 490    96 - 103
+ 37 -->  9     H    0.91    1.2e-01   516 - 520   122 - 129
+ 38 --> 11     S    0.99    8.3e-01   529 - 534   146 - 149
+ 39 --> 12     H    1.00    9.8e-01   540 - 551   154 - 163
+ 44 --> 22     S    1.00    1.0e+00   590 - 593   276 - 279
+ 49 --> 27     S    1.00    9.5e-01   636 - 639   323 - 328
+ 50 --> 28     S    0.97    5.0e-01   643 - 646   330 - 334
+total assigned score   8.7282 
+
+
+looked at 1 db entries.
+CPU:       0.067 s
+the output written to 1cjcA_1o94A.struct_out.
+
+1knc
+1p8c
+ exhaust 
+ error doing bb alignment   db:1p8cA  query:1kncA 
+1p8c
+ exhaust 
+ error doing bb alignment   db:1p8cD  query:1kncA 
+1p8c
+ exhaust 
+ error doing bb alignment   db:1p8cE  query:1kncA 
+2cwq
+ exhaust 
+ error doing bb alignment   db:2cwqB  query:1kncA 
+2cwq
+ exhaust 
+ error doing bb alignment   db:2cwqC  query:1kncA 
+2gmy
+ exhaust 
+####################################
+**  2gmyA   1kncA 
+map:   1      geometric z_score:  0.000 
+  2 -->  2     H    0.96    3.8e-01    11 -  26    14 -  24
+  3 -->  3     H    0.99    8.2e-01    31 -  44    31 -  44
+  4 -->  4     H    1.00    9.3e-01    48 -  61    48 -  60
+  6 -->  7     H    0.99    8.5e-01    82 -  95   113 - 126
+  7 -->  8     H    0.93    2.2e-01   104 - 112   130 - 143
+  8 -->  9     H    0.99    8.5e-01   116 - 138   147 - 171
+total assigned score   4.0481 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1kncA_2gmyA.struct_out.
+
+2af7
+2af7
+ exhaust 
+ error doing bb alignment   db:2af7C  query:1kncA 
+2af7
+1ea0
+1ofd
+ exhaust 
+####################################
+**  1ofdA   1ea0A 
+map:   1      geometric z_score:  0.000 
+  2 -->  4     S    0.99    8.8e-01    43 -  47    43 -  49
+  3 -->  5     H    1.00    9.5e-01    51 -  60    51 -  61
+  6 -->  8     H    0.98    6.5e-01    82 -  99    82 -  99
+  7 -->  9     S    0.99    8.3e-01   100 - 111   100 - 111
+  8 --> 10     H    0.99    8.2e-01   118 - 122   118 - 122
+  9 --> 11     S    0.99    8.9e-01   123 - 133   123 - 133
+ 10 --> 12     H    1.00    9.5e-01   141 - 156   140 - 160
+ 14 --> 16     H    0.98    6.0e-01   232 - 244   234 - 248
+ 16 --> 18     H    1.00    9.3e-01   269 - 281   272 - 284
+ 17 --> 19     H    0.99    8.1e-01   287 - 292   290 - 295
+ 19 --> 21     H    0.98    6.3e-01   309 - 320   310 - 321
+ 20 --> 22     S    0.98    6.9e-01   322 - 325   323 - 326
+ 22 --> 25     S    1.00    9.3e-01   349 - 352   350 - 353
+ 24 --> 27     S    1.00    9.9e-01   379 - 383   380 - 384
+ 25 --> 30     H    1.00    9.2e-01   401 - 411   402 - 412
+ 26 --> 31     H    0.99    7.3e-01   414 - 420   415 - 420
+ 28 --> 34     H    1.00    9.0e-01   439 - 449   443 - 452
+ 29 --> 35     H    0.99    7.9e-01   453 - 456   457 - 460
+ 30 --> 36     H    0.93    2.4e-01   460 - 465   464 - 467
+ 31 --> 37     S    1.00    9.5e-01   468 - 472   472 - 476
+ 32 --> 39     S    1.00    9.8e-01   494 - 498   498 - 502
+ 33 --> 40     S    1.00    9.7e-01   503 - 506   507 - 510
+ 34 --> 41     S    0.98    7.0e-01   514 - 520   519 - 523
+ 36 --> 42     H    1.00    9.9e-01   547 - 554   551 - 560
+ 37 --> 43     S    0.98    6.0e-01   558 - 568   565 - 572
+ 38 --> 44     H    1.00    9.9e-01   575 - 592   580 - 596
+ 39 --> 45     S    1.00    9.1e-01   596 - 599   602 - 605
+ 41 --> 46     H    0.99    8.5e-01   617 - 631   619 - 637
+ 42 --> 47     S    0.99    8.7e-01   637 - 641   639 - 644
+ 43 --> 48     H    1.00    9.6e-01   649 - 656   651 - 658
+ 44 --> 49     H    1.00    9.9e-01   666 - 676   668 - 680
+ 46 --> 50     H    1.00    9.5e-01   695 - 716   688 - 710
+ 48 --> 51     H    0.91    1.3e-01   738 - 741   731 - 736
+ 49 --> 52     S    1.00    9.5e-01   752 - 755   745 - 748
+ 50 --> 53     H    0.99    7.3e-01   757 - 769   750 - 766
+ 51 --> 54     S    0.89    8.5e-02   778 - 781   771 - 775
+ 52 --> 55     H    0.99    7.7e-01   798 - 809   791 - 802
+ 53 --> 56     H    0.99    7.4e-01   825 - 834   806 - 817
+ 54 --> 57     S    0.99    7.8e-01   845 - 849   828 - 832
+ 55 --> 58     S    0.98    6.3e-01   851 - 854   834 - 837
+ 56 --> 59     H    1.00    9.4e-01   862 - 867   845 - 850
+ 57 --> 60     S    1.00    9.0e-01   868 - 874   852 - 857
+ 58 --> 61     H    1.00    9.7e-01   881 - 894   864 - 877
+ 59 --> 62     S    0.96    3.9e-01   896 - 900   878 - 882
+ 60 --> 63     H    0.98    6.6e-01   907 - 910   890 - 893
+ 61 --> 64     S    1.00    9.3e-01   941 - 944   906 - 909
+ 62 --> 65     H    1.00    9.2e-01   953 - 957   918 - 922
+ 63 --> 66     S    1.00    9.9e-01   961 - 965   926 - 930
+ 64 --> 67     S    0.99    8.9e-01   974 - 978   939 - 943
+ 65 --> 68     H    1.00    9.8e-01   985 - 990   950 - 955
+ 66 --> 69     S    1.00    9.9e-01   997 -1001   962 - 966
+ 67 --> 70     H    1.00    9.9e-01  1011 -1022   976 - 989
+ 68 --> 71     S    1.00    9.1e-01  1028 -1035   992 -1000
+ 69 --> 72     H    1.00    9.9e-01  1038 -1049  1003 -1014
+ 70 --> 73     S    1.00    9.7e-01  1054 -1058  1019 -1023
+ 71 --> 74     H    1.00    9.5e-01  1069 -1073  1034 -1038
+ 72 --> 75     H    1.00    9.8e-01  1079 -1093  1044 -1058
+ 74 --> 77     H    0.99    8.5e-01  1110 -1117  1075 -1082
+ 75 --> 78     H    0.99    7.7e-01  1128 -1132  1093 -1097
+ 76 --> 79     H    1.00    9.6e-01  1156 -1160  1121 -1125
+ 77 --> 80     H    1.00    9.5e-01  1166 -1186  1131 -1152
+ 79 --> 83     H    1.00    9.7e-01  1246 -1252  1210 -1217
+ 81 --> 84     S    0.95    3.5e-01  1269 -1272  1225 -1234
+ 82 --> 85     H    1.00    9.3e-01  1279 -1288  1241 -1250
+ 83 --> 86     S    1.00    9.1e-01  1298 -1304  1263 -1267
+ 84 --> 87     S    0.99    8.7e-01  1320 -1324  1283 -1286
+ 85 --> 88     S    1.00    9.3e-01  1338 -1345  1302 -1308
+ 86 --> 89     S    1.00    1.0e+00  1369 -1374  1332 -1337
+ 88 --> 91     S    1.00    9.5e-01  1406 -1411  1369 -1374
+ 89 --> 92     S    1.00    9.5e-01  1425 -1431  1388 -1394
+ 91 --> 94     S    1.00    1.0e+00  1445 -1449  1408 -1412
+ 92 --> 95     H    1.00    9.9e-01  1454 -1468  1417 -1433
+ 93 --> 96     H    1.00    9.0e-01  1474 -1481  1437 -1444
+ 94 --> 97     H    1.00    9.3e-01  1483 -1488  1446 -1451
+ 95 --> 98     S    0.99    7.7e-01  1490 -1494  1452 -1457
+ 96 --> 99     H    0.98    6.6e-01  1496 -1499  1459 -1463
+total assigned score  63.6394 
+
+
+looked at 1 db entries.
+CPU:       0.426 s
+the output written to 1ea0A_1ofdA.struct_out.
+
+1ea0
+ exhaust 
+####################################
+**  1ea0A   1ea0A 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    1.00    1.0e+00     1 -   6     1 -   6
+  2 -->  2     H    1.00    1.0e+00    14 -  29    14 -  29
+  3 -->  3     S    1.00    1.0e+00    38 -  41    38 -  41
+  4 -->  4     S    1.00    1.0e+00    43 -  49    43 -  49
+  5 -->  5     H    1.00    1.0e+00    51 -  61    51 -  61
+  6 -->  6     S    1.00    1.0e+00    62 -  65    62 -  65
+  7 -->  7     S    1.00    1.0e+00    68 -  77    68 -  77
+  8 -->  8     H    1.00    1.0e+00    82 -  99    82 -  99
+  9 -->  9     S    1.00    1.0e+00   100 - 111   100 - 111
+ 10 --> 10     H    1.00    1.0e+00   118 - 122   118 - 122
+ 11 --> 11     S    1.00    1.0e+00   123 - 133   123 - 133
+ 12 --> 12     H    1.00    1.0e+00   140 - 160   140 - 160
+ 13 --> 13     S    1.00    1.0e+00   165 - 168   165 - 168
+ 14 --> 14     S    1.00    1.0e+00   174 - 179   174 - 179
+ 15 --> 15     H    1.00    1.0e+00   184 - 190   184 - 190
+ 16 --> 16     H    1.00    1.0e+00   234 - 248   234 - 248
+ 17 --> 17     H    1.00    1.0e+00   256 - 261   256 - 261
+ 18 --> 18     H    1.00    1.0e+00   272 - 284   272 - 284
+ 19 --> 19     H    1.00    1.0e+00   290 - 295   290 - 295
+ 20 --> 20     S    1.00    1.0e+00   298 - 301   298 - 301
+ 21 --> 21     H    1.00    1.0e+00   310 - 321   310 - 321
+ 22 --> 22     S    1.00    1.0e+00   323 - 326   323 - 326
+ 23 --> 23     S    1.00    1.0e+00   329 - 334   329 - 334
+ 24 --> 24     S    1.00    1.0e+00   339 - 344   339 - 344
+ 25 --> 25     S    1.00    1.0e+00   350 - 353   350 - 353
+ 26 --> 26     S    1.00    1.0e+00   360 - 364   360 - 364
+ 27 --> 27     S    1.00    1.0e+00   380 - 384   380 - 384
+ 28 --> 28     S    1.00    1.0e+00   387 - 392   387 - 392
+ 29 --> 29     S    1.00    1.0e+00   397 - 400   397 - 400
+ 30 --> 30     H    1.00    1.0e+00   402 - 412   402 - 412
+ 31 --> 31     H    1.00    1.0e+00   415 - 420   415 - 420
+ 32 --> 32     H    1.00    1.0e+00   425 - 434   425 - 434
+ 33 --> 33     S    1.00    1.0e+00   436 - 441   436 - 441
+ 34 --> 34     H    1.00    1.0e+00   443 - 452   443 - 452
+ 35 --> 35     H    1.00    1.0e+00   457 - 460   457 - 460
+ 36 --> 36     H    1.00    1.0e+00   464 - 467   464 - 467
+ 37 --> 37     S    1.00    1.0e+00   472 - 476   472 - 476
+ 38 --> 38     H    1.00    1.0e+00   494 - 497   494 - 497
+ 39 --> 39     S    1.00    1.0e+00   498 - 502   498 - 502
+ 40 --> 40     S    1.00    1.0e+00   507 - 510   507 - 510
+ 41 --> 41     S    1.00    1.0e+00   519 - 523   519 - 523
+ 42 --> 42     H    1.00    1.0e+00   551 - 560   551 - 560
+ 43 --> 43     S    1.00    1.0e+00   565 - 572   565 - 572
+ 44 --> 44     H    1.00    1.0e+00   580 - 596   580 - 596
+ 45 --> 45     S    1.00    1.0e+00   602 - 605   602 - 605
+ 46 --> 46     H    1.00    1.0e+00   619 - 637   619 - 637
+ 47 --> 47     S    1.00    1.0e+00   639 - 644   639 - 644
+ 48 --> 48     H    1.00    1.0e+00   651 - 658   651 - 658
+ 49 --> 49     H    1.00    1.0e+00   668 - 680   668 - 680
+ 50 --> 50     H    1.00    1.0e+00   688 - 710   688 - 710
+ 51 --> 51     H    1.00    1.0e+00   731 - 736   731 - 736
+ 52 --> 52     S    1.00    1.0e+00   745 - 748   745 - 748
+ 53 --> 53     H    1.00    1.0e+00   750 - 766   750 - 766
+ 54 --> 54     S    1.00    1.0e+00   771 - 775   771 - 775
+ 55 --> 55     H    1.00    1.0e+00   791 - 802   791 - 802
+ 56 --> 56     H    1.00    1.0e+00   806 - 817   806 - 817
+ 57 --> 57     S    1.00    1.0e+00   828 - 832   828 - 832
+ 58 --> 58     S    1.00    1.0e+00   834 - 837   834 - 837
+ 59 --> 59     H    1.00    1.0e+00   845 - 850   845 - 850
+ 60 --> 60     S    1.00    1.0e+00   852 - 857   852 - 857
+ 61 --> 61     H    1.00    1.0e+00   864 - 877   864 - 877
+ 62 --> 62     S    1.00    1.0e+00   878 - 882   878 - 882
+ 63 --> 63     H    1.00    1.0e+00   890 - 893   890 - 893
+ 64 --> 64     S    1.00    1.0e+00   906 - 909   906 - 909
+ 65 --> 65     H    1.00    1.0e+00   918 - 922   918 - 922
+ 66 --> 66     S    1.00    1.0e+00   926 - 930   926 - 930
+ 67 --> 67     S    1.00    1.0e+00   939 - 943   939 - 943
+ 68 --> 68     H    1.00    1.0e+00   950 - 955   950 - 955
+ 69 --> 69     S    1.00    1.0e+00   962 - 966   962 - 966
+ 70 --> 70     H    1.00    1.0e+00   976 - 989   976 - 989
+ 71 --> 71     S    1.00    1.0e+00   992 -1000   992 -1000
+ 72 --> 72     H    1.00    1.0e+00  1003 -1014  1003 -1014
+ 73 --> 73     S    1.00    1.0e+00  1019 -1023  1019 -1023
+ 74 --> 74     H    1.00    1.0e+00  1034 -1038  1034 -1038
+ 75 --> 75     H    1.00    1.0e+00  1044 -1058  1044 -1058
+ 76 --> 76     H    1.00    1.0e+00  1060 -1063  1060 -1063
+ 77 --> 77     H    1.00    1.0e+00  1075 -1082  1075 -1082
+ 78 --> 78     H    1.00    1.0e+00  1093 -1097  1093 -1097
+ 79 --> 79     H    1.00    1.0e+00  1121 -1125  1121 -1125
+ 80 --> 80     H    1.00    1.0e+00  1131 -1152  1131 -1152
+ 81 --> 81     H    1.00    1.0e+00  1182 -1185  1182 -1185
+ 82 --> 82     S    1.00    1.0e+00  1203 -1208  1203 -1208
+ 83 --> 83     H    1.00    1.0e+00  1210 -1217  1210 -1217
+ 84 --> 84     S    1.00    1.0e+00  1225 -1234  1225 -1234
+ 85 --> 85     H    1.00    1.0e+00  1241 -1250  1241 -1250
+ 86 --> 86     S    1.00    1.0e+00  1263 -1267  1263 -1267
+ 87 --> 87     S    1.00    1.0e+00  1283 -1286  1283 -1286
+ 88 --> 88     S    1.00    1.0e+00  1302 -1308  1302 -1308
+ 89 --> 89     S    1.00    1.0e+00  1332 -1337  1332 -1337
+ 90 --> 90     S    1.00    1.0e+00  1351 -1355  1351 -1355
+ 91 --> 91     S    1.00    1.0e+00  1369 -1374  1369 -1374
+ 92 --> 92     S    1.00    1.0e+00  1388 -1394  1388 -1394
+ 93 --> 93     H    1.00    1.0e+00  1399 -1402  1399 -1402
+ 94 --> 94     S    1.00    1.0e+00  1408 -1412  1408 -1412
+ 95 --> 95     H    1.00    1.0e+00  1417 -1433  1417 -1433
+ 96 --> 96     H    1.00    1.0e+00  1437 -1444  1437 -1444
+ 97 --> 97     H    1.00    1.0e+00  1446 -1451  1446 -1451
+ 98 --> 98     S    1.00    1.0e+00  1452 -1457  1452 -1457
+ 99 --> 99     H    1.00    1.0e+00  1459 -1463  1459 -1463
+total assigned score  99.0000 
+
+
+looked at 1 db entries.
+CPU:       0.224 s
+the output written to 1ea0A_1ea0A.struct_out.
+
+1ofd
+ exhaust 
+####################################
+**  1ofdA   1ea0A 
+map:   1      geometric z_score:  0.000 
+  2 -->  4     S    0.99    8.8e-01    43 -  47    43 -  49
+  3 -->  5     H    1.00    9.5e-01    51 -  60    51 -  61
+  6 -->  8     H    0.98    6.5e-01    82 -  99    82 -  99
+  7 -->  9     S    0.99    8.3e-01   100 - 111   100 - 111
+  8 --> 10     H    0.99    8.2e-01   118 - 122   118 - 122
+  9 --> 11     S    0.99    8.9e-01   123 - 133   123 - 133
+ 10 --> 12     H    1.00    9.5e-01   141 - 156   140 - 160
+ 14 --> 16     H    0.98    6.0e-01   232 - 244   234 - 248
+ 16 --> 18     H    1.00    9.3e-01   269 - 281   272 - 284
+ 17 --> 19     H    0.99    8.1e-01   287 - 292   290 - 295
+ 19 --> 21     H    0.98    6.3e-01   309 - 320   310 - 321
+ 20 --> 22     S    0.98    6.9e-01   322 - 325   323 - 326
+ 22 --> 25     S    1.00    9.3e-01   349 - 352   350 - 353
+ 24 --> 27     S    1.00    9.9e-01   379 - 383   380 - 384
+ 25 --> 30     H    1.00    9.2e-01   401 - 411   402 - 412
+ 26 --> 31     H    0.99    7.3e-01   414 - 420   415 - 420
+ 28 --> 34     H    1.00    9.0e-01   439 - 449   443 - 452
+ 29 --> 35     H    0.99    7.9e-01   453 - 456   457 - 460
+ 30 --> 36     H    0.93    2.4e-01   460 - 465   464 - 467
+ 31 --> 37     S    1.00    9.5e-01   468 - 472   472 - 476
+ 32 --> 39     S    1.00    9.8e-01   494 - 498   498 - 502
+ 33 --> 40     S    1.00    9.7e-01   503 - 506   507 - 510
+ 34 --> 41     S    0.98    7.0e-01   514 - 520   519 - 523
+ 36 --> 42     H    1.00    9.9e-01   547 - 554   551 - 560
+ 37 --> 43     S    0.98    6.0e-01   558 - 568   565 - 572
+ 38 --> 44     H    1.00    9.9e-01   575 - 592   580 - 596
+ 39 --> 45     S    1.00    9.1e-01   596 - 599   602 - 605
+ 41 --> 46     H    0.99    8.5e-01   617 - 631   619 - 637
+ 42 --> 47     S    0.99    8.7e-01   637 - 641   639 - 644
+ 43 --> 48     H    1.00    9.6e-01   649 - 656   651 - 658
+ 44 --> 49     H    1.00    9.9e-01   666 - 676   668 - 680
+ 46 --> 50     H    1.00    9.5e-01   695 - 716   688 - 710
+ 48 --> 51     H    0.91    1.3e-01   738 - 741   731 - 736
+ 49 --> 52     S    1.00    9.5e-01   752 - 755   745 - 748
+ 50 --> 53     H    0.99    7.3e-01   757 - 769   750 - 766
+ 51 --> 54     S    0.89    8.5e-02   778 - 781   771 - 775
+ 52 --> 55     H    0.99    7.7e-01   798 - 809   791 - 802
+ 53 --> 56     H    0.99    7.4e-01   825 - 834   806 - 817
+ 54 --> 57     S    0.99    7.8e-01   845 - 849   828 - 832
+ 55 --> 58     S    0.98    6.3e-01   851 - 854   834 - 837
+ 56 --> 59     H    1.00    9.4e-01   862 - 867   845 - 850
+ 57 --> 60     S    1.00    9.0e-01   868 - 874   852 - 857
+ 58 --> 61     H    1.00    9.7e-01   881 - 894   864 - 877
+ 59 --> 62     S    0.96    3.9e-01   896 - 900   878 - 882
+ 60 --> 63     H    0.98    6.6e-01   907 - 910   890 - 893
+ 61 --> 64     S    1.00    9.3e-01   941 - 944   906 - 909
+ 62 --> 65     H    1.00    9.2e-01   953 - 957   918 - 922
+ 63 --> 66     S    1.00    9.9e-01   961 - 965   926 - 930
+ 64 --> 67     S    0.99    8.9e-01   974 - 978   939 - 943
+ 65 --> 68     H    1.00    9.8e-01   985 - 990   950 - 955
+ 66 --> 69     S    1.00    9.9e-01   997 -1001   962 - 966
+ 67 --> 70     H    1.00    9.9e-01  1011 -1022   976 - 989
+ 68 --> 71     S    1.00    9.1e-01  1028 -1035   992 -1000
+ 69 --> 72     H    1.00    9.9e-01  1038 -1049  1003 -1014
+ 70 --> 73     S    1.00    9.7e-01  1054 -1058  1019 -1023
+ 71 --> 74     H    1.00    9.5e-01  1069 -1073  1034 -1038
+ 72 --> 75     H    1.00    9.8e-01  1079 -1093  1044 -1058
+ 74 --> 77     H    0.99    8.5e-01  1110 -1117  1075 -1082
+ 75 --> 78     H    0.99    7.7e-01  1128 -1132  1093 -1097
+ 76 --> 79     H    1.00    9.6e-01  1156 -1160  1121 -1125
+ 77 --> 80     H    1.00    9.5e-01  1166 -1186  1131 -1152
+ 79 --> 83     H    1.00    9.7e-01  1246 -1252  1210 -1217
+ 81 --> 84     S    0.95    3.5e-01  1269 -1272  1225 -1234
+ 82 --> 85     H    1.00    9.3e-01  1279 -1288  1241 -1250
+ 83 --> 86     S    1.00    9.1e-01  1298 -1304  1263 -1267
+ 84 --> 87     S    0.99    8.7e-01  1320 -1324  1283 -1286
+ 85 --> 88     S    1.00    9.3e-01  1338 -1345  1302 -1308
+ 86 --> 89     S    1.00    1.0e+00  1369 -1374  1332 -1337
+ 88 --> 91     S    1.00    9.5e-01  1406 -1411  1369 -1374
+ 89 --> 92     S    1.00    9.5e-01  1425 -1431  1388 -1394
+ 91 --> 94     S    1.00    1.0e+00  1445 -1449  1408 -1412
+ 92 --> 95     H    1.00    9.9e-01  1454 -1468  1417 -1433
+ 93 --> 96     H    1.00    9.0e-01  1474 -1481  1437 -1444
+ 94 --> 97     H    1.00    9.3e-01  1483 -1488  1446 -1451
+ 95 --> 98     S    0.99    7.7e-01  1490 -1494  1452 -1457
+ 96 --> 99     H    0.98    6.6e-01  1496 -1499  1459 -1463
+total assigned score  63.6394 
+
+
+looked at 1 db entries.
+CPU:       0.425 s
+the output written to 1ea0A_1ofdA.struct_out.
+
+1ie0
+1j6w
+ exhaust 
+####################################
+**  1j6wA   1ie0A 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     H    1.00    9.1e-01     4 -   7     3 -   6
+  2 -->  2     S    1.00    9.4e-01    17 -  20    17 -  21
+  3 -->  3     S    1.00    1.0e+00    29 -  38    29 -  38
+  4 -->  4     H    1.00    9.7e-01    49 -  66    49 -  69
+  6 -->  7     H    0.99    8.7e-01    96 - 112    97 - 112
+  7 -->  8     H    1.00    9.7e-01   135 - 147   133 - 145
+total assigned score   5.6597 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1ie0A_1j6wA.struct_out.
+
+1j6x
+1vje
+ exhaust 
+####################################
+**  1vjeA   1ie0A 
+map:   1      geometric z_score:  0.000 
+  1 -->  2     S    1.00    9.6e-01    20 -  23    17 -  21
+  2 -->  3     S    1.00    9.7e-01    32 -  41    29 -  38
+  3 -->  4     H    1.00    1.0e+00    52 -  68    49 -  69
+  4 -->  6     S    0.98    7.1e-01    84 -  89    85 -  90
+  5 -->  7     H    0.99    8.3e-01    95 - 110    97 - 112
+  6 -->  8     H    0.99    8.3e-01   132 - 144   133 - 145
+total assigned score   5.3056 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1ie0A_1vjeA.struct_out.
+
+1mk5
+1ave
+ exhaust 
+####################################
+**  1aveA   1mk5A 
+map:   3      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.6e-01    14 -  22    25 -  32
+  2 -->  2     S    0.99    7.5e-01    29 -  33    36 -  43
+  3 -->  3     S    0.96    3.9e-01    41 -  53    51 -  56
+  5 -->  5     S    1.00    9.3e-01    74 -  84    88 -  96
+  6 -->  6     S    1.00    9.1e-01    89 - 101   100 - 113
+  7 -->  7     H    1.00    9.3e-01   105 - 109   115 - 119
+  8 -->  8     S    0.99    8.3e-01   111 - 114   122 - 130
+total assigned score   5.6961 
+
+
+looked at 1 db entries.
+CPU:       0.009 s
+the output written to 1mk5A_1aveA.struct_out.
+
+1y52
+ exhaust 
+####################################
+**  1y52X   1mk5A 
+map:   4      geometric z_score:  0.000 
+  2 -->  2     S    1.00    9.4e-01    29 -  33    36 -  43
+  3 -->  3     S    0.95    3.1e-01    42 -  47    51 -  56
+  4 -->  4     S    1.00    9.8e-01    62 -  66    67 -  71
+  5 -->  5     S    0.99    8.6e-01    71 -  82    88 -  96
+  7 -->  6     S    0.99    7.6e-01    93 -  99   100 - 113
+  9 -->  8     S    0.98    6.8e-01   109 - 112   122 - 130
+total assigned score   4.5302 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1mk5A_1y52X.struct_out.
+
+1wbi
+ exhaust 
+####################################
+**  1wbiA   1mk5A 
+map:   8      geometric z_score:  0.000 
+  1 -->  1     S    1.00    9.2e-01    14 -  22    25 -  32
+  2 -->  2     S    0.98    7.1e-01    29 -  34    36 -  43
+  3 -->  3     S    0.94    2.9e-01    42 -  47    51 -  56
+  5 -->  5     S    0.97    5.1e-01    71 -  82    88 -  96
+  8 -->  7     H    1.00    9.5e-01   103 - 107   115 - 119
+ 10 -->  8     S    0.95    3.4e-01   114 - 119   122 - 130
+total assigned score   3.7209 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1mk5A_1wbiA.struct_out.
+
+1oa8
+1oa8
+ exhaust 
+####################################
+**  1oa8B   1oa8A 
+map:   1      geometric z_score:  0.000 
+  1 -->  2     S    0.97    5.2e-01   577 - 581   577 - 581
+  3 -->  3     H    1.00    9.1e-01   595 - 598   595 - 603
+  5 -->  6     S    0.99    8.8e-01   626 - 632   626 - 632
+  6 -->  7     S    0.98    6.7e-01   636 - 644   637 - 644
+  7 -->  8     S    0.98    6.7e-01   648 - 651   648 - 651
+  8 -->  9     H    0.93    2.3e-01   662 - 668   662 - 666
+  9 --> 10     S    1.00    9.2e-01   671 - 676   671 - 676
+ 10 --> 11     S    1.00    9.1e-01   679 - 684   679 - 685
+total assigned score   5.7162 
+
+
+looked at 1 db entries.
+CPU:       0.007 s
+the output written to 1oa8A_1oa8B.struct_out.
+
+1v06
+ exhaust 
+####################################
+**  1v06A   1oa8A 
+map:   1      geometric z_score:  0.000 
+  3 -->  4     S    0.99    7.7e-01   259 - 263   607 - 615
+  4 -->  5     S    0.99    8.3e-01   266 - 269   617 - 620
+  5 -->  6     S    0.97    5.0e-01   274 - 281   626 - 632
+  6 -->  7     S    0.93    2.2e-01   289 - 295   637 - 644
+  7 -->  8     S    0.97    5.0e-01   298 - 302   648 - 651
+  8 -->  9     H    1.00    9.4e-01   313 - 317   662 - 666
+  9 --> 10     S    0.99    8.1e-01   322 - 327   671 - 676
+ 10 --> 11     S    0.98    7.1e-01   330 - 334   679 - 685
+total assigned score   5.2698 
+
+
+looked at 1 db entries.
+CPU:       0.008 s
+the output written to 1oa8A_1v06A.struct_out.
+
+1hx1
+1i6z
+
+
+looked at 0 db entries.
+CPU:       0.002 s
+the output written to 1hx1B_1i6zA.struct_out.
+
+1m7k
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1hx1B_1m7kA.struct_out.
+
+1uk5
+
+
+looked at 0 db entries.
+CPU:       0.002 s
+the output written to 1hx1B_1uk5A.struct_out.
+
+2d9d
+
+
+looked at 0 db entries.
+CPU:       0.001 s
+the output written to 1hx1B_2d9dA.struct_out.
+
+1ugo
+
+
+looked at 0 db entries.
+CPU:       0.002 s
+the output written to 1hx1B_1ugoA.struct_out.
+
+3eng
+1l8f
+ exhaust 
+####################################
+**  1l8fA   3eng 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    0.99    7.4e-01     1 -   8     3 -   8
+  2 -->  2     S    1.00    9.8e-01    25 -  30    25 -  30
+  4 -->  5     S    1.00    9.4e-01    65 -  68    66 -  69
+  5 -->  6     S    1.00    9.9e-01    70 -  74    71 -  75
+  6 -->  7     S    1.00    9.9e-01    85 -  92    86 -  93
+  7 -->  8     S    1.00    9.6e-01    99 - 106   100 - 107
+  8 -->  9     S    1.00    9.6e-01   108 - 111   109 - 112
+  9 --> 10     S    1.00    9.4e-01   115 - 121   116 - 122
+ 10 --> 11     H    1.00    9.9e-01   151 - 155   152 - 156
+ 11 --> 12     H    1.00    9.6e-01   159 - 168   160 - 169
+ 12 --> 13     S    1.00    9.9e-01   177 - 187   178 - 188
+ 13 --> 14     H    0.99    8.2e-01   189 - 194   190 - 195
+ 14 --> 16     H    0.99    7.5e-01   200 - 203   201 - 205
+total assigned score  12.0084 
+
+
+looked at 1 db entries.
+CPU:       0.021 s
+the output written to 3eng_1l8fA.struct_out.
+
+1n10
+ exhaust 
+####################################
+**  1n10A   3eng 
+map:   3      geometric z_score:  0.000 
+  3 -->  6     S    1.00    9.1e-01  1054 -1058    71 -  75
+  5 -->  7     S    0.99    8.5e-01  1070 -1077    86 -  93
+  6 -->  8     S    0.99    8.5e-01  1086 -1092   100 - 107
+  7 --> 10     S    0.99    8.6e-01  1103 -1107   116 - 122
+ 10 --> 13     S    0.99    7.8e-01  1129 -1141   178 - 188
+total assigned score   4.2448 
+
+
+looked at 1 db entries.
+CPU:       0.016 s
+the output written to 3eng_1n10A.struct_out.
+
+1bw3
+ exhaust 
+####################################
+**  1bw3   3eng 
+map:   3      geometric z_score:  0.000 
+  1 -->  1     S    0.99    8.7e-01     4 -   8     3 -   8
+  4 -->  5     S    0.84    2.6e-02    45 -  50    66 -  69
+  7 -->  8     S    1.00    9.6e-01    77 -  84   100 - 107
+ 11 --> 13     S    0.95    3.5e-01   117 - 121   178 - 188
+total assigned score   2.2083 
+
+
+looked at 1 db entries.
+CPU:       0.009 s
+the output written to 3eng_1bw3.struct_out.
+
+1h9m
+1b9m
+ exhaust 
+####################################
+**  1b9mA   1h9mA 
+map:   1      geometric z_score:  0.000 
+  8 -->  1     S    0.98    6.8e-01   128 - 136     6 -  12
+  9 -->  3     S    0.97    5.1e-01   145 - 149    21 -  27
+ 10 -->  4     S    0.99    7.2e-01   154 - 161    31 -  38
+ 11 -->  5     H    0.92    1.7e-01   163 - 168    40 -  45
+ 12 -->  6     S    1.00    9.1e-01   174 - 181    51 -  58
+ 14 -->  7     S    1.00    9.1e-01   200 - 206    78 -  84
+ 15 --> 10     S    1.00    9.5e-01   225 - 232   103 - 110
+ 16 --> 11     H    0.96    4.2e-01   234 - 238   112 - 117
+ 17 --> 12     S    1.00    9.7e-01   244 - 250   124 - 130
+total assigned score   6.2435 
+
+
+looked at 1 db entries.
+CPU:       0.015 s
+the output written to 1h9mA_1b9mA.struct_out.
+
+1g29
+ exhaust 
+####################################
+**  1g291   1h9mA 
+map:   5      geometric z_score:  0.000 
+ 19 -->  1     S    1.00    9.2e-01   243 - 251     6 -  12
+ 20 -->  4     S    0.98    6.4e-01   263 - 266    31 -  38
+ 21 -->  5     H    0.88    6.4e-02   268 - 277    40 -  45
+ 22 -->  6     S    1.00    9.8e-01   282 - 288    51 -  58
+ 23 -->  7     S    0.99    8.4e-01   307 - 313    78 -  84
+ 24 -->  8     S    1.00    9.5e-01   315 - 318    86 -  89
+ 25 -->  9     S    1.00    9.2e-01   322 - 327    93 -  99
+ 26 --> 10     S    0.99    7.6e-01   331 - 338   103 - 110
+ 27 --> 12     S    0.99    8.2e-01   348 - 354   124 - 130
+total assigned score   6.9053 
+
+
+looked at 1 db entries.
+CPU:       0.023 s
+the output written to 1h9mA_1g291.struct_out.
+
+1q12
+ exhaust 
+####################################
+**  1q12A   1h9mA 
+map:   2      geometric z_score:  0.000 
+ 17 -->  1     S    0.98    7.1e-01   236 - 245     6 -  12
+ 18 -->  3     S    0.99    7.7e-01   252 - 256    21 -  27
+ 19 -->  4     S    0.98    6.2e-01   261 - 267    31 -  38
+ 20 -->  6     S    0.99    7.8e-01   278 - 284    51 -  58
+ 21 -->  7     S    0.98    6.1e-01   297 - 303    78 -  84
+ 22 -->  8     S    1.00    9.1e-01   305 - 308    86 -  89
+ 23 -->  9     S    1.00    9.8e-01   312 - 318    93 -  99
+ 24 --> 10     S    0.97    5.0e-01   324 - 330   103 - 110
+ 26 --> 12     S    0.99    8.6e-01   343 - 346   124 - 130
+total assigned score   6.7300 
+
+
+looked at 1 db entries.
+CPU:       0.022 s
+the output written to 1h9mA_1q12A.struct_out.
+
+1oxs
+ exhaust 
+####################################
+**  1oxsC   1h9mA 
+map:   3      geometric z_score:  0.000 
+ 22 -->  7     S    0.99    7.2e-01   292 - 301    78 -  84
+ 23 -->  9     S    1.00    9.6e-01   309 - 315    93 -  99
+ 24 --> 10     S    0.99    8.3e-01   319 - 326   103 - 110
+ 25 --> 12     S    1.00    9.3e-01   335 - 341   124 - 130
+total assigned score   3.4365 
+
+
+looked at 1 db entries.
+CPU:       0.018 s
+the output written to 1h9mA_1oxsC.struct_out.
+
+1v43
+ exhaust 
+####################################
+**  1v43A   1h9mA 
+map:   1      geometric z_score:  0.000 
+ 18 -->  1     S    1.00    9.2e-01   246 - 254     6 -  12
+ 20 -->  4     S    0.95    3.6e-01   265 - 268    31 -  38
+ 22 -->  6     S    0.99    8.2e-01   282 - 288    51 -  58
+ 23 -->  7     S    0.97    5.5e-01   308 - 314    78 -  84
+ 24 -->  9     S    1.00    9.6e-01   323 - 328    93 -  99
+ 25 --> 10     S    1.00    9.3e-01   333 - 339   103 - 110
+ 27 --> 12     S    0.99    8.2e-01   349 - 355   124 - 130
+total assigned score   5.3638 
+
+
+looked at 1 db entries.
+CPU:       0.021 s
+the output written to 1h9mA_1v43A.struct_out.
+
+1bnc
+1ulz
+ exhaust 
+####################################
+**  1ulzA   1bncA 
+map:   1      geometric z_score:  0.000 
+  1 -->  1     S    0.99    8.7e-01     3 -   6     3 -   6
+  2 -->  2     H    1.00    1.0e+00    11 -  22    11 -  22
+  3 -->  3     S    1.00    9.9e-01    24 -  31    24 -  31
+  4 -->  5     H    1.00    9.9e-01    39 -  42    39 -  42
+  5 -->  6     S    0.99    8.3e-01    46 -  50    46 -  49
+  7 -->  7     H    1.00    9.1e-01    61 -  70    62 -  71
+  8 -->  8     S    1.00    9.7e-01    75 -  78    76 -  79
+  9 -->  9     H    1.00    9.9e-01    87 -  96    88 -  97
+ 10 --> 10     H    0.99    8.1e-01   105 - 112   106 - 113
+ 11 --> 11     H    1.00    9.1e-01   114 - 124   115 - 125
+ 12 --> 12     S    1.00    9.9e-01   125 - 131   126 - 132
+ 15 --> 14     S    0.82    1.7e-02   165 - 169   167 - 171
+ 16 --> 15     H    0.99    7.6e-01   172 - 188   174 - 187
+ 18 --> 17     S    1.00    9.1e-01   203 - 213   205 - 212
+ 19 --> 18     S    0.99    8.6e-01   217 - 226   219 - 228
+ 20 --> 19     H    1.00    1.0e+00   247 - 263   249 - 265
+ 21 --> 20     S    1.00    9.3e-01   268 - 276   270 - 277
+ 22 --> 21     S    1.00    9.4e-01   280 - 288   281 - 289
+ 23 --> 22     H    1.00    9.4e-01   295 - 301   296 - 302
+ 24 --> 23     H    1.00    9.1e-01   306 - 315   307 - 316
+ 25 --> 24     S    0.99    8.2e-01   316 - 319   317 - 320
+ 26 --> 25     S    1.00    9.8e-01   330 - 338   331 - 339
+ 28 --> 27     S    1.00    9.9e-01   355 - 360   355 - 359
+ 29 --> 28     S    1.00    9.8e-01   363 - 370   363 - 370
+ 33 --> 30     H    1.00    9.6e-01   394 - 406   394 - 406
+ 34 --> 31     H    1.00    9.8e-01   416 - 424   416 - 424
+ 35 --> 32     H    0.90    1.1e-01   427 - 431   427 - 430
+ 36 --> 33     H    0.98    6.8e-01   436 - 441   436 - 442
+total assigned score  24.0184 
+
+
+looked at 1 db entries.
+CPU:       0.061 s
+the output written to 1bncA_1ulzA.struct_out.
+
+1gso
+ exhaust 
+####################################
+**  1gsoA   1bncA 
+map:   4      geometric z_score:  0.000 
+ 11 --> 11     H    0.91    1.5e-01   104 - 113   115 - 125
+ 17 --> 17     S    0.99    8.3e-01   191 - 200   205 - 212
+ 19 --> 19     H    0.99    8.2e-01   240 - 247   249 - 265
+ 21 --> 20     S    0.99    8.3e-01   267 - 275   270 - 277
+ 22 --> 21     S    1.00    9.9e-01   279 - 283   281 - 289
+ 23 --> 22     H    0.92    1.8e-01   292 - 300   296 - 302
+ 26 --> 25     S    1.00    9.3e-01   331 - 336   331 - 339
+ 29 --> 28     S    0.94    2.6e-01   360 - 364   363 - 370
+ 30 --> 29     S    0.99    7.5e-01   382 - 387   380 - 390
+ 31 --> 30     H    0.99    7.6e-01   393 - 405   394 - 406
+total assigned score   6.5010 
+
+
+looked at 1 db entries.
+CPU:       0.042 s
+the output written to 1bncA_1gsoA.struct_out.
+
+1b6r

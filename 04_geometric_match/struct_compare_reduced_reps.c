@@ -42,20 +42,8 @@ int compare_reduced_reps (Representation *rep1, Representation *rep2,
     NY_eff = rep2->N_compact;
  
    
-    if ( ! list->map ) { /*only on the first call */
-	list->map_max   = MAP_MAX*9;
-	list->best_max  = MAP_MAX;
-	list->map = emalloc (list->map_max*sizeof(Map) );/* TODO is this enough? */
-	if ( !list->map) return 1;
-	list->map_best    = emalloc (list->map_max*sizeof(int));
-	if (!list->map_best) return 1;
-	list->NX_allocated = NX;
-	list->NY_allocated = NY;
-	for ( map_ctr= 0; map_ctr<list->map_max; map_ctr++) {
-	    if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
-	}
-    }
-    
+    if ( ! list->map )  return 1;
+   
     
     /* the size has increased case */ 
     if ( NX > list->NX_allocated || NY > list->NY_allocated  ) {

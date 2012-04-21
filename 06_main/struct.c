@@ -140,6 +140,7 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* compare pairs from tgt and qry lists :                              */
+	list_alloc (&list, INIT_ALLOC_N, INIT_ALLOC_N);
 	qry_done = 0;
 	retval = -1;
 	db_effective_ctr = 0;
@@ -237,7 +238,7 @@ int main ( int argc, char * argv[]) {
 	    printf ("the output written to %s.\n\n", options.outname);
 	}
 	
-	list_shutdown (&list); /* defined in utils */
+	list_shutdown (&list); /* defined in struct_map */
     }
 
     descr_shutdown (&qry_descr);

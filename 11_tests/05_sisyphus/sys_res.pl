@@ -1,12 +1,13 @@
 #!/usr/bin/perl -w 
 
 $tfm_table = "sysphus_tfms.csv";
-$pdbdir    = "/home/ivanam/databases/pdbfiles";
-$pdbdown   = "/home/ivanam/perlscr/downloading/pdbdownload.pl";
-$pdtfm     = "/home/ivanam/perlscr/pdb_manip/pdb_affine_tfm.pl";
-$extr      = "/home/ivanam/perlscr/pdb_manip/pdb_extract_chain.pl";
-
-foreach ($tfm_table, $pdbdir, $pdbdown, "fold", "homologous", "fragment") {
+$pdbdir    = "/Users/ivana/databases/pdbfiles";
+$pdbdown   = "/Users/ivana/perlscr/downloading/pdbdownload.pl";
+$pdtfm     = "/Users/ivana/perlscr/pdb_manip/pdb_affine_tfm.pl";
+$extr      = "/Users/ivana/perlscr/pdb_manip/pdb_extract_chain.pl";
+$struct    = "/Users/ivana/kode/03_struct/struct"; 
+foreach ($tfm_table, $pdbdir, $pdbdown, "fold", "homologous", "fragment", "params",
+	 $pdtfm, $extr, $struct) {
     (-e $_) || die "$_ not found.\n";
 }
 
@@ -23,9 +24,14 @@ open ( IF, "<$tfm_table") ||
 
 $home = `pwd`; chomp $home;
 
+$qryfile = "";
+
+$ctr = 0;
 
 while (<IF>) {
 
+    $ctr++;
+    #($ctr==10) && exit;
 
     ($alignment_id, $alig_type, $pdb_code, $pdb_chain, $mat11, $mat12, 
      $mat13, $mat21, $mat22, $mat23, $mat31, $mat32, $mat33, 
@@ -58,34 +64,32 @@ while (<IF>) {
     }
     
 
-
     chdir "$home/$alig_type";
 
     (-e "pdbchains") || `mkdir pdbchains`;
-    (-e "sys_tfms")   || `mkdir sys_tfms`;
+    (-e "pdbchains/$current_qry") || `mkdir pdbchains/$current_qry`;
+    (-e "sys_tfms")  || `mkdir sys_tfms`;
 
 
-    $chainfile     = "pdbchains/$pdb_code$pdb_chain.pdb";
-    next if (-e $chainfile);
+    $chainfile     = "pdbchains/$current_qry/$pdb_code$pdb_chain.pdb";
+    
+    if (!-e $chainfile) {
+	# extract chain
 
-    if ( $chain ) {
+	    $cmd = "$extr $pdbdir/$pdb_code.pdb $pdb_chain >  $chainfile";
+	    if (system $cmd) {
+		print LOG "Error running $cmd.\n";
+	    }
 
-	$cmd = "$extr $pdbdir/$pdb_code.pdb $pdb_chain >  $chainfile";
-	if (system $cmd) {
-	    print LOG "Error running $cmd.\n";
-	}
-
-    } else {
-	
-	`cp $pdbdir/$pdb_code.pdb $chainfile`;
     }
    
   
 
-    # extract chain
-    next if ($is_query);
+    if ($is_query) {
+	$qryfile = $chainfile;
+	next;
+    }
 
-    $rot_chainfile = "pdbchains/$pdb_code$pdb_chain.to_$current_qry.pdb";
 
     # write tfm
     $filename = "$pdb_code.to_$current_qry.tfm";
@@ -100,16 +104,24 @@ while (<IF>) {
     close OF;    
 
     # pdb transform
-    $cmd = "$pdtfm $chainfile sys_tfms/$filename > $rot_chainfile\n";
-    if (system $cmd) {
+    #$cmd = "$pdtfm $chainfile sys_tfms/$filename > $rot_chainfile\n";
+    #if (system $cmd) {
+#	print LOG "Error running $cmd.\n";
+    #}
+
+    $cmd = "$struct -in1 $chainfile -in2 $qryfile -p ../params";
+    if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
+	next;
     }
 
-    
-   print `pwd`;
-    print $chainfile , " $alig_type \n";
-    exit;
+    $rot_chainfile_orig    = "$pdb_code$pdb_chain.rot_onto_$current_qry.pdb";
+    $rot_chainfile_renamed = "pdbchains/$current_qry/$pdb_code$pdb_chain.to_$current_qry.struct.pdb";
 
+    `mv $rot_chainfile_orig $rot_chainfile_renamed`;
+    `rm *.struct_out*`;
+
+ 
 }
 
 close IF;

@@ -45,6 +45,7 @@ Contact: ivana.mihalek@gmail.com.
 # define PDB  1
 # define  DB  2
 
+# define INIT_ALLOC_N  100
 
 /* used in preprocessor */
 # define MIN_HELIX_LENGTH 8

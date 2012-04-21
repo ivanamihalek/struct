@@ -36,4 +36,5 @@ struct
 ehthumbs.db
 Icon?
 Thumbs.db
-/nbproject/private/
+/nbproject/private/pdbchains
+sys_tfm
