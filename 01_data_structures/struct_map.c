@@ -373,6 +373,7 @@ int find_map ( Penalty_parametrization * penalty_params,
     for (i=0; i<NX; i++) {
 	 j = map->x2y[i];
 	 if ( j<0) continue;
+	 
 	 if ( map->cosine[i][j] < options.far_away_cosine) {
 	      map->x2y[i] = -1; 
 	      map->y2x[j] = -1; /*everything crashes; investigate later */
@@ -381,8 +382,6 @@ int find_map ( Penalty_parametrization * penalty_params,
 	 }    
     }
 
-
-    
     *F_effective = F_eff;
     
     return 0;

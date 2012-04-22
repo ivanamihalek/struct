@@ -51,6 +51,10 @@ while ( <IF> ) {
     }
     print "TER\n";
     $ascii--;
+    if ( $ascii < ord ("0") ) {
+	$ascii = ord ("Z");
+    }
+    
 }
 
 

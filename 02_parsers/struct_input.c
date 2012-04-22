@@ -244,11 +244,13 @@ int check_input_type (FILE *fptr) {
 
 	if ( ! strncmp (line, "name:",5) ) {
 	    input_type = DB;
-	} else if ( ! strncmp (line, "HEADER",6) ) {
+	} else if ( ! strncmp (line, "ATOM", 4) ) {
 	    input_type = PDB;	    
-	} else if ( ! strncmp (line, "ATOM",4) ) {
+	} else if ( ! strncmp (line, "HEADER", 6) ) {
 	    input_type = PDB;	    
-	} else if ( ! strncmp (line, "REMARK",6) ) {
+	} else if ( ! strncmp (line, "HETATM", 6) ) {
+	    input_type = PDB;	    
+	} else if ( ! strncmp (line, "REMARK", 6) ) {
 	    input_type = PDB;	    
 	}
     }

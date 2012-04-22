@@ -135,9 +135,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     if ( ! (anchor_x = emalloc(NX*sizeof(int) )) ) return 1;
     if ( ! (anchor_y = emalloc(NY*sizeof(int) )) ) return 1;
 
-    penalty_params.custom_gap_penalty_x = NULL;
-    penalty_params.custom_gap_penalty_y = NULL;
-    /***********************/
+      /***********************/
     
     /***********************/
     /* expected quantities */
@@ -157,6 +155,10 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     penalty_params.gap_extension = options.gap_extend;
     penalty_params.endgap        = options.endgap;
     penalty_params.endgap_special_treatment = options.use_endgap;
+    penalty_params.custom_gap_penalty_x = NULL;
+    penalty_params.custom_gap_penalty_y = NULL;
+    if ( ! (penalty_params.custom_gap_penalty_x = emalloc(NX*sizeof(double) )) ) return 1; 
+    if ( ! (penalty_params.custom_gap_penalty_y = emalloc(NY*sizeof(double) )) ) return 1; 
     /***********************/
 
 
@@ -1032,6 +1034,7 @@ int find_best_triples_greedy(Representation* X_rep, Representation* Y_rep, int n
             // do these three have  kind-of similar layout in space?
             // is handedness the same? 
             if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
+	    
 
             // are distances comparab;e? 
             if (distance_of_nearest_approach(X_rep, x_triple,

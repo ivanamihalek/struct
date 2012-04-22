@@ -174,6 +174,7 @@ int main ( int argc, char * argv[]) {
 		    continue;
 		} 
 
+		int match_found = 0;
 		/* min number of elements */
 		int helix_overlap =
 		    (qry_descr.no_of_helices < tgt_descr.no_of_helices) ?
@@ -205,18 +206,25 @@ int main ( int argc, char * argv[]) {
 		    if (options.verbose) {
 			write_maps (stdout, &tgt_descr, &qry_descr, &list);
 		    }
+		    match_found = (list.map_best[0] >= 0);
 
-		    if (options.postprocess) {
-			retval = align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
+		    if  (match_found) { /* otherwise we had no match */
+			if (options.postprocess) {
+			    retval = align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
 					 &qry_descr, &qry_structure, &qry_rep, &list, &score);
-			if (  retval) {
-			    printf (" error doing bb alignment   db:%s  query:%s \n",
-				    tgt_descr.name, qry_descr.name);
-			    exit (retval);
+			    if (  retval) {
+				printf (" error doing bb alignment   db:%s  query:%s \n",
+					tgt_descr.name, qry_descr.name);
+				exit (retval);
+			    }
+			    write_tfmd_pdb  (&tgt_structure, &list, &tgt_descr, &qry_descr);
+			    write_alignment (&tgt_structure, &qry_structure, &list);
 			}
-			write_tfmd_pdb  (&tgt_structure, &list, &tgt_descr, &qry_descr);
-			write_alignment (&tgt_structure, &qry_structure, &list);
-			
+			printf ("match found for db:%s  query:%s \n",
+				tgt_descr.name, qry_descr.name);
+		    } else {
+			printf ("no match for db:%s  query:%s \n",
+				tgt_descr.name, qry_descr.name);
 		    }
 		    
 		    rep_shutdown (&tgt_rep);
@@ -225,6 +233,8 @@ int main ( int argc, char * argv[]) {
 		} else if (options.report_no_sse_overlap) {
 		    /* write all zeros to the digest file  */
 		    write_digest(&qry_descr, &tgt_descr, digest, &score);
+		    printf ("no common SSEs for db:%s  query:%s \n",
+				tgt_descr.name, qry_descr.name);
 		}
 	    }
 	}

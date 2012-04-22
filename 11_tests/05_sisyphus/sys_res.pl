@@ -51,6 +51,7 @@ while (<IF>) {
 	$is_query    = 0;
     }
 
+    print "##############################################\n";
     print "$pdb_code\n";
 
     if ( ! -e  "$pdbdir/$pdb_code.pdb") {
@@ -76,10 +77,10 @@ while (<IF>) {
     if (!-e $chainfile) {
 	# extract chain
 
-	    $cmd = "$extr $pdbdir/$pdb_code.pdb $pdb_chain >  $chainfile";
-	    if (system $cmd) {
-		print LOG "Error running $cmd.\n";
-	    }
+	$cmd = "$extr $pdbdir/$pdb_code.pdb $pdb_chain >  $chainfile";
+	if (system $cmd) {
+	    print LOG "Error running $cmd.\n";
+	}
 
     }
    
@@ -118,8 +119,14 @@ while (<IF>) {
     $rot_chainfile_orig    = "$pdb_code$pdb_chain.rot_onto_$current_qry.pdb";
     $rot_chainfile_renamed = "pdbchains/$current_qry/$pdb_code$pdb_chain.to_$current_qry.struct.pdb";
 
-    `mv $rot_chainfile_orig $rot_chainfile_renamed`;
-    `rm *.struct_out*`;
+    if (-e $rot_chainfile_orig) {
+	`mv $rot_chainfile_orig $rot_chainfile_renamed`;
+
+    } else {
+	printf "$rot_chainfile_orig not found after\n$cmd\n";
+    }
+
+   `rm *.struct_out*`;
 
  
 }
