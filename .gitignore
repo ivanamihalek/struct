@@ -25,10 +25,12 @@ struct
 # Logs and databases #
 ######################
 11_tests
-*.log
+*log*
 *.sql
 *.sqlite
 *~
+pdbchains
+sys_tfm
 
 # OS generated files #
 ######################
@@ -36,7 +38,4 @@ struct
 ehthumbs.db
 Icon?
 Thumbs.db
-/nbproject/private/pdbchains
-sys_tfm
-log
-log_time
+/nbproject/private/
