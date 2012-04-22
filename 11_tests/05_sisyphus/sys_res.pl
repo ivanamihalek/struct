@@ -109,7 +109,7 @@ while (<IF>) {
 #	print LOG "Error running $cmd.\n";
     #}
 
-    $cmd = "$struct -in1 $chainfile -in2 $qryfile -p ../params";
+    $cmd = "time $struct -in1 $chainfile -in2 $qryfile -p ../params";
     if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
 	next;
