@@ -113,15 +113,11 @@ typedef struct {
     int exhaustive;       /* try all SSE triples (within the threshold (above)
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
-<<<<<<< HEAD
-    int out_of_order;     /* try to match structures out of order in database search phase */
-    int search_algorithm;   /* match SSEs sequentially or out-of-order
-				     in database search phase */
-=======
+
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */
     
->>>>>>> experiment
+
     
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */
