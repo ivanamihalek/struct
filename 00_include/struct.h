@@ -66,6 +66,10 @@ Contact: ivana.mihalek@gmail.com.
 #define REWARD   1
 #define PENALTY  0
 
+#define SEQUENTIAL    1
+# define OUT_OF_ORDER 2
+# define BOTH         3
+
 typedef struct {
     double merge_cosine;  /* min cos angle between two SSEs to be represented
 			     by (merged into) the same vector */
@@ -100,7 +104,8 @@ typedef struct {
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
     int out_of_order;     /* try to match structures out of order in database search phase */
-    int sequential;       /* match structures sequentially in database search phase */
+    int search_algorithm;   /* match SSEs sequentially or out-of-order
+				     in database search phase */
     
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */

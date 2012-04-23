@@ -24,7 +24,7 @@ Contact: ivana.mihalek@gmail.com.
 
 /* how many vars of each type need to be read in: */
 # define DOUBLES 18
-# define INTS    6
+# define INTS    7
 # define STRINGS 4
 # define CHARACTERS 2
     
@@ -64,10 +64,10 @@ int read_cmd_file (char *filename) {
 	&(options.grid_size), &(options.number_maps_cpl),
 	&(options.number_maps_out),
     	&(options.grad_max_step), &(options.exp_table_size),
-	&(options.min_no_SSEs)};
+	&(options.min_no_SSEs), &(options.search_algorithm)};
     char * names_of_ints[INTS] = {
 	"grid_size", "number_maps_cpl", "number_maps_out",
-	"grad_max_step", "exp_table_size", "min_no_SSEs"};
+	"grad_max_step", "exp_table_size", "min_no_SSEs", "search_algorithm"};
     
     char * strings[STRINGS] = { options.outname, options.path, options.pdbf_tgt, options.pdbf_qry};
     char * names_of_strings[STRINGS] = {"outname", "path", "pdbf_tgt", "pdbf_qry"};

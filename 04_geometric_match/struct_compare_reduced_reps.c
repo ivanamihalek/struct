@@ -42,7 +42,7 @@ int compare_reduced_reps (Representation *rep1, Representation *rep2,
     NY_eff = rep2->N_compact;
  
    
-    if ( ! list->map )  return 1;
+    if ( !list  || ! list->map )  return 1;
    
     
     /* the size has increased case */ 
