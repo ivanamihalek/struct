@@ -6,9 +6,15 @@ $pdbdir    = "$top_path/databases/pdbfiles";
 $pdbdown   = "$top_path/perlscr/downloading/pdbdownload.pl";
 $pdtfm     = "$top_path/perlscr/pdb_manip/pdb_affine_tfm.pl";
 $extr      = "$top_path/perlscr/pdb_manip/pdb_extract_chain.pl";
+$pdb2seq   = "$top_path/perlscr/pdb_manip/pdb2seq.pl";
+$afa2msf   = "$top_path/perlscr/translation/afa2msf.pl";
+$mafft     = "/usr/local/bin/mafft";
+$ssa       = "/home/ivanam/c-utils/struct_superp_analyzer/ssa";
+
 $struct    = "$top_path/kode/03_struct/struct"; 
+
 foreach ($tfm_table, $pdbdir, $pdbdown, "params",
-	 $pdtfm, $extr, $struct) {
+	 $pdtfm, $extr, $struct,$pdb2seq, $afa2msf, $mafft, $ssa ) {
     (-e $_) || die "$_ not found.\n";
 }
 
@@ -35,7 +41,6 @@ $home = `pwd`; chomp $home;
 
 $qryfile = "";
 
-$ctr = 0;
 
 while (<IF>) {
 
@@ -58,10 +63,13 @@ while (<IF>) {
 	$is_query    = 0;
 	#$ctr++;
 	#($ctr==11) && exit;
-   }
+    }
 
-    print "##############################################\n";
+    print "\n\n\n##############################################\n";
     print "$pdb_code\n";
+
+
+    chdir $home;
 
     if ( ! -e  "$pdbdir/$pdb_code.pdb") {
 	$cmd = "$pdbdown $pdb_code\n";
@@ -127,25 +135,57 @@ while (<IF>) {
     }
  
     # apply struct to the same problem
-    $cmd = "time $struct  -in1 $qryfile -in2 $chainfile -p ../params";
-    if  (system $cmd ) {
+    #if ( ! -e $rot_chainfile_renamed_struct) {
+
+	$cmd = "time $struct  -in1 $qryfile -in2 $chainfile -p ../params";
+	if  (system $cmd ) {
+	    print LOG "Error running $cmd.\n";
+	    next;
+	}
+	`rm *.struct_out*`;
+
+	$rot_chainfile_orig           = "$current_qry.rot_onto_$pdb_code$pdb_chain.pdb";
+	$rot_chainfile_renamed_struct = "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.pdb";
+
+	if (-e $rot_chainfile_orig) {
+	    `mv $rot_chainfile_orig $rot_chainfile_renamed_struct`;
+
+	} else {
+	    printf "$rot_chainfile_orig not found after\n$cmd\n";
+	    next;
+	}
+
+	chdir "pdbchains/$current_qry";
+    #}
+
+
+
+    $cmd = "($pdb2seq  $current_qry.to_$pdb_code$pdb_chain.sys.pdb ".
+	" && $pdb2seq  $current_qry.to_$pdb_code$pdb_chain.struct.pdb) > tmp.fasta";
+    if  (system $cmd) {
 	print LOG "Error running $cmd.\n";
 	next;
     }
 
-    $rot_chainfile_orig    = "$current_qry.rot_onto_$pdb_code$pdb_chain.pdb";
-    $rot_chainfile_renamed = "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.pdb";
-
-    if (-e $rot_chainfile_orig) {
-	`mv $rot_chainfile_orig $rot_chainfile_renamed`;
-
-    } else {
-	printf "$rot_chainfile_orig not found after\n$cmd\n";
+    $cmd = "$mafft --quiet tmp.fasta > tmp.afa";
+    if  (system $cmd) {
+	print LOG "Error running $cmd.\n";
+	next;
     }
 
-    `rm *.struct_out*`;
-
  
+    $cmd = "$afa2msf  tmp.afa > tmp.msf";
+    if  (system $cmd) {
+	print LOG "Error running $cmd.\n";
+	next;
+    }
+
+    @aux = split " ", `$ssa tmp.msf`; 
+    chomp $aux[2];
+ 
+    print " sysiphus-struct score $current_qry  $pdb_code$pdb_chain  $aux[2]\n";
+
+    `rm tmp*`;
 }
 
 close IF;

@@ -145,6 +145,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
  	   /* if it's a hydrogen - skip */
 	    if ( line[PDB_ATOM_ATOM_NAME] == 'H'
 		 ||  line[PDB_ATOM_ATOM_NAME+1] == 'H') continue;
+	    /* if it is an alternate location, also skip */
+	    if ( line[PDB_ATOM_ALTLOC] != ' ' && line[PDB_ATOM_ALTLOC] != 'A') continue;
 	    /* adjust the counters */ 
 	    if (  strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
 		/*+1 in  PDB_ATOM_RES_NO_LEN+1 means I am including the insertion code
@@ -201,7 +203,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 		    (ctr <= PDB_ATOM_ATOM_NAME_LEN) ) ctr++;
 	    /* copy alphanum info */
 	    nonblank = 0;
-	    while (  isalnum (*(auxptr +ctr))  &&  (ctr <= PDB_ATOM_ATOM_NAME_LEN) ) {
+	    while (  isalnum (*(auxptr +ctr))  &&  (ctr < PDB_ATOM_ATOM_NAME_LEN) ) {
 		tmp[nonblank] =  *(auxptr +ctr);
 		nonblank ++;
 		ctr++;
