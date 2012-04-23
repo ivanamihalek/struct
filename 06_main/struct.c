@@ -384,6 +384,8 @@ int set_default_options () {
     options.exhaustive     = 0; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
     
+    options.search_algorithm = sequential;
+    
     
     options.verbose        = 0;
     options.print_header   = 0;
