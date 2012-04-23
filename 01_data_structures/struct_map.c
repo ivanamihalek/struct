@@ -344,7 +344,15 @@ int find_map ( Penalty_parametrization * penalty_params,
     }
     
     /* dynamic programming using the "image" */
-    smith_waterman   (penalty_params, NX, NY, map->image, map->x2y, map->y2x, &aln_score);
+    
+    if (options.current_algorithm == sequential) {
+        smith_waterman (penalty_params, NX, NY, map->image, map->x2y, map->y2x, &aln_score);
+    } else if  (options.current_algorithm == out_of_order) {
+         hungarian_alignment (NX, NY, map->image, map->x2y, map->y2x, &aln_score);
+    } else {
+        printf("Wrong algorithm type\n");
+        return 1;
+    }
     
     map_assigned_score (X_rep, map);
 
@@ -389,6 +397,79 @@ int map_assigned_score ( Representation *X_rep,  Map* map) {
 
     
 }
+
+/**
+ * Function that calculate alignment, and maps structures using Hungarian algorithm
+ * @param NX
+ * @param NY
+ * @param similarity
+ * @param x2y
+ * @param y2x
+ * @param alignment
+ * @return 
+ */
+
+int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y2x, double * alignment ) {
+    int i,j;
+    *alignment  = 0;
+    for (i =0; i < NX; ++i) x2y[i] = -10;
+    for (i =0; i < NY; ++i) y2x[i] = -10;
+     
+    
+    int multiplier = 1000; // precision level for conversion of double to int
+    int **scoring_matrix;
+    scoring_matrix = intmatrix(NX, NY);
+    
+    similarity_to_scoring(NX, NY, multiplier, similarity, scoring_matrix );
+    
+    
+    hungarian_problem_t p;
+    
+    int matrix_size = hungarian_init(&p, scoring_matrix, NX,NY, HUNGARIAN_MODE_MAXIMIZE_UTIL);
+    if (matrix_size < 0) printf("wrong matrix size for Hungarian algorithm\n");
+
+    hungarian_solve(&p);
+
+    // checking if the number of rows is greater than number of columns. Note: Hungarian 
+    if (NX >= NY) {
+        for (i = 0; i < NX; ++i) {
+            for (j = 0; j < NY; ++j) {
+                if (p.assignment[i][j] && similarity[i][j] > 0) {
+                    x2y[i] = j;
+                    y2x[j] = i;
+                    *alignment += similarity[i][j];
+                }
+            }
+        }
+    }
+    
+  /* free used memory */
+    hungarian_free(&p);
+    free_imatrix(scoring_matrix);
+    
+    return 0;
+    
+}
+
+/**
+ * Function that converts similarity matrix of doubles to scoring matrix of integers
+ * Scoring matrix is necessary to the Hungarian algorithm 
+ * @param m input double matrix
+ * @param rows
+ * @param cols
+ * @return matrix of integers
+ */
+
+void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) {
+  int i,j;
+  
+  for(i=0;i<NX;i++) {
+      for(j=0;j<NY;j++) hungarian_alignment[i][j] = similarity[i][j] * multiplier;
+  }
+}
+
+
+
 /************************************/
 /************************************/
 int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, double **similarity,

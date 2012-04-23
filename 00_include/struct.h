@@ -29,6 +29,7 @@ Contact: ivana.mihalek@gmail.com.
 # include <ctype.h>
 # include <time.h>
 # include <assert.h>
+# include "hungarian.h"
 # include "struct_utils.h"
 # include "struct_pdb.h"
 # include "struct_geometry.h"
@@ -65,6 +66,13 @@ Contact: ivana.mihalek@gmail.com.
 #define REWARD   1
 #define PENALTY  0
 
+typedef enum   /* Declares an enumeration data type called ALGORITHM */
+{
+    sequential,     
+    out_of_order,
+    both
+} ALGORITHM; 
+
 typedef struct {
     double merge_cosine;  /* min cos angle between two SSEs to be represented
 			     by (merged into) the same vector */
@@ -98,8 +106,9 @@ typedef struct {
     int exhaustive;       /* try all SSE triples (within the threshold (above)
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
-    int out_of_order;     /* try to match structures out of order in database search phase */
-    int sequential;       /* match structures sequentially in database search phase */
+    ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
+    ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */
+    
     
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */
@@ -319,6 +328,7 @@ int find_quat_exp (double ** X, int NX, double **Y, int NY,
 int free_map (Map *map);
 int geometric_descriptors (Protein * protein);
 int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, Descr * description);
+int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y2x, double * alignment );
 int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
@@ -356,10 +366,11 @@ int rep_shutdown  (Representation * rep);
 int rotate(double **Ynew, int NY, double **R, double ** Y);
 int set_match_algebra ();
 int set_up_exp_table ();
+void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) ;
 char single_letter ( char code[]);
+int sse2descriptor (Protein *protein, Descr *descr);
 int store_image (Representation *X_rep,  Representation *Y_rep, 
 		 double **R, double alpha,  Map *map);
-int sse2descriptor (Protein *protein, Descr *descr);
 int structure2sse  (Protein *protein);
 
 
