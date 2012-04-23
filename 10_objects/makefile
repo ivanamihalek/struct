@@ -7,7 +7,7 @@ CPLUSCOMPL = g++
 HERE = $(shell pwd)
 
 NAME = ../struct
-OPTM =  -O
+OPTM =  -g
 
 
 VPATH = ../01_data_structures:../02_parsers:../03_output:\
@@ -18,8 +18,8 @@ VPATH = ../01_data_structures:../02_parsers:../03_output:\
 PLATFORM = $(shell uname)
 
 
-LIBS =  -lm -lc  -L/usr/lib  -llapack  
-INCLUDE = -I ../00_include
+LIBS    =  -lm -lc  -L/usr/lib  -llapack  
+INCLUDE =  -I ../00_include
 
 
 DEFINES =   # -DDMALLOC # -DDEBUG

@@ -24,7 +24,7 @@ Contact: ivana.mihalek@gmail.com.
 
 /* how many vars of each type need to be read in: */
 # define DOUBLES 18
-# define INTS    7
+# define INTS    6
 # define STRINGS 4
 # define CHARACTERS 2
     
@@ -64,10 +64,10 @@ int read_cmd_file (char *filename) {
 	&(options.grid_size), &(options.number_maps_cpl),
 	&(options.number_maps_out),
     	&(options.grad_max_step), &(options.exp_table_size),
-	&(options.min_no_SSEs), &(options.search_algorithm)};
+	&(options.min_no_SSEs)};
     char * names_of_ints[INTS] = {
 	"grid_size", "number_maps_cpl", "number_maps_out",
-	"grad_max_step", "exp_table_size", "min_no_SSEs", "search_algorithm"};
+	"grad_max_step", "exp_table_size", "min_no_SSEs"};
     
     char * strings[STRINGS] = { options.outname, options.path, options.pdbf_tgt, options.pdbf_qry};
     char * names_of_strings[STRINGS] = {"outname", "path", "pdbf_tgt", "pdbf_qry"};
@@ -186,6 +186,29 @@ int read_cmd_file (char *filename) {
 	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "exhaustive")  ) {
 	    options.exhaustive = 1;
+	    token_assigned = 1;
+	}
+
+	if ( ! token_assigned  &&  !strcmp (token[0], "search_algorithm")  ) {
+	    if ( max_token < 1 ) {
+		errmsg ( log, line_ctr, line,
+			 "\tKeyord %s should be followed by one of the kwds"
+			 " sequential, out_of_order, or both.\n",
+			 token[0]);
+		return 1;
+	    }
+	    if ( !strcmp (token[1], "sequential") ) {
+		options.search_algorithm = SEQUENTIAL;
+	    } else if ( !strcmp (token[1], "out_of_order") ) {
+		options.search_algorithm = OUT_OF_ORDER;
+	    } else if  ( !strcmp (token[1], "both") ){
+		options.search_algorithm = BOTH;
+	    } else {
+		errmsg ( log, line_ctr, line,
+			 "\tKeyord %s should be followed by one of the kwds"
+			 " sequential, out_of_order, or both.\n",
+			 token[0]);
+	    }
 	    token_assigned = 1;
 	}
 
