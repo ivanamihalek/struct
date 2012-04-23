@@ -103,32 +103,38 @@ while (<IF>) {
     }
 
 
-    # write tfm
+    # write tfm - not the negative T
     $filename = "$pdb_code.to_$current_qry.tfm";
     open (OF, ">sys_tfms/$filename") ||
 	die "Cno $filename: $!.\n";
     printf OF "%8.4f   %8.4f   %8.4f   %8.4f \n",  
-    $mat11, $mat12, $mat13, $shift1;
+    $mat11, $mat12, $mat13, -$shift1;
     printf OF "%8.4f   %8.4f   %8.4f   %8.4f \n",  
-    $mat21, $mat22, $mat23, $shift2;
+    $mat21, $mat22, $mat23, -$shift2;
     printf OF "%8.4f   %8.4f   %8.4f   %8.4f \n",  
-    $mat31, $mat32, $mat33, $shift3;
+    $mat31, $mat32, $mat33, -$shift3;
     close OF;    
 
-    # pdb transform
-    #$cmd = "$pdtfm $chainfile sys_tfms/$filename > $rot_chainfile\n";
-    #if (system $cmd) {
-#	print LOG "Error running $cmd.\n";
-    #}
-
-    $cmd = "time $struct -in1 $chainfile -in2 $qryfile -p ../params";
+    $rot_chainfile_renamed = "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.sys.pdb";
+    if ( ! -e $rot_chainfile_renamed ) {
+	$rot_chainfile_orig    = "$current_qry.to_$pdb_code$pdb_chain.sys.pdb";
+	# pdb transform using Sysiphus matrix - note translation first
+	$cmd = "$pdtfm $qryfile sys_tfms/$filename -trnsl_first > $rot_chainfile_orig\n";
+	if (system $cmd) {
+	    print LOG "Error running $cmd.\n";
+	}
+	`mv $rot_chainfile_orig $rot_chainfile_renamed`;
+    }
+ 
+    # apply struct to the same problem
+    $cmd = "time $struct  -in1 $qryfile -in2 $chainfile -p ../params";
     if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
 	next;
     }
 
-    $rot_chainfile_orig    = "$pdb_code$pdb_chain.rot_onto_$current_qry.pdb";
-    $rot_chainfile_renamed = "pdbchains/$current_qry/$pdb_code$pdb_chain.to_$current_qry.struct.pdb";
+    $rot_chainfile_orig    = "$current_qry.rot_onto_$pdb_code$pdb_chain.pdb";
+    $rot_chainfile_renamed = "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.pdb";
 
     if (-e $rot_chainfile_orig) {
 	`mv $rot_chainfile_orig $rot_chainfile_renamed`;
@@ -137,7 +143,7 @@ while (<IF>) {
 	printf "$rot_chainfile_orig not found after\n$cmd\n";
     }
 
-   `rm *.struct_out*`;
+    `rm *.struct_out*`;
 
  
 }
