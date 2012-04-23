@@ -415,11 +415,8 @@ int set_default_options () {
 
     options.exhaustive     = 0; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
-<<<<<<< HEAD
-    options.search_algorithm = SEQUENTIAL;
-    options.out_of_order     = 1;
-=======
->>>>>>> experiment
+
+    options.search_algorithm = sequential;
     
     
     options.verbose        = 0;

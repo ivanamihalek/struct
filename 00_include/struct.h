@@ -67,18 +67,16 @@ Contact: ivana.mihalek@gmail.com.
 #define REWARD   1
 #define PENALTY  0
 
-<<<<<<< HEAD
 #define SEQUENTIAL    1
 # define OUT_OF_ORDER 2
 # define BOTH         3
-=======
 typedef enum   /* Declares an enumeration data type called ALGORITHM */
 {
     sequential,     
     out_of_order,
     both
 } ALGORITHM; 
->>>>>>> experiment
+
 
 typedef struct {
     double merge_cosine;  /* min cos angle between two SSEs to be represented
@@ -116,8 +114,6 @@ typedef struct {
 
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */
-    
-
     
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */
