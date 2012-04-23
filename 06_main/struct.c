@@ -171,6 +171,10 @@ int main ( int argc, char * argv[]) {
 		    /*************************************************************/
 		    /*  here is the core: comparison of reduced representations  */
 		    retval = compare_reduced_reps ( &tgt_rep, &qry_rep, &list, &score);
+                    
+                    
+                    
+                    
 		    if (retval) { /* this might be printf (rather than fprintf)
 				     bcs perl has a problem intercepting stderr */
 			printf (" error comparing   db:%s  query:%s \n",
@@ -349,6 +353,9 @@ int set_default_options () {
 
     options.exhaustive     = 0; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
+    options.sequential = 1;
+    options.out_of_order = 1;
+    
     
     options.verbose        = 0;
     options.print_header   = 0;

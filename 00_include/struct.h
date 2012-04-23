@@ -98,6 +98,9 @@ typedef struct {
     int exhaustive;       /* try all SSE triples (within the threshold (above)
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
+    int out_of_order;     /* try to match structures out of order in database search phase */
+    int sequential;       /* match structures sequentially in database search phase */
+    
     int use_endgap;
     int grid_size;        /* minimal number of points for the sphere grid */
     int number_maps_cpl;  /* number of top scoring maps among which to   */
