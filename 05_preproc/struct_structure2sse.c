@@ -247,7 +247,7 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
     };
     Ideal_struct ideal_strand = {
         .struct_type = 'E',
-        .ideal_rec = {6.2, 9.5, 12.4},
+        .ideal_rec = {6.5, 10, 13},
         .count_min = 3,
         .weight_thr = 2
     };

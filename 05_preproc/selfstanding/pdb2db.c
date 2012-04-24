@@ -42,11 +42,11 @@ int main ( int argc, char * argv[]) {
 
     /* find positions of SSEs on the sequence */
     if ( structure2sse (&protein)) {
-	fprintf ( stderr, "Error  finding SSEs..\n");
+	fprintf ( stderr, "Error  finding SSEs.\n");
 	exit (1);
     }
 
-    /* replace each SSE with a (directed) line: */
+    /*  make the descriptor structure */
     if ( sse2descriptor (&protein, &descr)) {
 	fprintf ( stderr, "Error  fitting lines to sse.\n");
 	exit (1);

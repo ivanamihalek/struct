@@ -27,7 +27,7 @@ Contact: ivana.mihalek@gmail.com.
 # define HELIX 2
 # define STRAND 4
 
-# define MIN_CaS_IN_SSE 4  /* min number of Cas to be used for fitting of SSEs */
+# define MIN_CaS_IN_SSE 3  /* min number of Cas to be used for fitting of SSEs */
 
 
 /* maximal allowed overlap between structural elements */

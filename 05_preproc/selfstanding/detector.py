@@ -4,7 +4,7 @@ from Bio.PDB.PDBParser import PDBParser
 
 # parameters
 pattern_vector_alpha = [5.43, 5.05, 6.20]
-pattern_vector_beta = [6.2, 9.5, 12.4]
+pattern_vector_beta = [6.5, 10, 13]
 pattern_vector_310 = [5.14, 6, 8.63]
 alpha_count_min = 4
 beta_count_min = 3
