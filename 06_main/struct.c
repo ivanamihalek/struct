@@ -145,7 +145,9 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* compare pairs from tgt and qry lists :                              */
-	list_alloc (&list, INIT_ALLOC_N, INIT_ALLOC_N);
+	list_alloc (&list_sequential, INIT_ALLOC_N, INIT_ALLOC_N);
+        list_alloc (&list_out_of_order, INIT_ALLOC_N, INIT_ALLOC_N);
+        
 	qry_done = 0;
 	retval = -1;
 	db_effective_ctr = 0;
@@ -201,23 +203,23 @@ int main ( int argc, char * argv[]) {
                     int retval1 = 0, retval2 = 0;
                     
                     switch (options.search_algorithm){
-                        case sequential:
-                            options.current_algorithm = sequential;    
+                        case SEQUENTIAL:
+                            options.current_algorithm = SEQUENTIAL;    
                             retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_sequential, &score_sequential);
                             list = list_sequential;
                             score = score_sequential;
                             break;
-                        case out_of_order:
-                            options.current_algorithm = out_of_order;    
-                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
+                        case OUT_OF_ORDER:
+                            options.current_algorithm = OUT_OF_ORDER;    
+                            retval2 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
                             list = list_out_of_order;
                             score = score_out_of_order;
                             break;
-                        case both:
-                            options.current_algorithm = sequential;    
-                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list, &score);
-                            options.current_algorithm = out_of_order;    
-                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
+                        case BOTH:
+                            options.current_algorithm = SEQUENTIAL;    
+                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_sequential, &score_sequential);
+                            options.current_algorithm = OUT_OF_ORDER;    
+                            retval2 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
                             if (score_sequential.total_assigned_score > score_out_of_order.total_assigned_score) {
                                 list = list_sequential;
                                 score = score_sequential;
@@ -227,7 +229,8 @@ int main ( int argc, char * argv[]) {
                             }
                     }
                     
-		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
+                    printf("%d %d\n", retval1, retval2);
+                    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
 				     bcs perl has a problem intercepting stderr */
 			printf (" error comparing   db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
@@ -416,9 +419,7 @@ int set_default_options () {
     options.exhaustive     = 0; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
 
-    options.search_algorithm = sequential;
-    
-    options.search_algorithm = sequential;
+    options.search_algorithm = SEQUENTIAL;
     
     
     options.verbose        = 0;

@@ -67,14 +67,11 @@ Contact: ivana.mihalek@gmail.com.
 #define REWARD   1
 #define PENALTY  0
 
-#define SEQUENTIAL    1
-# define OUT_OF_ORDER 2
-# define BOTH         3
 typedef enum   /* Declares an enumeration data type called ALGORITHM */
 {
-    sequential,     
-    out_of_order,
-    both
+    SEQUENTIAL,     
+    OUT_OF_ORDER,
+    BOTH
 } ALGORITHM; 
 
 

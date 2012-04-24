@@ -366,15 +366,15 @@ int find_map ( Penalty_parametrization * penalty_params,
     
     /* dynamic programming using the "image" */
     
-    if (options.current_algorithm == sequential) {
+    if (options.current_algorithm == SEQUENTIAL) {
         smith_waterman (penalty_params, NX, NY, map->image, map->x2y, map->y2x, &aln_score);
-    } else if  (options.current_algorithm == out_of_order) {
+    } else if  (options.current_algorithm == OUT_OF_ORDER) {
          hungarian_alignment (NX, NY, map->image, map->x2y, map->y2x, &aln_score);
     } else {
         printf("Wrong algorithm type\n");
         return 1;
     }
-    
+   
     map_assigned_score (X_rep, map);
 
     F_eff = 0;
@@ -451,18 +451,21 @@ int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y
     hungarian_solve(&p);
 
     // checking if the number of rows is greater than number of columns. Note: Hungarian 
-    if (NX >= NY) {
-        for (i = 0; i < NX; ++i) {
-            for (j = 0; j < NY; ++j) {
-                if (p.assignment[i][j] && similarity[i][j] > 0) {
-                    x2y[i] = j;
-                    y2x[j] = i;
-                    *alignment += similarity[i][j];
-                }
+    
+    
+   // if (NX >= NY) {
+    for (i = 0; i < NX; ++i) {
+        for (j = 0; j < NY; ++j) {
+            if (p.assignment[i][j] && similarity[i][j] > 0) {
+                x2y[i] = j;
+                y2x[j] = i;
+                *alignment += similarity[i][j];
             }
         }
     }
-    
+    //} 
+        
+  
   /* free used memory */
     hungarian_free(&p);
     free_imatrix(scoring_matrix);
