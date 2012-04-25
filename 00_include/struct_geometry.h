@@ -45,6 +45,7 @@ typedef struct {
     char pdb_id[PDB_ATOM_RES_NO_LEN+2];
     char res_type[PDB_ATOM_RES_NAME_LEN+1];
     char res_type_short;
+    char chain;
     int no_atoms;
     Atom atom[MAX_NO_ATOMS];
     Atom *Ca;

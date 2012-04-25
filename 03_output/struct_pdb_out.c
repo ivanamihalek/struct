@@ -76,9 +76,10 @@ int pdb_output ( char *filename, Residue * sequence, int no_res){
 	for (atomctr=0; atomctr < sequence[resctr].no_atoms; atomctr++) {
 	    serial ++;
 	    atomptr = sequence[resctr].atom + atomctr;
-	    fprintf (fptr,  "%-6s%5d  %-3s%1s%-3s %1s%4s%1s   %8.3lf%8.3lf%8.3lf\n", 
-		"ATOM",  serial ,  atomptr->type,   " ",   sequence[resctr].res_type,
-		"Z", sequence[resctr].pdb_id,   " " ,   atomptr->x,  atomptr->y,   atomptr->z);
+	    fprintf (fptr,  "%-6s%5d  %-3s%1s%-3s %1c%4s%1s   %8.3lf%8.3lf%8.3lf\n", 
+		     "ATOM",  serial ,  atomptr->type,   " ",   sequence[resctr].res_type,
+		     sequence[resctr].chain, sequence[resctr].pdb_id,   " " ,
+		     atomptr->x,  atomptr->y,   atomptr->z);
 	}
     }
 

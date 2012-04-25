@@ -131,9 +131,11 @@ int main ( int argc, char * argv[]) {
 	/**********************************************************************/
 	/* read in the table of integral values                               */
 	/* the array int_table in struct_table.c                              */
-	if ( read_integral_table (options.path) ) {
-	    fprintf (stderr, "In data file  %s.\n\n", options.path);
-	    exit (1);
+	if ( options.path[0] ) {
+	    if ( read_integral_table (options.path) ) {
+		fprintf (stderr, "In data file  %s.\n\n", options.path);
+		exit (1);
+	    }
 	}
 	set_up_exp_table ();
    
@@ -145,7 +147,7 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* compare pairs from tgt and qry lists :                              */
-	list_alloc (&list_sequential, INIT_ALLOC_N, INIT_ALLOC_N);
+	list_alloc (&list_sequential,   INIT_ALLOC_N, INIT_ALLOC_N);
         list_alloc (&list_out_of_order, INIT_ALLOC_N, INIT_ALLOC_N);
         
 	qry_done = 0;
@@ -361,12 +363,12 @@ int set_default_options () {
     memset (&options, 0, sizeof(Options) );
 
 
-    options.min_no_SSEs = 4;
+    options.min_no_SSEs = 3;
 
     options.merge_cosine = 1.1; /*min cos angle between two SSEs to be represented
 				  by (merged into) the same vector */
     
-    options.alpha = 0.0;  /* gaussian width for the scoring fn F */
+    options.alpha = 0.3;  /* gaussian width for the scoring fn F */
                           /* note that it is set from the input table */
                           /* rather than from the cmd file        */
     options.tol           /* tol in F for the claim that the query and  */
@@ -433,7 +435,6 @@ int set_default_options () {
     
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);
-    sprintf (options.path,  "%s",  INTEGRAL_TABLE);
 
     return 0;
 }

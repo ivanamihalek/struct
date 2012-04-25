@@ -29,7 +29,7 @@ Contact: ivana.mihalek@gmail.com.
 # include <ctype.h>
 # include <time.h>
 # include <assert.h>
-# include "hungarian.h"
+# include "struct_hungarian.h"
 # include "struct_utils.h"
 # include "struct_pdb.h"
 # include "struct_geometry.h"
@@ -285,7 +285,6 @@ extern Options options;  /* defined in struct.c */
 # define NR_POINTS 100
 # define TABLE_SIZE NR_POINTS+1
 
-# define INTEGRAL_TABLE "/home/ivanam/baubles/struct/08_data/tmp.1000.table"
 # define MAX_EXP_VALUE 10
 
 extern double int_table [TABLE_SIZE][TABLE_SIZE];

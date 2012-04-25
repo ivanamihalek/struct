@@ -85,10 +85,10 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     old_chain = '\0';
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
-	if (resctr) {
-	    if ( ! strncmp(line,"END", 3) ||  (chain && line[PDB_ATOM_CHAINID] != old_chain) )
-		break;
-	}
+	//if (resctr) {
+	//    if ( ! strncmp(line,"END", 3) ||  (chain && line[PDB_ATOM_CHAINID] != old_chain) )
+	//	break;
+	//}
 	if (chain  && line[PDB_ATOM_CHAINID] != chain) continue;
 	chain_found  = 1;
 	
@@ -135,10 +135,10 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
 	
-	if ( resctr > -1) {
-	    if  (! strncmp(line,"END", 3)  ||  (chain && line[PDB_ATOM_CHAINID] != old_chain))
-	    break;
-	}
+	//if ( resctr > -1) {
+	//    if  (! strncmp(line,"END", 3)  ||  (chain && line[PDB_ATOM_CHAINID] != old_chain))
+	//    break;
+	//}
 	if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
 	
 	if( ! strncmp(line,"ATOM", 4) ){
@@ -158,13 +158,13 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 		
 		/* handling the case when the chain is not given, meaning: "take the first chain" */ 
 		old_chain = line[PDB_ATOM_CHAINID];
-		
 		resctr ++;
 		if ( resctr >= no_res ) {
 		    fprintf (stderr, "Error reading pdb: resctr:%d   no res: %d\n",
 			     resctr, no_res);
 		    return ERR_NONSENSE;
 		}
+		sequence[resctr].chain = line[PDB_ATOM_CHAINID];
 		atomctr = 0;
 		/* keep track of atom types we have read in */
 		memset (atomtypes_read_in, 0, BUFFLEN*sizeof(char));

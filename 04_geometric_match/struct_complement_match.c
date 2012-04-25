@@ -135,13 +135,18 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     if ( ! (anchor_x = emalloc(NX*sizeof(int) )) ) return 1;
     if ( ! (anchor_y = emalloc(NY*sizeof(int) )) ) return 1;
 
-      /***********************/
+    /***********************/
     
     /***********************/
     /* expected quantities */
     /***********************/
     avg = avg_sq = stdev = 0.0;
     if (0) {
+	if ( ! options.path[0] ) {
+	    fprintf (stderr, "path to integral table must be given "
+		     "in the cmd file (kwd \"path\") to calculate z-score for F.\n");
+	    exit (1);
+	}
 	if (F_moments (x, x_type, NX, y, y_type, NY, alpha, &avg, &avg_sq, &stdev)) return 1;
     }
     /***********************/

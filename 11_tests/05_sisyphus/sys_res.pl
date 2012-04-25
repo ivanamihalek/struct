@@ -9,12 +9,13 @@ $extr      = "$top_path/perlscr/pdb_manip/pdb_extract_chain.pl";
 $pdb2seq   = "$top_path/perlscr/pdb_manip/pdb2seq.pl";
 $afa2msf   = "$top_path/perlscr/translation/afa2msf.pl";
 $mafft     = "/usr/local/bin/mafft";
-$ssa       = "/home/ivanam/c-utils/struct_superp_analyzer/ssa";
+$nossa       = "/home/ivanam/kode/03_struct/09_tools/".
+    "no_seq_sim_struct_superp_analyzer/nossa";
 
 $struct    = "$top_path/kode/03_struct/struct"; 
 
 foreach ($tfm_table, $pdbdir, $pdbdown, "params",
-	 $pdtfm, $extr, $struct,$pdb2seq, $afa2msf, $mafft, $ssa ) {
+	 $pdtfm, $extr, $struct,$pdb2seq, $afa2msf, $mafft, $nossa ) {
     (-e $_) || die "$_ not found.\n";
 }
 
@@ -145,7 +146,8 @@ while (<IF>) {
 	`rm *.struct_out*`;
 
 	$rot_chainfile_orig           = "$current_qry.rot_onto_$pdb_code$pdb_chain.pdb";
-	$rot_chainfile_renamed_struct = "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.pdb";
+	$rot_chainfile_renamed_struct = "pdbchains/$current_qry/".
+	    "$current_qry.to_$pdb_code$pdb_chain.struct.pdb";
 
 	if (-e $rot_chainfile_orig) {
 	    `mv $rot_chainfile_orig $rot_chainfile_renamed_struct`;
@@ -159,6 +161,38 @@ while (<IF>) {
     #}
 
 
+    $cmd = "$nossa $current_qry.to_$pdb_code$pdb_chain.sys.pdb ".
+	" $pdb_code$pdb_chain.pdb";
+    @aux = split " ", `$cmd`; 
+    chomp $aux[3];
+ 
+    print " sysiphus        score $current_qry  $pdb_code$pdb_chain  $aux[3]\n";
+
+    ####################33
+    $cmd = "$nossa $current_qry.to_$pdb_code$pdb_chain.struct.pdb ".
+	" $pdb_code$pdb_chain.pdb";
+    @aux = split " ", `$cmd`; 
+    chomp $aux[3];
+ 
+    print " struct          score $current_qry  $pdb_code$pdb_chain  $aux[3]\n";
+
+    ####################33
+    $cmd = "$nossa $current_qry.to_$pdb_code$pdb_chain.sys.pdb ".
+	" $current_qry.to_$pdb_code$pdb_chain.struct.pdb";
+    @aux = split " ", `$cmd`; 
+    chomp $aux[3];
+ 
+    print " sysiphus-struct score $current_qry  $pdb_code$pdb_chain  $aux[3]\n";
+
+
+}
+
+close IF;
+
+
+
+
+=pod
 
     $cmd = "($pdb2seq  $current_qry.to_$pdb_code$pdb_chain.sys.pdb ".
 	" && $pdb2seq  $current_qry.to_$pdb_code$pdb_chain.struct.pdb) > tmp.fasta";
@@ -180,14 +214,4 @@ while (<IF>) {
 	next;
     }
 
-    @aux = split " ", `$ssa tmp.msf`; 
-    chomp $aux[2];
- 
-    print " sysiphus-struct score $current_qry  $pdb_code$pdb_chain  $aux[2]\n";
-
-    `rm tmp*`;
-}
-
-close IF;
-
-
+=cut
