@@ -30,16 +30,40 @@ int smith_waterman_2 (int max_i, int max_j, double **similarity,
 
 # define MAX_DIST_TO_CONSIDER 9.0
 
+/**************************************************************/
+int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation *rep1, 
+		    Descr *descr2, Protein * protein2, Representation *rep2, 
+		    Map *map);
+
+
 int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1, 
 		    Descr *descr2, Protein * protein2, Representation *rep2, 
-		    List_of_maps *list, Score *score) {
+		    List_of_maps *list){
+    
+     if ( list->map_max == 0  ) return 1;
+     
+     int map_ctr, retval;
+     Map *current_map;
+
+     for (map_ctr=0; map_ctr < list->map_max; map_ctr++) {
+	 current_map = list->map+map_ctr;
+	 retval = single_map_align_backbone (descr1, protein1, rep1, descr2, protein2, rep2, current_map);
+	 if (retval) {
+	     printf (" error doing bb alignment   db:%s  query:%s \n",
+		     descr1->name, descr2->name);
+	     exit (retval);
+	 }	 
+     }
+
+     return 0;
+}
+
+/**************************************************************/
+int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation *rep1, 
+		    Descr *descr2, Protein * protein2, Representation *rep2, 
+		    Map * map) {
     
     /* for now,  we will just postprocess the  best map */
-    int best_ctr = 0;
-
-    int map_ctr = list->map_best[best_ctr];
-    if ( map_ctr < 0 ) return 1;
-    Map *map = list->map+map_ctr;
 
     int no_res_1 = protein1->length, no_res_2= protein2->length;
     int resctr1, resctr2;
@@ -283,7 +307,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 				element_2_begin, element_2_end, longest_element_length,
 				similarity, sim_in_element,
 				residue_map_i2j,  residue_map_j2i, &aln_score);
-   }
+    }
  
     
 	
@@ -596,11 +620,8 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 
     /*************************************************************************/
     map->res_almt_length     = map_size;
+    map->aln_score           = aln_score;
     map->res_rmsd            = rmsd;
-
-    score->res_almt_score  = aln_score;
-    score->res_almt_length = map_size;
-    score->res_rmsd            = rmsd;
 
     free_dmatrix(R);
     free_dmatrix (similarity);

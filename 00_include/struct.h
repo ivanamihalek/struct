@@ -60,6 +60,8 @@ Contact: ivana.mihalek@gmail.com.
 # define ERR_MAX_ATOMS  64
 # define ERR_NO_FILE_OR_CHAIN  128
 
+# define MAP_SIM_THRESHOLD 0.9
+
 /* used in alignment functions */
 # define FAR_FAR_AWAY -1000
 
@@ -296,16 +298,13 @@ extern double exp_table [TABLE_SIZE];
 /******************************/
 
 int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
-		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep,
-		    List_of_maps *list, Score *score);
+		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep, List_of_maps *list);
 int check_gap_lengths (Map * map, double *gap_score );
 int check_input_type  (FILE *fptr);
 int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
 int compare_descr     (Descr *descr1, Descr *descr2, List_of_maps *list, Score *score);
-int complement_match  (Representation* X_rep, Representation* Y_rep, Map * map, int map_max,
-		       int * map_ctr, int * map_best, int best_max, int parent_map);
-int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
-				 Map *map );
+int complement_match  (Representation* X_rep, Representation* Y_rep, List_of_maps * list);
+int construct_translation_vecs (Representation *X_rep,  Representation *Y_rep, Map *map);
 int descr_init ( Descr * description);
 int descr_out (FILE * fptr, Descr * descr);
 int descr_shutdown ( Descr * description );
@@ -317,15 +316,14 @@ int F_moments (double **x, int *x_type, int NX,
 	       double *avg_ptr, double *avg_sq_ptr,
 	       double *std_ptr);
 int fill_protein_info ( FILE * fptr,  char chain, Protein * protein);
-int find_next_pair (double **X, double **Y, 
-		    int *x_type, int *y_type,
-		    int NX, int NY, int nbr_range,
-		    int x_ctr, int y_ctr,
+int find_next_pair (double **X, double **Y, int *x_type, int *y_type,
+		    int NX, int NY, int nbr_range, int x_ctr, int y_ctr,
 		    int *x_next_ptr, int *y_next_ptr);
 int find_quat (double ** Xin, double **Yin, int no_vectors,
 		 double * quat, double *qof);
 int find_quat_exp (double ** X, int NX, double **Y, int NY,
 		     double alpha, double * quat, double *qof);
+int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *list_uniq);
 int free_map (Map *map);
 int geometric_descriptors (Protein * protein);
 int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, Descr * description);
@@ -333,13 +331,14 @@ int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y
 int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
-int list_alloc (List_of_maps * list, int NX, int NY);
+int list_alloc (List_of_maps * list, int NX, int NY, int fake);
 int list_shutdown (List_of_maps * list);
 double lookup ( double alpha, double beta);
 int map_assigned_score (Representation *X_rep,  Map* map);
 int map_complementarity (Map *map1, Map *map2, double *z);
 int map_consistence (int NX, int NY, Map *combined_map, Map *map1, Map *map2,
 		     double *total_ptr, double * gap_score);
+int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);
 int mat_out (double A[4][4], char *name);
 int mat_mult (double new [4][4], double  A[4][4], double  B[4][4]);
 int mat_sum (double sum[4][4], double  new_term[4][4]);
@@ -363,7 +362,10 @@ int random_q ( double exp_s[4],  double theta_step );
 int read_integral_table (char * file_name );
 int read_pdb (char * pdbname,  char chain, Protein * protein);
 int rep_initialize (Representation * rep,  Descr * descr  );
-int rep_shutdown  (Representation * rep);
+int rep_shutdown (Representation * rep);
+int results_out  (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
+		  Descr *qry_descr, Protein *qry_structure, Representation * qry_rep,
+		  List_of_maps *list, FILE * digest);
 int rotate(double **Ynew, int NY, double **R, double ** Y);
 int set_match_algebra ();
 int set_up_exp_table ();

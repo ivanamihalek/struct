@@ -37,9 +37,7 @@ int find_best_triples_greedy(Representation* X_rep, Representation* Y_rep, int n
 
 
 /****************************************/
-int complement_match (Representation* X_rep, Representation* Y_rep,
-		      Map * map, int map_max,
-		      int * map_ctr, int * map_best, int best_max, int parent_map){
+int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps *list){
 	
     Penalty_parametrization penalty_params; /* for SW */
     double **x    = X_rep->full;
@@ -73,11 +71,14 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     int i, j;
     int t;
     int smaller;
-    int my_map_ctr;
+    int map_ctr  = 0;
     int stored_new;
     int * x2y, map_unstable;
     //time_t  time_now, time_start;
-    
+    Map * map    = list->map;
+    int map_max  = list->map_max;
+    int *map_best = list->map_best;
+   
     int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 		 Representation * Y_rep, int *set_of_directions_y,
 		     int set_size, Map *map, double cutoff_rmsd);
@@ -112,11 +113,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 		      double z_scr, int  my_map_ctr, int *stored);
   
   
-    map_best[0] = -1; /* it is the end-of-array flag */
-    if ( *map_ctr >= map_max ) {
-	fprintf (stderr, "Map array undersized.\n");
-	exit (1);
-    }
 
     smaller = (NX <= NY) ? NX : NY;
  
@@ -193,6 +189,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
     /*********************************************/
     /*   main loop                               */
     /*********************************************/
+    map_ctr = 0;
     for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
 
 
@@ -208,11 +205,11 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	no_anchors = 3;
 
 
-	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + (*map_ctr),
+	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + map_ctr,
 		   best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
 	
-	x2y = ( map + (*map_ctr) ) ->x2y;
+	x2y = (map + map_ctr) ->x2y;
 	map_unstable  = 0;
 	for (t=0; t<3; t++ ) {
 	    if ( x2y[best_triple_x[top_ctr][t]] != best_triple_y[top_ctr][t] ) {
@@ -223,7 +220,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
-		      Y_rep, best_triple_y[top_ctr],  3,  map + (*map_ctr), cutoff_rmsd );
+		      Y_rep, best_triple_y[top_ctr],  3,  map + map_ctr, cutoff_rmsd );
 	
 
 	/* monte that optimizes the aligned vectors only */
@@ -237,7 +234,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	no_anchors = 0;
 
 	for (i=0; i<NX; i++) {
-	     j = (map+(*map_ctr))->x2y[i];
+	     j = (map+map_ctr)->x2y[i];
 	     if (j < 0 ) continue;
 	     x_type_fudg[i] = x_type[i];
 	     y_type_fudg[j] = y_type[j];
@@ -251,7 +248,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
 
 	
-	retval = monte_carlo ( alpha,  x, x_type_fudg, NX,
+	retval = monte_carlo (alpha, x, x_type_fudg, NX,
 			       y,  y_type_fudg, NY, q, &F_current);
 
 
@@ -266,19 +263,17 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	}
 	quat_to_R (q, R);
 	/* store_image() is waste of time, but perhaps not critical */
-	store_image (X_rep, Y_rep, R,  alpha, map + (*map_ctr));
-	map_assigned_score ( X_rep, map + (*map_ctr));
+	store_image (X_rep, Y_rep, R,  alpha, map + map_ctr);
+	map_assigned_score (X_rep, map + map_ctr);
 
 
         /*   store the map that passed all the filters down to here*/
-	my_map_ctr = *map_ctr;
 
-
-	map[my_map_ctr].F       = F_current;
-	map[my_map_ctr].avg     = avg;
-	map[my_map_ctr].avg_sq  = avg_sq;
-	map[my_map_ctr].z_score = z_scr;
-	memcpy ( map[my_map_ctr].q, q, 4*sizeof(double) );
+	map[map_ctr].F       = F_current;
+	map[map_ctr].avg     = avg;
+	map[map_ctr].avg_sq  = avg_sq;
+	map[map_ctr].z_score = z_scr;
+	memcpy ( map[map_ctr].q, q, 4*sizeof(double) );
 		
 	/* recalculate the assigned score*/
 
@@ -287,23 +282,21 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 	/************************/
 	/* find the place for the new z-score */
 	store_sorted (map, NX, NY, map_best, map_max,
-		      z_best, best_ctr, -map[my_map_ctr].assigned_score, my_map_ctr, &stored_new);
+		      z_best, best_ctr, -map[map_ctr].assigned_score, map_ctr, &stored_new);
 
 	if ( stored_new ) { /* we want to keep this map */
-	    (*map_ctr) ++;
+	    map_ctr ++;
 	    best_ctr++;
 	} /* otherwise this map space is reusable */
 	    
 
 	/* is this pretty much as good as it can get ? */
-	if ( fabs (map[my_map_ctr].assigned_score - smaller)
+	if ( fabs (map[map_ctr].assigned_score - smaller)
 	     < options.tol )  done = 1;
 
-
-
-
     }
-
+    list->map_max = map_ctr;
+    list->best_max = best_ctr;
 
     
     /******************************************************/
@@ -408,7 +401,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep,
 
 int store_sorted (Map * map, int NX, int NY, int *map_best,
 		  int map_max,  double * z_best, int best_ctr,
-		  double z_scr, int  my_map_ctr, int *stored) {
+		  double z_scr, int  map_ctr, int *stored) {
 
     int ctr, chunk;
     int correlated;
@@ -421,7 +414,7 @@ int store_sorted (Map * map, int NX, int NY, int *map_best,
        that we have already ?*/
     correlated = 0;
     for  (ctr = 0; ctr<best_ctr && ! correlated && ctr < map_max; ctr ++ ) {
-	map_complementarity ( map+my_map_ctr, map+ctr,  &z);
+	map_complementarity ( map+map_ctr, map+ctr,  &z);
 	correlated = (z < options.z_max_corr);
 	/* TODO store calculated correlations, so I
 	   don't have to redo it */
@@ -460,7 +453,7 @@ int store_sorted (Map * map, int NX, int NY, int *map_best,
 	    }
 	    /* store z_score*/
 	    z_best[ctr]   = z_scr;
-	    map_best[ctr] = my_map_ctr;
+	    map_best[ctr] = map_ctr;
 	}
     }   
 

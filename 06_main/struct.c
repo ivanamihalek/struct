@@ -42,14 +42,11 @@ int main ( int argc, char * argv[]) {
     Representation qry_rep = {0};
     Representation tgt_rep = {0};
     
-    List_of_maps list = {NULL};
     List_of_maps list_sequential = {NULL};
     List_of_maps list_out_of_order = {NULL};
-    Score score;
-    Score score_sequential; 
-    Score score_out_of_order;
-    
-    int compare_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list, Score *score);   
+    List_of_maps list_uniq = {NULL};
+     
+    int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);   
     int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
 			char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr);
     int read_cmd_file (char *filename);
@@ -147,8 +144,10 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* compare pairs from tgt and qry lists :                              */
-	list_alloc (&list_sequential,   INIT_ALLOC_N, INIT_ALLOC_N);
-        list_alloc (&list_out_of_order, INIT_ALLOC_N, INIT_ALLOC_N);
+	int fake;
+	list_alloc (&list_sequential,   INIT_ALLOC_N, INIT_ALLOC_N, (fake=0));
+        list_alloc (&list_out_of_order, INIT_ALLOC_N, INIT_ALLOC_N, (fake=0));
+        list_alloc (&list_uniq,         INIT_ALLOC_N, INIT_ALLOC_N, (fake=1));
         
 	qry_done = 0;
 	retval = -1;
@@ -192,7 +191,6 @@ int main ( int argc, char * argv[]) {
 		    (qry_descr.no_of_strands < tgt_descr.no_of_strands) ?
 		    qry_descr.no_of_strands : tgt_descr.no_of_strands;
 
-		memset (&score, 0, sizeof(Score));
 		
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
@@ -205,62 +203,62 @@ int main ( int argc, char * argv[]) {
                     int retval1 = 0, retval2 = 0;
                     
                     switch (options.search_algorithm){
+			
                         case SEQUENTIAL:
                             options.current_algorithm = SEQUENTIAL;    
-                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_sequential, &score_sequential);
-                            list = list_sequential;
-                            score = score_sequential;
-                            break;
+                            retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
+			    break;
+			    
                         case OUT_OF_ORDER:
                             options.current_algorithm = OUT_OF_ORDER;    
-                            retval2 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
-                            list = list_out_of_order;
-                            score = score_out_of_order;
+                            retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
                             break;
+			    
                         case BOTH:
                             options.current_algorithm = SEQUENTIAL;    
-                            retval1 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_sequential, &score_sequential);
+                            retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
                             options.current_algorithm = OUT_OF_ORDER;    
-                            retval2 = compare_reduced_reps ( &tgt_rep, &qry_rep, &list_out_of_order, &score_out_of_order);
-                            if (score_sequential.total_assigned_score > score_out_of_order.total_assigned_score) {
-                                list = list_sequential;
-                                score = score_sequential;
-                            } else {
-                                list = list_out_of_order;
-                                score = score_out_of_order;
-                            }
+                            retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
                     }
                     
-                    printf("%d %d\n", retval1, retval2);
-                    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
+		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
 				     bcs perl has a problem intercepting stderr */
 			printf (" error comparing   db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 			exit (1);
 		    }
 		    db_effective_ctr ++;
-                    write_digest(&qry_descr, &tgt_descr, digest, &score);               
-		   
-		   
-		    if (options.verbose) {
-			write_maps (stdout, &tgt_descr, &qry_descr, &list);
-		    }
-		    match_found = (list.map_best[0] >= 0);
+		    
+  		    match_found = (list_sequential.map_best[0] >= 0 ||
+				   list_out_of_order.map_best[0]);
 
-		    if  (match_found) { /* otherwise we had no match */
-			if (options.postprocess) {
-			    retval = align_backbone  (&tgt_descr, &tgt_structure, &tgt_rep,
-					 &qry_descr, &qry_structure, &qry_rep, &list, &score);
-			    if (  retval) {
-				printf (" error doing bb alignment   db:%s  query:%s \n",
-					tgt_descr.name, qry_descr.name);
-				exit (retval);
-			    }
-			    write_tfmd_pdb  (&tgt_structure, &list, &tgt_descr, &qry_descr);
-			    write_alignment (&tgt_structure, &qry_structure, &list);
-			}
+		    if  (match_found) {
+
+			switch (options.search_algorithm){
+			case SEQUENTIAL:
+ 			    find_uniq_maps (&list_sequential, NULL, &list_uniq);
+			    break;
+			    
+			case OUT_OF_ORDER:
+			    find_uniq_maps (&list_out_of_order, NULL, &list_uniq);
+                            break
+				;
+                        case BOTH:
+			    find_uniq_maps (&list_sequential, &list_out_of_order, &list_uniq);
+ 			}
+			
+			if (options.postprocess) align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
+								  &qry_descr, &qry_structure, &qry_rep,
+								  &list_uniq);
+			
+			
+			results_out (&tgt_descr, &tgt_structure, &tgt_rep,
+				     &qry_descr, &qry_structure, &qry_rep,
+				     &list_uniq, digest);
+			
 			printf ("match found for db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
+			
 		    } else {
 			printf ("no match for db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
@@ -271,7 +269,7 @@ int main ( int argc, char * argv[]) {
     
 		} else if (options.report_no_sse_overlap) {
 		    /* write all zeros to the digest file  */
-		    write_digest(&qry_descr, &tgt_descr, digest, &score);
+		    write_digest(&qry_descr, &tgt_descr, digest, NULL);
 		    printf ("no common SSEs for db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 		}
@@ -287,7 +285,8 @@ int main ( int argc, char * argv[]) {
 	    printf ("the output written to %s.\n\n", options.outname);
 	}
 	
-	list_shutdown (&list); /* defined in struct_map */
+	list_shutdown (&list_sequential);   /* defined in struct_map */
+	list_shutdown (&list_out_of_order); /* defined in struct_map */
     }
 
     descr_shutdown (&qry_descr);

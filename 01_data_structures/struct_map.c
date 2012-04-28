@@ -42,6 +42,7 @@ int initialize_map (Map *map, int NX, int NY ) {
     return 0;
 }
 
+
 /********************************/
 int free_map (Map *map) {
 
@@ -61,7 +62,7 @@ int free_map (Map *map) {
     return 0;
 }
 /*********************************************************************/  
-int list_alloc (List_of_maps * list, int NX, int NY) {
+int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
     
     int map_ctr;
     
@@ -76,8 +77,15 @@ int list_alloc (List_of_maps * list, int NX, int NY) {
     
     list->NX_allocated = NX;
     list->NY_allocated = NY;
-    for ( map_ctr= 0; map_ctr<list->map_max; map_ctr++) {
-	if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
+
+    if (fake) { /* fake init - these will actually be used as pointers
+		   to containers in other maps */
+    } else {
+	
+	
+	for ( map_ctr= 0; map_ctr<list->map_max; map_ctr++) {
+	    if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
+	}
     }
 
     return 0;
@@ -413,10 +421,97 @@ int map_assigned_score ( Representation *X_rep,  Map* map) {
     
     /* what's the difference btw this and map->size?*/
     map->matches = match_length (NX, map->x2y);
-    return 0;
+    return 0;    
+}
+
+/************************************/
+/************************************/
+double find_map_overlap (Map *map1, Map *map2){
+
+    int i, j1, j2;
+    double **a= map1->image, **b= map2->image;
+    double overlap, norm1, norm2;
+    
+    if ( map1->x2y_size != map2->x2y_size ) {
+	fprintf (stderr, "%s:%d: map size mismatch %d, %d (?).\n",
+		 __FILE__, __LINE__, map1->x2y_size, map2->x2y_size);
+	exit (1);
+    }
+
+    overlap = 0;
+    norm1   = 0;
+    norm2   = 0;
+    for (i=0; i<map1->x2y_size; i++) {
+	j1 = map1->x2y[i];
+	j2 = map2->x2y[i];
+	if ( j1 >=0 && j2 >= 0 && j1==j2) {
+	    overlap += a[i][j1]*b[i][j2];
+	}
+	if ( j1 >= 0 ) {
+	    norm1   += a[i][j1]*a[i][j1];
+	}
+	if ( j2 >= 0 ) {
+	    norm2   += b[i][j2]*b[i][j2];
+	}
+    }
+
+    if ( !norm1 || !norm2 ) {
+	fprintf (stderr, "%s:%d: empty map (?).\n", __FILE__, __LINE__);
+	exit (1);
+    }
+
+    overlap /= sqrt(norm1*norm2);
+    
+    
+    return overlap; 
+}
+
+
+
+
+/************************************/
+/************************************/
+int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *list_uniq) {
+
+
+    int best_map_ctr, uniq_map_ctr;
+    int overlap_found;
+    Map *current_map;
+
+    uniq_map_ctr      = 0;
+    memcpy (list_uniq->map+0, list1->map + list1->map_best[0], sizeof(Map));
+    
+    list_uniq->map_max = 1;
+    
+    for ( best_map_ctr= 1;  best_map_ctr<list1->map_max;  best_map_ctr++) {
+
+	if (list1->map_best[best_map_ctr] < 0) break;
+	current_map = list1->map + list1->map_best[best_map_ctr];
+
+	overlap_found = 0;
+	/* for all unique maps: does current_map overlap? */
+	for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->map_max;  uniq_map_ctr++) {
+	    /* if current overlaps uniq, store that info  */
+	    double map_overlap = find_map_overlap (list_uniq->map + uniq_map_ctr, current_map);
+	    if ( map_overlap >= MAP_SIM_THRESHOLD) {
+		overlap_found = 1;
+		break;
+	    }
+	}
+
+	if (!overlap_found) {
+	    memcpy (list_uniq->map+list_uniq->map_max, current_map, sizeof(Map));
+	    list_uniq->map_max ++;
+	}
+    }
 
     
+    return 0;
 }
+
+
+/************************************/
+/************************************/
 
 /**
  * Function that calculate alignment, and maps structures using Hungarian algorithm
@@ -978,3 +1073,16 @@ int map_consistence (  int NX, int NY, Map * combined_map, Map *map1, Map *map2,
 }
 /***************************************/
 /***************************************/
+
+# if 0
+    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->map_max;  uniq_map_ctr++) {
+	int i, j;
+	current_map = list_uniq->map + uniq_map_ctr;
+	printf ( "\n unique_map: %d  score: %8.3lf\n", uniq_map_ctr, current_map->assigned_score);
+	for (i=0; i<current_map->x2y_size; i++) {
+	     j = current_map->x2y[i];
+	     printf ("  %3d  %3d    %8.3lf \n", i, j, current_map->image[i][j]);
+	}
+    }
+    exit(1);
+# endif

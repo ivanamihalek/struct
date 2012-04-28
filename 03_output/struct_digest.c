@@ -69,23 +69,35 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 
 
 int write_digest(Descr *qry_descr, Descr *tgt_descr, FILE * digest, Score * score) {
-    
-    fprintf ( digest,
-	      "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
-	      qry_descr->name,
-	      tgt_descr->name,
+
+
+    if ( score ) {
+	fprintf ( digest,
+		  "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
+		  qry_descr->name,
+		  tgt_descr->name,
 			      
-	      score->z_score,
-	      score->avg_length_mismatch,
+		  score->z_score,
+		  score->avg_length_mismatch,
 			      
-	      score->total_assigned_score,
-	      score->fraction_assigned,
-			  
-	      score->rmsd,
+		  score->total_assigned_score,
+		  score->fraction_assigned,
+		  
+		  score->rmsd,
 			      
-	      score->res_rmsd,
-	      score->res_almt_score,
-	      score->res_almt_length);
+		  score->res_rmsd,
+		  score->res_almt_score,
+		  score->res_almt_length);
+    } else {
+
+	fprintf ( digest,
+		  "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
+		  qry_descr->name,
+		  tgt_descr->name,
+		  0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0);
+
+
+    }
     fprintf (digest, "\n");
     fflush  (digest);
 
