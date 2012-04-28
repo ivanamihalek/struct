@@ -664,7 +664,7 @@ int  alignment_size ( int * residue_map_i2j, int no_res_1 ) {
 /*************************************************************************/
 /*************************************************************************/
 double alignment_score (Protein * protein1, Protein * protein2, int * residue_map_i2j,
-			double **R, double *T,  double d0 ) {
+			double **R, double *T,  double d0) {
 
     double d;
     double aln_score = 0.0;

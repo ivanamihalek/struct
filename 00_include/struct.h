@@ -60,7 +60,7 @@ Contact: ivana.mihalek@gmail.com.
 # define ERR_MAX_ATOMS  64
 # define ERR_NO_FILE_OR_CHAIN  128
 
-# define MAP_SIM_THRESHOLD 0.9
+# define MAP_SIM_THRESHOLD 0.7
 
 /* used in alignment functions */
 # define FAR_FAR_AWAY -1000
@@ -181,7 +181,7 @@ typedef struct{
 
 # define MAX_MULT_MATCH 100
 
-# define MAP_MAX   1000 /*number of maps to keep */
+# define MAP_MAX   100 /*number of maps to keep */
 
 typedef struct {
     
@@ -226,6 +226,10 @@ typedef struct {
     int *submatch_best;         // the best map which complements this one; don't worry about it right now
     double score_with_children; // this goes with the submatch above = never mind
     double compl_z_score;       // z-score for the submatch
+
+    ///////////////////
+    // file to which the corresponding pdb was written
+    char filename[MEDSTRING];
     
 } Map;
 
@@ -383,11 +387,13 @@ int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, doubl
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
 int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list);
-int write_digest(Descr *qry_descr, Descr *tgt_descr, FILE * digest, Score * score);
+int write_digest(Descr *qry_descr, Descr *tgt_descr,
+		 Representation * qry_rep, Representation * tgt_rep,
+		 List_of_maps *list,FILE * digest);
 int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list);
 int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr);
 int find_Calpha (Protein *protein, int  resctr, double ca[3] );
 double two_point_distance (double point1[3], double point2[3]);
-int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3]); 
+int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3]);
 
 # endif

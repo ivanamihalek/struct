@@ -241,15 +241,14 @@ int main ( int argc, char * argv[]) {
 			    
 			case OUT_OF_ORDER:
 			    find_uniq_maps (&list_out_of_order, NULL, &list_uniq);
-                            break
-				;
+                            break;
                         case BOTH:
 			    find_uniq_maps (&list_sequential, &list_out_of_order, &list_uniq);
  			}
 			
 			if (options.postprocess) align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
-								  &qry_descr, &qry_structure, &qry_rep,
-								  &list_uniq);
+								 &qry_descr, &qry_structure, &qry_rep,
+								 &list_uniq);
 			
 			
 			results_out (&tgt_descr, &tgt_structure, &tgt_rep,
@@ -260,6 +259,8 @@ int main ( int argc, char * argv[]) {
 				tgt_descr.name, qry_descr.name);
 			
 		    } else {
+			/* write all zeros to the digest file  */
+			write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
 			printf ("no match for db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 		    }
@@ -269,7 +270,7 @@ int main ( int argc, char * argv[]) {
     
 		} else if (options.report_no_sse_overlap) {
 		    /* write all zeros to the digest file  */
-		    write_digest(&qry_descr, &tgt_descr, digest, NULL);
+		    write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
 		    printf ("no common SSEs for db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 		}

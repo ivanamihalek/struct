@@ -32,7 +32,7 @@ SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c                  
 	     struct_linalg.c  struct_map.c struct_map2rotation.c                              \
 	     struct_pdb_out.c  struct_quaternion.c struct_read_pdb.c                          \
 	     struct_read_cmd_file.c struct_representation.c struct_results_out.c              \
-	     struct_recursive_output.c struct_scoring_fn.c  struct_sse2descr.c                \
+	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                \
 	     struct_structure2sse.c                                                           \
 	     struct_table.c  struct_table_input.c struct_input.c struct_utils.c 
 

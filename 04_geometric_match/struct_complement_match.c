@@ -304,7 +304,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /* if the requested number of complementary maps to   */
     /* to output is zero, then do not go in here          */
     /******************************************************/
-    if (options.number_maps_out) { 
+    if (0) { 
 	/* initialization:*/
 
 	Map combined_map = {0};

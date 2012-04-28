@@ -22,44 +22,6 @@ Contact: ivana.mihalek@gmail.com.
 
 # include "struct.h"
 
-/* output for further processing by another program*/
-int rec_map_out_for_postproc (Map * map, int map_ctr, 
-			      Representation *X_rep, Representation *Y_rep, int depth) {
-    
-    static FILE * fptr = NULL;
-    int print_transformation (FILE* fptr, Map * map, int depth);
-
-    if ( ! depth) {
-	char outname[BUFFLEN] = {'\0'};
-	/* as a temp measure: all maps have the  same name */
-	sprintf (outname, "%s.for_postp",
-		 options.outname);
-	fptr  = efopen (outname, "w");
-	if ( !fptr) exit (1);
-
-    } 
-    print_transformation   (fptr,  map+map_ctr, depth);
-
-			  
-    if (map[map_ctr].submatch_best && map[map_ctr].submatch_best[0] > -1 ) {
-	
-	int sub_best_ctr, sub_map_ctr;
-	sub_best_ctr = 0;
-	while (  (sub_map_ctr = map[map_ctr].submatch_best[sub_best_ctr] ) > -1 ) {
-	    if ( depth < 1 )  {/* TODO this is only two submaps*/
-		rec_map_out_for_postproc (map, sub_map_ctr, X_rep, Y_rep, depth+1); 
-	    }
-	    sub_best_ctr ++;
-	    if (sub_best_ctr==1) break; /*TODO check this cutoff out --output only the best */
-	} 
-    }
- 
-    if ( ! depth) {
-	fclose (fptr);
-    }
-    return 0;
-    
-}
 /************************************************************************************/
 /************************************************************************************/
 /************************************************************************************/
@@ -69,52 +31,48 @@ int rec_map_out_for_postproc (Map * map, int map_ctr,
 int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list) {
 
     int map_ctr;
-    int best_ctr = 0;
-    int recursive_map_out (Map * map, int map_ctr, Descr * descr1, Descr * descr2, 
+    int recursive_map_out (Map * map,  Descr * descr1, Descr * descr2, 
 			   Protein *protein1, Protein *protein2, int depth);
     
-    while (best_ctr< options.number_maps_out  && best_ctr < list->map_max
-	   &&  (map_ctr = list->map_best[best_ctr]) > -1  
-	   &&  list->map[map_ctr].z_score < options.z_max_out) {
-	recursive_map_out (list->map, map_ctr, descr1, descr2, NULL, NULL, 0);
-	best_ctr++;
+    for (map_ctr=0; map_ctr<list->map_max && map_ctr < options.number_maps_out; map_ctr++) {
+	recursive_map_out (list->map+map_ctr, descr1, descr2, NULL, NULL, 0);
     }
 
     return 0;
 }
 
 /************************************************************************************/
-int recursive_map_out (Map * map, int map_ctr, 
+int recursive_map_out (Map * map, 
 		       Descr * descr1, Descr * descr2,
 		       Protein *protein1, Protein *protein2,
 		       int depth) {
     
-    int ctr;
+    int map_ctr, ctr;
     
     if ( ! depth) {
-	printf ("####################################\n");
+	printf ("\n####################################\n");
 	printf ("**  %s   %s ", descr1->name, descr2->name);
-	if (map[map_ctr].submatch_best && map[map_ctr].submatch_best[0] > -1) {
-	    printf ("  with submap (%d)", map[map_ctr].submatch_best[0]+1);
+	if (map->submatch_best && map->submatch_best[0] > -1) {
+	    printf ("  with submap (%d)", map->submatch_best[0]+1);
 	}
 	printf ("\n");
     } else {
 	for (ctr=0; ctr < depth; ctr++) printf ("\t");
     }
     printf ("map: %3d      geometric z_score: %6.3lf \n", map_ctr+1,
-	    map[map_ctr].z_score);
-    print_map (stdout, map+map_ctr, descr1, descr2,   protein1, protein2,  depth);
+	    map->z_score);
+    print_map (stdout, map, descr1, descr2,   protein1, protein2,  depth);
     
-    if (map[map_ctr].submatch_best && map[map_ctr].submatch_best[0] > -1 ) {
+    if (map->submatch_best && map->submatch_best[0] > -1 ) {
 	
 	int sub_best_ctr, sub_map_ctr;
 	sub_best_ctr = 0;
 	while ( sub_best_ctr < options.number_maps_cpl &&
-		(sub_map_ctr = map[map_ctr].submatch_best[sub_best_ctr] ) > -1 ) {
+		(sub_map_ctr = map->submatch_best[sub_best_ctr] ) > -1 ) {
 	    for (ctr=0; ctr < depth; ctr++) printf ("\t");
 	    printf ("map %3d   submatch  complementarity z-score:  %6.3lf \n",
-		    map_ctr+1, map[map_ctr].compl_z_score); 
-	    recursive_map_out (map, sub_map_ctr, descr1, descr2,
+		    map_ctr+1, map->compl_z_score); 
+	    recursive_map_out (map+sub_map_ctr, descr1, descr2,
 			       protein1, protein2, depth+1); 
 	    sub_best_ctr ++;
 	    if (sub_best_ctr==1) break; /*output only the best */

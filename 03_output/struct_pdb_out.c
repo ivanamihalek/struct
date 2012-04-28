@@ -31,7 +31,7 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
     
     if ( list->map_max == 0  ) return 1;
      
-    int map_ctr;
+    int map_ctr, out_ctr;
     double ** R;
     char filename[MEDSTRING] = {'\0'};
     Map *current_map;
@@ -40,10 +40,11 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
     if (!(R=dmatrix(3,3))) return 1; /* compiler is bugging me otherwise */
 
 
-    
-    for (map_ctr=0; map_ctr < list->map_max; map_ctr++) {
+    out_ctr = 0;
+    for (map_ctr=0; map_ctr < list->map_max && map_ctr < options.number_maps_out; map_ctr++) {
 	
 	current_map = list->map+map_ctr;
+	
 	quat_to_R (current_map->q, R);
 
 	/* copy the overall info about types, number of atoms etc from the original sequence*/ 
@@ -51,8 +52,11 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 	/* trnasform the coordinates */ 
 	transform_pdb (R, current_map->T, tgt_protein->sequence, tgt_protein->length, sequence_new);
 
-	sprintf (filename, "%s.rot_onto_%s.%d.pdb", tgt_descr->name, qry_descr->name, map_ctr);
+	sprintf (filename, "%s.rot_onto_%s.%d.pdb", tgt_descr->name, qry_descr->name, out_ctr);
 	pdb_output (filename, sequence_new, tgt_protein->length);
+	out_ctr++;
+
+	sprintf (current_map->filename, "%s", filename);
     }
     
     free_dmatrix(R);
