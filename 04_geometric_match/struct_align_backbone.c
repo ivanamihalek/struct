@@ -40,11 +40,17 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 		    Descr *descr2, Protein * protein2, Representation *rep2, 
 		    List_of_maps *list){
     
-     if ( list->map_max == 0  ) return 1;
+     if ( list->map_max == 0) return 1;
      
      int map_ctr, retval;
+     double *bb_score_array;
+     
      Map *current_map;
 
+     if ( !(bb_score_array = emalloc(list->map_max*sizeof(double))))  return 1;
+     
+     memset (list->map_best, 0, list->map_max*sizeof(int));
+     
      for (map_ctr=0; map_ctr < list->map_max; map_ctr++) {
 	 current_map = list->map+map_ctr;
 	 retval = single_map_align_backbone (descr1, protein1, rep1, descr2, protein2, rep2, current_map);
@@ -52,9 +58,16 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 	     printf (" error doing bb alignment   db:%s  query:%s \n",
 		     descr1->name, descr2->name);
 	     exit (retval);
-	 }	 
+	 }
+	 list->map_best[map_ctr] = map_ctr;
+	 /* the array_qsort sorts in the increasing order, so use negative aln score: */
+	 bb_score_array[map_ctr] = -current_map->aln_score;
      }
 
+     array_qsort (list->map_best, bb_score_array, list->map_max);
+     
+     free (bb_score_array);
+     
      return 0;
 }
 

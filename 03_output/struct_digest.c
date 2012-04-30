@@ -142,7 +142,7 @@ int close_digest (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest){
 int fill_scorecard (Representation *rep1, Representation *rep2, Map *map, Score *score) {
 
     int sub_map_ctr;
-    Map * current_map;
+    Map * current_map = NULL;
     int NX = rep1->N_full;
     int NY = rep2->N_full;
     

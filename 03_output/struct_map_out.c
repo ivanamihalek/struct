@@ -30,12 +30,13 @@ Contact: ivana.mihalek@gmail.com.
 
 int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list) {
 
-    int map_ctr;
+    int map_id, rank_ctr;
     int recursive_map_out (Map * map,  Descr * descr1, Descr * descr2, 
 			   Protein *protein1, Protein *protein2, int depth);
     
-    for (map_ctr=0; map_ctr<list->map_max && map_ctr < options.number_maps_out; map_ctr++) {
-	recursive_map_out (list->map+map_ctr, descr1, descr2, NULL, NULL, 0);
+    for (rank_ctr=0; rank_ctr<list->map_max && rank_ctr < options.number_maps_out; rank_ctr++) {
+	map_id = list->map_best[rank_ctr];
+	recursive_map_out (list->map+map_id, descr1, descr2, NULL, NULL, 0);
     }
 
     return 0;
@@ -47,7 +48,7 @@ int recursive_map_out (Map * map,
 		       Protein *protein1, Protein *protein2,
 		       int depth) {
     
-    int map_ctr, ctr;
+    int  ctr;
     
     if ( ! depth) {
 	printf ("\n####################################\n");
@@ -59,8 +60,13 @@ int recursive_map_out (Map * map,
     } else {
 	for (ctr=0; ctr < depth; ctr++) printf ("\t");
     }
-    printf ("map: %3d      geometric z_score: %6.3lf \n", map_ctr+1,
-	    map->z_score);
+    
+    printf ("   geometric z_score: %6.3lf ",  map->z_score);
+    if ( options.postprocess )  {
+	 printf ("   alignment score:  %6.3lf ", map->aln_score);
+    }
+    printf ("\n");
+    
     print_map (stdout, map, descr1, descr2,   protein1, protein2,  depth);
     
     if (map->submatch_best && map->submatch_best[0] > -1 ) {
@@ -71,7 +77,7 @@ int recursive_map_out (Map * map,
 		(sub_map_ctr = map->submatch_best[sub_best_ctr] ) > -1 ) {
 	    for (ctr=0; ctr < depth; ctr++) printf ("\t");
 	    printf ("map %3d   submatch  complementarity z-score:  %6.3lf \n",
-		    map_ctr+1, map->compl_z_score); 
+		    sub_map_ctr+1, map->compl_z_score); 
 	    recursive_map_out (map+sub_map_ctr, descr1, descr2,
 			       protein1, protein2, depth+1); 
 	    sub_best_ctr ++;
@@ -80,6 +86,7 @@ int recursive_map_out (Map * map,
     }
     return 0; 
 }
+
 /************************************************/
 /************************************************/
 /************************************************/

@@ -217,10 +217,6 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 	Y_rep->transl_norm[j] = norm_y;
     }
     
-     
-  
-   
-    
     return 0;
     
 }
@@ -263,18 +259,6 @@ int map_quality_metrics (Representation *X_rep, Representation *Y_rep,
 	for (i=0; i<NX; i++ ) {
 	    j =  map->x2y[i];
 	    if ( j < 0 ) continue;
-
-
-	    /* note since not normalized this won't really be the cosine*/
-	    /* I couldn't get this to be really useful */
-	    /* unnorm_dot ( tr_x_rotated[i], Y_rep->translation[j], &cosine); */
-	    /* now, this cosine refers to translation vectors */
-	    /* if (cosine < 0.0 ) { */
-/* 		map->x2y[i] = FAR_FAR_AWAY; */
-/* 		map->y2x[j] = FAR_FAR_AWAY; */
-/* 		continue; */
-/* 	    } */
- 	    
 	
 	    dist_sq = 0.0;
 	    for (k=0; k<3; k++) {
@@ -505,6 +489,10 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 	}
     }
 
+    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->map_max;  uniq_map_ctr++) {
+	/* these should already be sorted */
+	list_uniq->map_best[uniq_map_ctr] = uniq_map_ctr;
+    }
     
     return 0;
 }

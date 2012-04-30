@@ -45,6 +45,7 @@ int main ( int argc, char * argv[]) {
     List_of_maps list_sequential = {NULL};
     List_of_maps list_out_of_order = {NULL};
     List_of_maps list_uniq = {NULL};
+    List_of_maps *list1=NULL, *list2=NULL;
      
     int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);   
     int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
@@ -207,11 +208,13 @@ int main ( int argc, char * argv[]) {
                         case SEQUENTIAL:
                             options.current_algorithm = SEQUENTIAL;    
                             retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
+			    list1   = &list_sequential;  list2 = NULL;
 			    break;
 			    
                         case OUT_OF_ORDER:
                             options.current_algorithm = OUT_OF_ORDER;    
                             retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			    list1   = NULL;  list2 = &list_out_of_order;
                             break;
 			    
                         case BOTH:
@@ -219,6 +222,7 @@ int main ( int argc, char * argv[]) {
                             retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
                             options.current_algorithm = OUT_OF_ORDER;    
                             retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			    list1   = &list_sequential;  list2 = &list_out_of_order;
                     }
                     
 		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
@@ -234,17 +238,7 @@ int main ( int argc, char * argv[]) {
 
 		    if  (match_found) {
 
-			switch (options.search_algorithm){
-			case SEQUENTIAL:
- 			    find_uniq_maps (&list_sequential, NULL, &list_uniq);
-			    break;
-			    
-			case OUT_OF_ORDER:
-			    find_uniq_maps (&list_out_of_order, NULL, &list_uniq);
-                            break;
-                        case BOTH:
-			    find_uniq_maps (&list_sequential, &list_out_of_order, &list_uniq);
- 			}
+			find_uniq_maps (list1, list2, &list_uniq);
 			
 			if (options.postprocess) align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
 								 &qry_descr, &qry_structure, &qry_rep,
