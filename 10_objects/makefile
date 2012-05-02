@@ -7,7 +7,7 @@ CPLUSCOMPL = g++
 HERE = $(shell pwd)
 
 NAME = ../struct
-OPTM =  -O
+OPTM =  -g
 
 
 VPATH = ../01_data_structures:../02_parsers:../03_output:\

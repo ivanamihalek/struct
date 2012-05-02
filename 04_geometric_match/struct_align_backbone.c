@@ -40,18 +40,18 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 		    Descr *descr2, Protein * protein2, Representation *rep2, 
 		    List_of_maps *list){
     
-     if ( list->map_max == 0) return 1;
+     if ( list->no_maps_used == 0) return 1;
      
      int map_ctr, retval;
      double *bb_score_array;
      
      Map *current_map;
 
-     if ( !(bb_score_array = emalloc(list->map_max*sizeof(double))))  return 1;
+     if ( !(bb_score_array = emalloc(list->no_maps_used*sizeof(double))))  return 1;
      
-     memset (list->map_best, 0, list->map_max*sizeof(int));
+     memset (list->map_best, 0, list->no_maps_used*sizeof(int));
      
-     for (map_ctr=0; map_ctr < list->map_max; map_ctr++) {
+     for (map_ctr=0; map_ctr < list->no_maps_used; map_ctr++) {
 	 current_map = list->map+map_ctr;
 	 retval = single_map_align_backbone (descr1, protein1, rep1, descr2, protein2, rep2, current_map);
 	 if (retval) {
@@ -64,7 +64,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 	 bb_score_array[map_ctr] = -current_map->aln_score;
      }
 
-     array_qsort (list->map_best, bb_score_array, list->map_max);
+     array_qsort (list->map_best, bb_score_array, list->no_maps_used);
      
      free (bb_score_array);
      
@@ -83,7 +83,8 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     int element_ctr_1, element_ctr_2;
     int *element_1_begin, *element_1_end; /* "element" here means SSE */
     int *element_2_begin, *element_2_end;
-    int *element_1_begin_pdb, *element_1_end_pdb; /* the labels that the beginnings and ends of an element have in pdb*/
+    /* the labels that the beginnings and ends of an element have in pdb:*/
+    int *element_1_begin_pdb, *element_1_end_pdb;
     int *element_2_begin_pdb, *element_2_end_pdb;
     int num_pdb_id;
     int map_size;
@@ -177,7 +178,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     if ( ! (type_1   = emalloc (no_res_1*sizeof(int) )) ) return 1;
     if ( ! (type_2   = emalloc (no_res_2*sizeof(int) )) ) return 2;
     
-
     if ( ! (residue_map_i2j = emalloc (no_res_1*sizeof(int) )) ) return 1;
     if ( ! (residue_map_j2i = emalloc (no_res_2*sizeof(int) )) )  return 2;
 

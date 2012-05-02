@@ -52,6 +52,15 @@ int free_map (Map *map) {
     free (map->y2x);
     map->x2y_size = 0;
     map->y2x_size = 0;
+    
+    if (map->x2y_residue_level)
+	free (map->x2y_residue_level);
+    if (map->y2x_residue_level)
+	free (map->y2x_residue_level);
+    map->x2y_residue_l_size = 0;
+    map->y2x_residue_l_size = 0;
+ 
+    
     free_dmatrix (map->cosine);
     free_dmatrix (map->image); 
     if (map->submatch_best) {
@@ -65,14 +74,16 @@ int free_map (Map *map) {
 int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
     
     int map_ctr;
+
+    list->no_maps_allocated      = MAP_MAX*9;
+    list->no_maps_used           = 0;
+    list->best_array_allocated = MAP_MAX*9;
+    list->best_array_used      = 0;
     
-    list->map_max   = MAP_MAX*9;
-    list->best_max  = MAP_MAX;
-    
-    list->map = emalloc (list->map_max*sizeof(Map) );/* TODO is this enough? */
+    list->map = emalloc (list->no_maps_allocated*sizeof(Map) );/* TODO is this enough? */
     if ( !list->map) return 1;
     
-    list->map_best    = emalloc (list->map_max*sizeof(int));
+    list->map_best    = emalloc (list->best_array_allocated*sizeof(int));
     if (!list->map_best) return 1;
     
     list->NX_allocated = NX;
@@ -83,7 +94,7 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
     } else {
 	
 	
-	for ( map_ctr= 0; map_ctr<list->map_max; map_ctr++) {
+	for ( map_ctr= 0; map_ctr<list->no_maps_allocated; map_ctr++) {
 	    if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
 	}
     }
@@ -92,12 +103,21 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
 }
     
 /*********************************************************************/  
-int list_shutdown (List_of_maps * list) {
+int list_shutdown (List_of_maps * list, int fake) {
     
-    if ( !list || ! list->map ) return 0;
+    if ( !list || !list->map ) return 0;
     int map_ctr;
-    for ( map_ctr= 0; map_ctr< list->map_max; map_ctr++) {
-	if ( free_map(list->map+map_ctr) ) return 1;
+
+    if ( fake ) {
+	for ( map_ctr= 0; map_ctr< list->no_maps_used; map_ctr++) {
+	    Map *current_map = list->map + map_ctr;
+	    if (current_map->x2y_residue_level ) free (current_map->x2y_residue_level);
+	    if (current_map->y2x_residue_level ) free (current_map->y2x_residue_level);
+	}
+    } else {
+	for ( map_ctr= 0; map_ctr< list->no_maps_allocated; map_ctr++) {
+	    if ( free_map(list->map+map_ctr) ) return 1;
+	}
     }
     free (list->map_best);
     free (list->map);
@@ -375,8 +395,8 @@ int find_map ( Penalty_parametrization * penalty_params,
 	 if ( j<0) continue;
 	 
 	 if ( map->cosine[i][j] < options.far_away_cosine) {
-	      map->x2y[i] = -1; 
-	      map->y2x[j] = -1; /*everything crashes; investigate later */
+	      map->x2y[i] =  options.far_far_away; 
+	      map->y2x[j] =  options.far_far_away; /*everything crashes; investigate later */
 	 } else {
 	      F_eff --;
 	 }    
@@ -458,41 +478,68 @@ double find_map_overlap (Map *map1, Map *map2){
 int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *list_uniq) {
 
 
-    int best_map_ctr, uniq_map_ctr;
+    int best_map_ctr, uniq_map_ctr, list_ctr;
     int overlap_found;
+    int start[2] = {0,0};
     Map *current_map;
+    List_of_maps  *list[2] = {list1, list2};
 
     uniq_map_ctr      = 0;
-    memcpy (list_uniq->map+0, list1->map + list1->map_best[0], sizeof(Map));
-    
-    list_uniq->map_max = 1;
-    
-    for ( best_map_ctr= 1;  best_map_ctr<list1->map_max;  best_map_ctr++) {
 
-	if (list1->map_best[best_map_ctr] < 0) break;
-	current_map = list1->map + list1->map_best[best_map_ctr];
+    if ( list1) {
+	memcpy (list_uniq->map+0, list1->map + list1->map_best[0], sizeof(Map));
+	start[0] = 1;
+	start[1] = 0;
+	
+    } else if (list2) {
+	memcpy (list_uniq->map+0, list2->map + list2->map_best[0], sizeof(Map));
+	start[0] = 0;
+	start[1] = 1;
+	
+    } else {
+	fprintf (stderr, "Error in %s:%d: Both lists embty in find_uniq_maps.\n",
+		 __FILE__, __LINE__);
+	exit (1);
+    }
+    
+    list_uniq->no_maps_used = 1;
 
-	overlap_found = 0;
-	/* for all unique maps: does current_map overlap? */
-	for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->map_max;  uniq_map_ctr++) {
-	    /* if current overlaps uniq, store that info  */
-	    double map_overlap = find_map_overlap (list_uniq->map + uniq_map_ctr, current_map);
-	    if ( map_overlap >= MAP_SIM_THRESHOLD) {
-		overlap_found = 1;
-		break;
+    for (list_ctr=0; list_ctr<2; list_ctr++) {
+	
+	if ( ! list[list_ctr] ) continue;
+
+	
+	for ( best_map_ctr= start[list_ctr];  best_map_ctr<list[list_ctr]->no_maps_used;  best_map_ctr++) {
+
+	    if (list[list_ctr]->map_best[best_map_ctr] < 0) break;
+	    current_map = list[list_ctr]->map + list[list_ctr]->map_best[best_map_ctr];
+
+	    overlap_found = 0;
+	    /* for all unique maps: does current_map overlap? */
+	    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->no_maps_used;  uniq_map_ctr++) {
+		/* if current overlaps uniq, store that info  */
+		double map_overlap = find_map_overlap (list_uniq->map + uniq_map_ctr, current_map);
+		if ( map_overlap >= MAP_SIM_THRESHOLD) {
+		    overlap_found = 1;
+		    break;
+		}
+	    }
+
+	    if (!overlap_found) {
+		memcpy (list_uniq->map+list_uniq->no_maps_used, current_map, sizeof(Map));
+		list_uniq->no_maps_used ++;
 	    }
 	}
 
-	if (!overlap_found) {
-	    memcpy (list_uniq->map+list_uniq->map_max, current_map, sizeof(Map));
-	    list_uniq->map_max ++;
-	}
+       
     }
 
-    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->map_max;  uniq_map_ctr++) {
+    
+    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->no_maps_used;  uniq_map_ctr++) {
 	/* these should already be sorted */
 	list_uniq->map_best[uniq_map_ctr] = uniq_map_ctr;
     }
+    list_uniq->map_best[uniq_map_ctr] = -1;
     
     return 0;
 }
@@ -515,8 +562,8 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y2x, double * alignment ) {
     int i,j;
     *alignment  = 0;
-    for (i =0; i < NX; ++i) x2y[i] = -10;
-    for (i =0; i < NY; ++i) y2x[i] = -10;
+    for (i =0; i < NX; ++i) x2y[i] = options.far_far_away;
+    for (i =0; i < NY; ++i) y2x[i] = options.far_far_away;
      
     
     int multiplier = 1000; // precision level for conversion of double to int
@@ -536,7 +583,7 @@ int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y
     // checking if the number of rows is greater than number of columns. Note: Hungarian 
     
     
-   // if (NX >= NY) {
+    // if (NX >= NY) {
     for (i = 0; i < NX; ++i) {
         for (j = 0; j < NY; ++j) {
             if (p.assignment[i][j] && similarity[i][j] > 0) {
@@ -549,7 +596,7 @@ int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y
     //} 
         
   
-  /* free used memory */
+    /* free used memory */
     hungarian_free(&p);
     free_imatrix(scoring_matrix);
     
@@ -600,6 +647,8 @@ int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, doubl
     if ( ! (F = dmatrix( max_i+1, max_j+1)) ) return 1;
     if ( ! (direction = chmatrix ( max_i+1, max_j+1)) ) return 1;
 
+    for (i =0; i < max_i; ++i) map_i2j[i] = options.far_far_away;
+    for (j =0; j < max_j; ++j) map_j2i[j] = options.far_far_away;
     
     
     /* fill the table */

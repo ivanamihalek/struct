@@ -81,13 +81,13 @@ int write_digest(Descr *qry_descr, Descr *tgt_descr,
 
     if ( list ) {
 	Score score;
-	int map_ctr;
-
-	for (map_ctr=0; map_ctr < list->map_max &&
-		 map_ctr < options.number_maps_out; map_ctr++) {
-	   
-	    Map *current_map = list->map+map_ctr;
-	    fill_scorecard (qry_rep, tgt_rep, current_map, &score);
+	int rank_ctr, map_id;
+	Map *current_map;
+	for (rank_ctr=0; rank_ctr < list->no_maps_used &&
+		 rank_ctr < options.number_maps_out; rank_ctr++) {
+	    map_id = list->map_best[rank_ctr];
+	    current_map = list->map+map_id;
+	    fill_scorecard (tgt_rep, qry_rep, current_map, &score);
 	    fprintf ( digest,
 		      "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
 		      qry_descr->name,

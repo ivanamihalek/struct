@@ -70,16 +70,21 @@ int rep_initialize (Representation * rep, Descr * descr  ){
  
  int rep_shutdown  (Representation * rep) {
 
-     free (rep->full);
-     free (rep->cm);
+     free_dmatrix (rep->full);
+     free_dmatrix (rep->cm);
     
-     free (rep->compact_type);
-     free (rep->is_rep_by );
+     free_dmatrix (rep->translation);
      free (rep->transl_norm);
 
-     free_imatrix (rep->represents);
+     free (rep->full_type);
+     free (rep->length);
+     
      free_dmatrix (rep->compact );
-     free_dmatrix (rep->translation);
+     free (rep->compact_type);
+     
+     free (rep->is_rep_by );
+
+     free_imatrix (rep->represents);
    
 
      memset (rep, 0, sizeof(Representation) );

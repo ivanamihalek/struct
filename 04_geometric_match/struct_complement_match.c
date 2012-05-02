@@ -75,8 +75,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     int stored_new;
     int * x2y, map_unstable;
     //time_t  time_now, time_start;
-    Map * map    = list->map;
-    int map_max  = list->map_max;
+    Map * map     = list->map;
+    int map_max   = list->no_maps_allocated;
     int *map_best = list->map_best;
    
     int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
@@ -295,8 +295,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	     < options.tol )  done = 1;
 
     }
-    list->map_max = map_ctr;
-    list->best_max = best_ctr;
+    list->no_maps_used     = map_ctr;
+    list->best_array_used  = best_ctr;
 
     
     /******************************************************/

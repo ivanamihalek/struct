@@ -46,7 +46,7 @@ Contact: ivana.mihalek@gmail.com.
 # define PDB  1
 # define  DB  2
 
-# define INIT_ALLOC_N  100
+# define INIT_ALLOC_N  120
 
 /* used in preprocessor */
 # define MIN_HELIX_LENGTH 8
@@ -237,9 +237,13 @@ typedef struct {
 typedef struct {
 
     Map * map;
-    int map_max;
-    int best_max;
+    int no_maps_allocated;
+    int no_maps_used;
+    
     int *map_best;
+    int best_array_allocated;
+    int best_array_used;
+    
     int NX_allocated;
     int NY_allocated;
 
@@ -336,7 +340,7 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
 int list_alloc (List_of_maps * list, int NX, int NY, int fake);
-int list_shutdown (List_of_maps * list);
+int list_shutdown (List_of_maps * list, int fake);
 double lookup ( double alpha, double beta);
 int map_assigned_score (Representation *X_rep,  Map* map);
 int map_complementarity (Map *map1, Map *map2, double *z);

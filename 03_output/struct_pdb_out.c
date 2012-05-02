@@ -29,7 +29,7 @@ int transform_pdb (double  **tfm_matrix, double * transl_vector,
 
 int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr) {
     
-    if ( list->map_max == 0  ) return 1;
+    if ( list->no_maps_used == 0) return 1;
      
     int rank_ctr, map_id, out_ctr;
     double ** R;
@@ -42,10 +42,10 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 
     out_ctr = 0;
 	
-    for (rank_ctr=0; rank_ctr<list->map_max && rank_ctr < options.number_maps_out; rank_ctr++) {
-	map_id = list->map_best[rank_ctr];
+    for (rank_ctr=0; rank_ctr<list->best_array_used && rank_ctr < options.number_maps_out; rank_ctr++) {
 	
-	current_map = list->map+map_id;
+	map_id      = list->map_best[rank_ctr];
+      	current_map = list->map+map_id;
 	
 	quat_to_R (current_map->q, R);
 
@@ -62,7 +62,7 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
     }
     
     free_dmatrix(R);
-  
+    free(sequence_new);
     return 0;
 }
 

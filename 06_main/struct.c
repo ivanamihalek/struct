@@ -153,7 +153,7 @@ int main ( int argc, char * argv[]) {
 	qry_done = 0;
 	retval = -1;
 	db_effective_ctr = 0;
-	CPU_time_begin = clock();   
+	CPU_time_begin = clock();
 	while ( ! qry_done) {
             
 	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
@@ -195,9 +195,10 @@ int main ( int argc, char * argv[]) {
 		
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
+		    
 		    rep_initialize (&tgt_rep, &tgt_descr);
 		    rep_initialize (&qry_rep, &qry_descr);
-    
+   
 		    /*************************************************************/
 		    /*************************************************************/
 		    /*  here is the core: comparison of reduced representations  */
@@ -270,7 +271,6 @@ int main ( int argc, char * argv[]) {
 		}
 	    }
 	}
-
 	CPU_time_end = clock();
 	close_digest(CPU_time_begin, CPU_time_end, digest);
  
@@ -280,8 +280,9 @@ int main ( int argc, char * argv[]) {
 	    printf ("the output written to %s.\n\n", options.outname);
 	}
 	
-	list_shutdown (&list_sequential);   /* defined in struct_map */
-	list_shutdown (&list_out_of_order); /* defined in struct_map */
+	list_shutdown (&list_sequential,   (fake=0));   /* defined in struct_map */
+	list_shutdown (&list_out_of_order, (fake=0)); /* defined in struct_map */
+	list_shutdown (&list_uniq, (fake=1)); /* defined in struct_map */
     }
 
     descr_shutdown (&qry_descr);
@@ -388,8 +389,8 @@ int set_default_options () {
     options.grad_stop_tol /* stopping precision in gradient descent */
 	= 1.e-4;
     
-    options.far_far_away  /* nonsense distance for the pairwise alignment*/
-	= -10;
+    options.far_far_away  /* nonsense distance for the pairwise alignment something like -10*/
+	= FAR_FAR_AWAY;
     options.gap_open      /* gap penalties for the pairwise alignment */
 	= 0.0;
     options.gap_extend

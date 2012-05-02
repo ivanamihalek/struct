@@ -34,7 +34,7 @@ int write_maps (FILE * fptr, Descr *descr1, Descr *descr2, List_of_maps *list) {
     int recursive_map_out (Map * map,  Descr * descr1, Descr * descr2, 
 			   Protein *protein1, Protein *protein2, int depth);
     
-    for (rank_ctr=0; rank_ctr<list->map_max && rank_ctr < options.number_maps_out; rank_ctr++) {
+    for (rank_ctr=0; rank_ctr<list->no_maps_used && rank_ctr < options.number_maps_out; rank_ctr++) {
 	map_id = list->map_best[rank_ctr];
 	recursive_map_out (list->map+map_id, descr1, descr2, NULL, NULL, 0);
     }
