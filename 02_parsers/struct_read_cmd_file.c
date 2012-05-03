@@ -164,6 +164,10 @@ int read_cmd_file (char *filename) {
 	    options.print_header = 1;
 	    token_assigned = 1;
 	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "omp")  ) {
+	    options.omp = 1;
+	    token_assigned = 1;
+	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "postp")  ) {
 	    options.postprocess = 1;
 	    token_assigned = 1;

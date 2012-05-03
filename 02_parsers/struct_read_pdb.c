@@ -112,7 +112,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     }
 
     no_res = resctr;
-    
+
     if ( !no_res ) return -1;  /* take it as the end of the read */
     
     /* allocate space */
@@ -146,7 +146,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 	    if ( line[PDB_ATOM_ATOM_NAME] == 'H'
 		 ||  line[PDB_ATOM_ATOM_NAME+1] == 'H') continue;
 	    /* if it is an alternate location, also skip */
-	    if ( line[PDB_ATOM_ALTLOC] != ' ' && line[PDB_ATOM_ALTLOC] != 'A') continue;
+	    if ( line[PDB_ATOM_ALTLOC] != ' '
+		 && line[PDB_ATOM_ALTLOC] != 'A' && line[PDB_ATOM_ALTLOC] != '1' ) continue;
 	    /* adjust the counters */ 
 	    if (  strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
 		/*+1 in  PDB_ATOM_RES_NO_LEN+1 means I am including the insertion code

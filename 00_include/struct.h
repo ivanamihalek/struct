@@ -110,6 +110,7 @@ typedef struct {
     int exhaustive;       /* try all SSE triples (within the threshold (above)
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
+    int omp;              /* use omp parallelization of the exhaustive search */
 
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */

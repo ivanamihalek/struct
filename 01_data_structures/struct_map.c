@@ -539,6 +539,7 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 	/* these should already be sorted */
 	list_uniq->map_best[uniq_map_ctr] = uniq_map_ctr;
     }
+    list_uniq->best_array_used = uniq_map_ctr;
     list_uniq->map_best[uniq_map_ctr] = -1;
     
     return 0;

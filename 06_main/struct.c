@@ -72,7 +72,11 @@ int main ( int argc, char * argv[]) {
 
    
     /* check if the tgt file is  present and readable; open               */
-    if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) return 1;
+    if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) {
+	fprintf (stderr, "Error reading %s.\n", tgt_filename);
+	return 1;
+    }
+    
     /* figure out whether we have a pdb or db input:                      */
     tgt_input_type = check_input_type (tgt_fptr);
     if ( tgt_input_type != PDB && tgt_input_type != DB ) {
@@ -88,7 +92,10 @@ int main ( int argc, char * argv[]) {
     /* the same for the qry file, but may not be necessary if we are      */
     /* preprocessing only                                                 */
     if ( qry_filename) {
-	if ( ! (qry_fptr = efopen(qry_filename, "r"))) return 1;
+	if ( ! (qry_fptr = efopen(qry_filename, "r"))) {
+	    fprintf (stderr, "Error reading %s.\n", qry_filename);
+	    return 1;
+	}
 	qry_input_type = check_input_type (qry_fptr);
 	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
 	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
@@ -158,6 +165,7 @@ int main ( int argc, char * argv[]) {
             
 	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
 	    if ( retval == 1 ) {
+		fprintf (stderr, "Error reading %s.\n", qry_filename);
 		continue;
 	    } else if ( retval == -1 ) {
 		qry_done = 1;
@@ -177,6 +185,7 @@ int main ( int argc, char * argv[]) {
 		db_ctr++;
 		retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, &tgt_descr);
 		if ( retval == 1 ) {
+		    fprintf (stderr, "Error reading %s.\n", tgt_filename);
 		    continue;
 		} else if ( retval == -1 ) {
 		    tgt_done = 1;
