@@ -991,6 +991,7 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
         }
     }
     
+    
     return 0;
 
 }
@@ -1160,6 +1161,7 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
     memcpy(*best_triple_y, *best_triple_y_array, no_top_rmsd * 3 * sizeof(int));
     memcpy(*best_triple_x, *best_triple_x_array, no_top_rmsd * 3 * sizeof(int));
     memcpy(best_rmsd, best_rmsd_array, no_top_rmsd * sizeof(double));
+    
 
     free_dmatrix(best_quat_array);
     free_imatrix(best_triple_x_array);
@@ -1213,7 +1215,7 @@ int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
 				best_triple_x_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 3 * sizeof (int));
                          memcpy(best_triple_y_array[myid*TOP_RMSD + j],
 				best_triple_y_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 3 * sizeof (int));
-                         memcpy(best_quat_array[myid*TOP_RMSD + j], q_init, 4 * sizeof (double));
+                         memcpy(best_quat_array[myid*TOP_RMSD + j], best_quat_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 4 * sizeof (double));
                          j++;
                          break; 
                      }
