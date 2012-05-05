@@ -218,12 +218,14 @@ int main ( int argc, char * argv[]) {
                         case SEQUENTIAL:
                             options.current_algorithm = SEQUENTIAL;    
                             retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
+			    match_found = (list_sequential.no_maps_used > 0);
 			    list1   = &list_sequential;  list2 = NULL;
 			    break;
 			    
                         case OUT_OF_ORDER:
                             options.current_algorithm = OUT_OF_ORDER;    
                             retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			    match_found =  (list_out_of_order.no_maps_used > 0);
 			    list1   = NULL;  list2 = &list_out_of_order;
                             break;
 			    
@@ -232,6 +234,8 @@ int main ( int argc, char * argv[]) {
                             retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
                             options.current_algorithm = OUT_OF_ORDER;    
                             retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			    match_found =  (list_sequential.no_maps_used > 0 ||
+					    list_out_of_order.no_maps_used > 0);
 			    list1   = &list_sequential;  list2 = &list_out_of_order;
                     }
                     
@@ -243,9 +247,7 @@ int main ( int argc, char * argv[]) {
 		    }
 		    db_effective_ctr ++;
 		    
-  		    match_found = (list_sequential.map_best[0] >= 0 ||
-				   list_out_of_order.map_best[0]);
-
+  
 		    if  (match_found) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
@@ -406,8 +408,8 @@ int set_default_options () {
 	= 0.0;
     options.endgap
 	= 0.0;
-    options.threshold_distance
-	= 15.0;
+    options.threshold_distance /* for the "seed" triples in direction search */
+	= 30.0;
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
         = 0.8;
     options.grid_size     /* minimal number of points for the sphere grid */

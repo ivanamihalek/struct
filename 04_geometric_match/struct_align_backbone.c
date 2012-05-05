@@ -42,7 +42,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
     
      if ( list->no_maps_used == 0) return 1;
      
-     int map_ctr, retval;
+     int map_ctr,retval;
      double *bb_score_array;
      
      Map *current_map;
@@ -51,7 +51,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
      
      memset (list->map_best, 0, list->no_maps_used*sizeof(int));
      
-     for (map_ctr=0; map_ctr < list->no_maps_used; map_ctr++) {
+     for (map_ctr=0; map_ctr<list->no_maps_used; map_ctr++) {
 	 current_map = list->map+map_ctr;
 	 retval = single_map_align_backbone (descr1, protein1, rep1, descr2, protein2, rep2, current_map);
 	 if (retval) {

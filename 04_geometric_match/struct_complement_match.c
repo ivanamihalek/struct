@@ -1187,7 +1187,7 @@ int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
 		  double * best_rmsd_array, double ** best_quat_array){
      int stride, j, k, chunk;
      int myid = omp_get_thread_num();
-     double q_init[4] = {0.0};
+ 
      for (stride = NUM_THREADS/2; stride > 0; stride /= 2) {
          #pragma omp barrier
          j = 0;

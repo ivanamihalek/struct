@@ -150,6 +150,15 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list)
     if ( ! (R=dmatrix(3,3)) ) return 1; /* compiler is bugging me otherwise */
  
     quat_to_R (map->q, R);
+    fprintf (fptr, "%% tfm matrix: \n" );
+    for (i=0; i<3; i++) {
+	fprintf (fptr, "%%  ");
+	for (j=0; j<3; j++) {
+	    fprintf (fptr, "  %8.3lf ", R[i][j]);
+	}
+	fprintf (fptr, "  %8.3lf \n", map->T[i]);	
+    }
+    fprintf (fptr, "%%\n");
     fprintf (fptr, "%% distances of the aligned Ca's:\n%%\n" );
     fprintf (fptr, "%% pdb_id_1  type_1    distance  pdb_id_2  type_2\n"); 
     for (pos=0; pos < last_pos; pos++) {
