@@ -22,7 +22,8 @@ Contact: ivana.mihalek@gmail.com.
 
 # include "struct.h"
 
-int pdb_output ( char *filename, Residue * sequence, int no_res);
+int pdb_output ( char *filename, double  **tfm_matrix, double * transl_vector, Residue * sequence, int no_res);
+
 int transform_pdb (double  **tfm_matrix, double * transl_vector,
 		   Residue * sequence, int no_res, Residue * sequence_new);
 
@@ -55,7 +56,7 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 	transform_pdb (R, current_map->T, tgt_protein->sequence, tgt_protein->length, sequence_new);
 
 	sprintf (filename, "%s.to_%s.%d.pdb", tgt_descr->name, qry_descr->name, out_ctr);
-	pdb_output (filename, sequence_new, tgt_protein->length);
+	pdb_output (filename, R, current_map->T, sequence_new, tgt_protein->length);
 	out_ctr++;
 
 	sprintf (current_map->filename, "%s", filename);
@@ -70,8 +71,9 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 /***************************************************************************/
 /***************************************************************************/
 /***************************************************************************/
-int pdb_output ( char *filename, Residue * sequence, int no_res){
-    
+int pdb_output ( char *filename, double  **tfm_matrix, double * transl_vector, Residue * sequence, int no_res){
+
+    int i, j;
     int resctr, atomctr, serial;
     FILE * fptr;
     Atom * atomptr;
@@ -82,6 +84,19 @@ int pdb_output ( char *filename, Residue * sequence, int no_res){
 	fprintf (stderr, "Cno %s.\n", filename);
 	return 1;
     }
+    /* output the trfm matrix, for the reference */
+    fprintf (fptr, "REMARK \n" );
+    fprintf (fptr, "REMARK  tfm matrix: \n" );
+    fprintf (fptr, "REMARK \n" );
+    for (i=0; i<3; i++) {
+	fprintf (fptr, "REMARK ");
+	for (j=0; j<3; j++) {
+	    fprintf (fptr, "  %8.3lf ", tfm_matrix[i][j]);
+	}
+	fprintf (fptr, "  %8.3lf \n", transl_vector[i]);	
+    }
+    fprintf (fptr, "REMARK \n");
+    fprintf (fptr, "REMARK \n");
 
     serial = 0;
     for ( resctr= 0; resctr < no_res; resctr ++ ) {
