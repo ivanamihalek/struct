@@ -393,11 +393,12 @@ int improvize_name ( char *filename, char chain, char *outstring) {
     int name_length = strlen(filename);
     int c, tokenctr;
     char token[MAX_TOK][MEDSTRING];
+    char scratchstring[MEDSTRING] = {'\0'};;
     char auxstring[MEDSTRING] = {'\0'};;
     int maxtoken;
     char comment_char = '!';
 
-    /* this assumes that the outstring is empty; we'll not take care of that here */
+    /* this assumes that the scratchstring is empty; we'll not take care of that here */
     
     for (c=name_length-1; c>=0; c--) {
 	if (filename[c] == '/') filename[c] = ' ';	
@@ -412,14 +413,21 @@ int improvize_name ( char *filename, char chain, char *outstring) {
     }
     tokenize ( token, &maxtoken, auxstring, comment_char);
 
-    if (! strcmp(token[maxtoken], "pdb") ) maxtoken --;
+    if (!strcmp(token[maxtoken], "pdb") || !strcmp(token[maxtoken], "ent") ) maxtoken --;
 
-    sprintf (outstring, "%s", token[0]);
+    sprintf (scratchstring, "%s", token[0]);
     for (tokenctr=1; tokenctr<=maxtoken; tokenctr++) {
-	sprintf (outstring, "%s.%s", outstring, token[tokenctr]);
+	sprintf (scratchstring, "%s.%s", scratchstring, token[tokenctr]);
     }
+    
+    /*  */
+    if ( !strncmp(scratchstring, "pdb",3) ) {
+      memset (&auxstring[0], 0, MEDSTRING*sizeof(char));
+      memcpy (&auxstring[0], &scratchstring[3], (strlen(scratchstring)-3)*MEDSTRING);
+    }
+    if (chain) scratchstring[strlen(scratchstring)] = chain;
 
-    if (chain) outstring[strlen(outstring)] = chain;
+    sprintf (outstring, "%s", scratchstring);
     
     return 0;
 }
