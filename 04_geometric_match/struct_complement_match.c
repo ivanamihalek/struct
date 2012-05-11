@@ -914,7 +914,7 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
     double ** cmy = Y_rep->cm;
     double threshold_dist = options.threshold_distance;
 
-    printf (" exhaust \n");
+    if (options.verbose) printf ("exhaustive search \n");
 
     /***************************************/
     /* find reasonable triples of SSEs      */
@@ -1054,8 +1054,6 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
         double ** cmx = X_rep->cm; // no change
         double ** cmy = Y_rep->cm; // no change
         double threshold_dist = options.threshold_distance;
-
-        printf(" exhaust parallel \n");
 
         /***************************************/
         /* find reasonable triples of SSEs      */

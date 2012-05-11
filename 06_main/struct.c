@@ -33,7 +33,7 @@ int main ( int argc, char * argv[]) {
     int retval, qry_done, tgt_done;
     int db_ctr, db_effective_ctr;
     int tgt_input_type = 0, qry_input_type = 0;
-    clock_t CPU_time_begin, CPU_time_end;
+    clock_t CPU_time_begin, CPU_time_end, CPU_comparison_start;
     FILE *qry_fptr    = NULL, *tgt_fptr = NULL, *digest = NULL;
     Protein qry_structure = {0};
     Protein tgt_structure = {0};
@@ -205,6 +205,9 @@ int main ( int argc, char * argv[]) {
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
 		    
+		    if (options.verbose) printf ("\n\n---------------\ncomparing   db:%s  query:%s \n",
+						 tgt_descr.name, qry_descr.name);
+		    CPU_comparison_start = clock();
 		    rep_initialize (&tgt_rep, &tgt_descr);
 		    rep_initialize (&qry_rep, &qry_descr);
    
@@ -215,39 +218,41 @@ int main ( int argc, char * argv[]) {
                     
                     switch (options.search_algorithm){
 			
-                        case SEQUENTIAL:
-                            options.current_algorithm = SEQUENTIAL;    
-                            retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
-			    match_found = (list_sequential.no_maps_used > 0);
-			    list1   = &list_sequential;  list2 = NULL;
-			    break;
+		    case SEQUENTIAL:
+			options.current_algorithm = SEQUENTIAL;    
+			retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
+			match_found = (list_sequential.no_maps_used > 0);
+			list1   = &list_sequential;  list2 = NULL;
+			break;
 			    
-                        case OUT_OF_ORDER:
-                            options.current_algorithm = OUT_OF_ORDER;    
-                            retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
-			    match_found =  (list_out_of_order.no_maps_used > 0);
-			    list1   = NULL;  list2 = &list_out_of_order;
-                            break;
+		    case OUT_OF_ORDER:
+			options.current_algorithm = OUT_OF_ORDER;    
+			retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			match_found =  (list_out_of_order.no_maps_used > 0);
+			list1   = NULL;  list2 = &list_out_of_order;
+			break;
 			    
-                        case BOTH:
-                            options.current_algorithm = SEQUENTIAL;    
-                            retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
-                            options.current_algorithm = OUT_OF_ORDER;    
-                            retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
-			    match_found =  (list_sequential.no_maps_used > 0 ||
-					    list_out_of_order.no_maps_used > 0);
-			    list1   = &list_sequential;  list2 = &list_out_of_order;
+		    case BOTH:
+			options.current_algorithm = SEQUENTIAL;    
+			retval1 = map_reduced_reps (&tgt_rep, &qry_rep, &list_sequential);
+			options.current_algorithm = OUT_OF_ORDER;    
+			retval2 = map_reduced_reps (&tgt_rep, &qry_rep, &list_out_of_order);
+			match_found =  (list_sequential.no_maps_used > 0 ||
+					list_out_of_order.no_maps_used > 0);
+			list1   = &list_sequential;  list2 = &list_out_of_order;
                     }
                     
 		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
-				     bcs perl has a problem intercepting stderr */
+						 bcs perl has a problem intercepting stderr */
 			printf (" error comparing   db:%s  query:%s \n",
 				tgt_descr.name, qry_descr.name);
 			exit (1);
 		    }
 		    db_effective_ctr ++;
 		    
-  
+		    //printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
+		    //	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
+
 		    if  (match_found) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
@@ -261,14 +266,15 @@ int main ( int argc, char * argv[]) {
 				     &qry_descr, &qry_structure, &qry_rep,
 				     &list_uniq, digest);
 			
-			printf ("match found for db:%s  query:%s \n",
-				tgt_descr.name, qry_descr.name);
+			if (options.verbose)
+			    printf ("match found for db:%s  query:%s \n",
+						     tgt_descr.name, qry_descr.name);
 			
 		    } else {
 			/* write all zeros to the digest file  */
 			write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
-			printf ("no match for db:%s  query:%s \n",
-				tgt_descr.name, qry_descr.name);
+			if (options.verbose) printf ("no match for db:%s  query:%s \n",
+						     tgt_descr.name, qry_descr.name);
 		    }
 		    
 		    rep_shutdown (&tgt_rep);
@@ -278,7 +284,7 @@ int main ( int argc, char * argv[]) {
 		    /* write all zeros to the digest file  */
 		    write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
 		    printf ("no common SSEs for db:%s  query:%s \n",
-				tgt_descr.name, qry_descr.name);
+			    tgt_descr.name, qry_descr.name);
 		}
 	    }
 	}

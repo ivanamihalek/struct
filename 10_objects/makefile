@@ -1,7 +1,5 @@
 CFLAGS=     # options for C compiler
-FFLAGS =
-FCOMPL= f90   # name of Fortran compiler
-CCOMPL = gcc -Wall -fopenmp
+CCOMPL = gcc -Wall  -fopenmp
 CPLUSCOMPL = g++
 
 HERE = $(shell pwd)

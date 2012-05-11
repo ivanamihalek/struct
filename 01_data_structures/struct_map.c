@@ -345,7 +345,6 @@ int find_map ( Penalty_parametrization * penalty_params,
 
     /* if the anchors are given, somebody insists
        they should be considered as already aligned */
-
     if (penalty_params->custom_gap_penalty_x)
 	memset (penalty_params->custom_gap_penalty_x, 0, NX*sizeof(double) );
     if (penalty_params->custom_gap_penalty_y)
@@ -377,7 +376,6 @@ int find_map ( Penalty_parametrization * penalty_params,
     }
     
     /* dynamic programming using the "image" */
-    
     if (options.current_algorithm == SEQUENTIAL) {
         smith_waterman (penalty_params, NX, NY, map->image, map->x2y, map->y2x, &aln_score);
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
@@ -452,14 +450,15 @@ double find_map_overlap (Map *map1, Map *map2){
 	    overlap += a[i][j1]*b[i][j2];
 	}
 	if ( j1 >= 0 ) {
-	    norm1   += a[i][j1]*a[i][j1];
+	    norm1 += a[i][j1]*a[i][j1];
 	}
 	if ( j2 >= 0 ) {
-	    norm2   += b[i][j2]*b[i][j2];
+	    norm2 += b[i][j2]*b[i][j2];
 	}
     }
 
     if ( !norm1 || !norm2 ) {
+
 	fprintf (stderr, "%s:%d: empty map (?).\n", __FILE__, __LINE__);
 	exit (1);
     }
@@ -497,7 +496,7 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 	start[1] = 1;
 	
     } else {
-	fprintf (stderr, "Error in %s:%d: Both lists embty in find_uniq_maps.\n",
+	fprintf (stderr, "Error in %s:%d: Both lists empty in find_uniq_maps.\n",
 		 __FILE__, __LINE__);
 	exit (1);
     }
@@ -512,6 +511,7 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 	for ( best_map_ctr= start[list_ctr];  best_map_ctr<list[list_ctr]->no_maps_used;  best_map_ctr++) {
 
 	    if (list[list_ctr]->map_best[best_map_ctr] < 0) break;
+	    if (list[list_ctr]->map_best[best_map_ctr] >= list[list_ctr]->best_array_used) break;
 	    current_map = list[list_ctr]->map + list[list_ctr]->map_best[best_map_ctr];
 
 	    overlap_found = 0;

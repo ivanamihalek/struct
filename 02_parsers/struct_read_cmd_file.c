@@ -154,8 +154,6 @@ int read_cmd_file (char *filename) {
 	}
 
 	/* some hacking for switches */ 
-
-
 	if ( ! token_assigned  &&  !strcmp (token[0], "length")  ) {
 	    options.use_length = 1;
 	    token_assigned = 1;

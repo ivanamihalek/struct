@@ -66,8 +66,6 @@ int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *
     /*  look for maps between rep1 and rep2,  */
     /*    and for their complements           */
     /******************************************/
-    map_ctr = 0;
-  
     retval  = complement_match (rep1, rep2, list);
     if (retval) return retval;
     
