@@ -272,7 +272,7 @@ int main ( int argc, char * argv[]) {
 			
 		    } else {
 			/* write all zeros to the digest file  */
-			write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
+			if (options.report_no_match) write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
 			if (options.verbose) printf ("no match for db:%s  query:%s \n",
 						     tgt_descr.name, qry_descr.name);
 		    }
@@ -438,7 +438,8 @@ int set_default_options () {
     
     options.verbose        = 0;
     options.print_header   = 0;
-    options.report_no_sse_overlap = 0;
+    options.report_no_sse_overlap = 0; /* refers to the digest file */
+    options.report_no_match = 0;      /* refers to the digest file */
     
     /* penalizing the length mismatch */
     options.use_length = 0;

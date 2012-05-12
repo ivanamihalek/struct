@@ -127,6 +127,7 @@ typedef struct {
     int print_header;     /* print header in the short output file  */
     int report_no_sse_overlap; /*produce short output line even when
 				 there is no overlap in the SSE type */
+    int report_no_match;
     int postprocess;     /* produce an output for postprocessing */
     int preproc_only;
     char pdbf_tgt[BUFFLEN];  /* for postprocessing, we'll need the full set of
@@ -283,11 +284,6 @@ typedef struct {
 } Penalty_parametrization;
 
 
-/******************************/
-/* global data:               */
-/******************************/
-extern Options options;  /* defined in struct.c */
-
 
 /******************************/
 /* integral lookup table :    */
@@ -300,7 +296,7 @@ extern Options options;  /* defined in struct.c */
 
 extern double int_table [TABLE_SIZE][TABLE_SIZE];
 extern double exp_table [TABLE_SIZE];
-
+extern Options options; /* defined in struct.c */
 
 /******************************/
 /* function declarations :    */

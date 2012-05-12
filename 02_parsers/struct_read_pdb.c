@@ -63,7 +63,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     char atomtypes_read_in[BUFFLEN];
     char old_chain;
     int atomctr, resctr,  no_res,ctr, nonblank;
-    int retval;
+    int retval, is_nmr = 0;
     int chain_found;
     int ca_trace;
     char single_letter ( char code[]);
@@ -85,10 +85,11 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     old_chain = '\0';
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
-	//if (resctr) {
-	//    if ( ! strncmp(line,"END", 3) ||  (chain && line[PDB_ATOM_CHAINID] != old_chain) )
-	//	break;
-	//}
+	if (resctr &&  !strncmp(line,"ENDMDL", 6)) {
+	    is_nmr = 1;
+	    break;
+	}
+	
 	if (chain  && line[PDB_ATOM_CHAINID] != chain) continue;
 	chain_found  = 1;
 	
@@ -106,7 +107,7 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     }
 
     /* sanity: */
-    if ( chain && ! chain_found) {
+    if ( chain && !chain_found) {
 	fprintf (stderr, "Chain %c not found.\n", chain);
 	return ERR_NO_FILE_OR_CHAIN;
     }
@@ -135,10 +136,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     while(fgets(line, BUFFLEN, fptr)!=NULL){
 	
 	
-	//if ( resctr > -1) {
-	//    if  (! strncmp(line,"END", 3)  ||  (chain && line[PDB_ATOM_CHAINID] != old_chain))
-	//    break;
-	//}
+	if (resctr>-1  &&  !strncmp(line,"ENDMDL", 6))  break;
+	
 	if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
 	
 	if( ! strncmp(line,"ATOM", 4) ){
@@ -267,6 +266,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     protein->sequence = sequence;
     protein->length   = no_res;
 
+    if (is_nmr)  fseek(fptr, 0L, SEEK_END);  /* go to the end of file */
+    
     return 0;
 }
 

@@ -53,7 +53,8 @@ int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, 
 int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
 
     /* read in  the infor from the PDB file             */
-    if (fill_protein_info (fptr, chain, protein)) return 1;
+    int retval = fill_protein_info (fptr, chain, protein);
+    if (retval) return retval;
 
     /* find positions of SSEs on the sequence           */
     if ( structure2sse (protein)) {

@@ -174,6 +174,10 @@ int read_cmd_file (char *filename) {
 	    options.report_no_sse_overlap = 1;
 	    token_assigned = 1;
 	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "report_no_match")  ) {
+	    options.report_no_match = 1;
+	    token_assigned = 1;
+	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "smith")  ) {
 	    options.smith_waterman = 1;
 	    token_assigned = 1;

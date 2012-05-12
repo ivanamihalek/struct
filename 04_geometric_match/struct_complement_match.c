@@ -23,7 +23,7 @@ Contact: ivana.mihalek@gmail.com.
 # include "sys/time.h"
 # include "omp.h"
 
-# define  TOP_RMSD 30
+# define  TOP_RMSD 200
 # define  BAD_RMSD 10.0
 # define JACKFRUIT 8
 # define NUM_THREADS 8
@@ -178,7 +178,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /* that correspond in type             */
     /*  and can be mapped onto each other  */
     /***************************************/
-    
+
+    no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
     if (options.exhaustive) {
 	/*
 	 * Exhaustive search for all triplets
@@ -206,7 +207,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /*********************************************/
     map_ctr = 0;
     for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
-
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
@@ -932,39 +932,47 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
 
     for (i = 0; i < NX - 2; ++i) {
         x_triple[0] = i;
+
         for (j = 0; j < NY - 2; ++j) {
             if (x_type[i] != y_type[j]) continue;
             y_triple[0] = j;
-            for (k = i + 1; k < NX -1 ; ++k) {
+
+           for (k = i + 1; k < NX -1 ; ++k) {
                 if (two_point_distance(cmx[i],cmx[k]) > threshold_dist) continue;
                 x_triple[1] = k;
-                for (l = j + 1; l < NY -1 ; ++l) {
+
+               for (l = j + 1; l < NY -1 ; ++l) {
                     if (x_type[k] != y_type[l]) continue;
                     if (two_point_distance(cmy[j],cmy[l]) > threshold_dist) continue;
                     y_triple[1] = l;
+		    
                     for (m = k + 1; m < NX; ++m) {
                         if (two_point_distance(cmx[i],cmx[m]) > threshold_dist) continue;
                         if (two_point_distance(cmx[k],cmx[m]) > threshold_dist) continue;
                         x_triple[2] = m;
-                        for (n = l + 1; n < NY; ++n) {
+
+                       for (n = l + 1; n < NY; ++n) {
                             if (two_point_distance(cmy[j],cmy[n]) > threshold_dist) continue;
                             if (two_point_distance(cmy[l],cmy[n]) > threshold_dist) continue;
                             if (x_type[m] != y_type[n]) continue;
                             y_triple[2] = n;
-                            
-                            if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
+
+
+
+			    if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
 
 			    if (distance_of_nearest_approach(X_rep, x_triple,
                                     Y_rep, y_triple, 3, &rmsd)) continue;
                             
                             if (rmsd > cutoff_rmsd) continue;
 
-                            if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
-                               for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
+ 				
+			    if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
+			    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
 
                                 if (rmsd <= best_rmsd[top_ctr]) {
 
-                                    chunk = no_top_rmsd - top_ctr - 1;
+				    chunk = no_top_rmsd - top_ctr - 1;
 
                                     if (chunk) {
                                         memmove(best_rmsd + top_ctr + 1, best_rmsd + top_ctr, chunk * sizeof (double));
