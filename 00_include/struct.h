@@ -29,6 +29,7 @@ Contact: ivana.mihalek@gmail.com.
 # include <ctype.h>
 # include <time.h>
 # include <assert.h>
+# include <sys/stat.h>
 # include "struct_hungarian.h"
 # include "struct_utils.h"
 # include "struct_pdb.h"
@@ -136,7 +137,8 @@ typedef struct {
     char chain_tgt;
     char chain_qry;
   
-    char outname[BUFFLEN];/* name for the output file   */
+    char outdir[BUFFLEN]; /* output directory - will not be crated if not present   */
+    char outname[BUFFLEN];/* root name for the output file(s)   */
     char path[BUFFLEN];   /* path to the integral table */
     
 } Options;

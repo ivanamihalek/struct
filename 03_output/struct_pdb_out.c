@@ -34,7 +34,7 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
      
     int rank_ctr, map_id, out_ctr;
     double ** R;
-    char filename[MEDSTRING] = {'\0'};
+    char filename[LONGSTRING] = {'\0'};
     Map *current_map;
     Residue * sequence_new = emalloc (tgt_protein->length*sizeof(Residue));
     if (!sequence_new) return 1;
@@ -56,6 +56,12 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 	transform_pdb (R, current_map->T, tgt_protein->sequence, tgt_protein->length, sequence_new);
 
 	sprintf (filename, "%s.to_%s.%d.pdb", tgt_descr->name, qry_descr->name, out_ctr);
+	if ( options.outdir[0])  {
+	    char aux[MEDSTRING] = {'\0'};
+	    sprintf (aux, "%s", filename);
+	    memset (&filename[0], 0, LONGSTRING*sizeof(char));
+	    sprintf (filename, "%s/%s",  options.outdir, aux);
+	}
 	pdb_output (filename, R, current_map->T, sequence_new, tgt_protein->length);
 	out_ctr++;
 

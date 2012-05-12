@@ -29,8 +29,12 @@ int descr_out (FILE * fptr, Descr * descr) {
     SSElement * element;
 
     if ( !fptr) {
-	char filename[MEDSTRING] = {'\0'};
-	sprintf (filename, "%s.db", descr->name);
+	char filename[LONGSTRING] = {'\0'};
+	if (options.outdir[0] ) {
+	    sprintf (filename, "%s/%s.db", options.outdir, descr->name);
+	} else {
+	    sprintf (filename, "%s.db", descr->name);
+	}
 	if ( ! (fptr=efopen(filename, "w")) )  return 1;
 	my_fptr = 1;
     }

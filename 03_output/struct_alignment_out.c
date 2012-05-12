@@ -35,7 +35,7 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list)
     double **R;
     int resctr_2, resctr_1;
     double ca1[3], ca2[3], rotated_ca1[3], d;
-    char outname[BUFFLEN] = {'\0'};
+    char outname[LONGSTRING] = {'\0'};
     FILE *fptr;
     Residue *residue1, *residue2;
     
@@ -128,7 +128,11 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list)
     last_pos = pos;
 
     /* as a temp measure: all maps have the  same name */
-    sprintf (outname, "%s.alignment", options.outname);
+    if (options.outdir[0] ) {
+	sprintf (outname, "%s/%s.alignment", options.outdir, options.outname);
+    } else {
+	sprintf (outname, "%s.alignment", options.outname);
+    }
     fptr  = efopen (outname, "w");
     if ( !fptr) exit (1);
     /* the plain old alignment */

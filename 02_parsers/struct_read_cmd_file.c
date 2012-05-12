@@ -25,7 +25,7 @@ Contact: ivana.mihalek@gmail.com.
 /* how many vars of each type need to be read in: */
 # define DOUBLES 18
 # define INTS    6
-# define STRINGS 4
+# define STRINGS 5
 # define CHARACTERS 2
     
 int read_cmd_file (char *filename) {
@@ -69,8 +69,8 @@ int read_cmd_file (char *filename) {
 	"grid_size", "number_maps_cpl", "number_maps_out",
 	"grad_max_step", "exp_table_size", "min_no_SSEs"};
     
-    char * strings[STRINGS] = { options.outname, options.path, options.pdbf_tgt, options.pdbf_qry};
-    char * names_of_strings[STRINGS] = {"outname", "path", "pdbf_tgt", "pdbf_qry"};
+    char * strings[STRINGS] = { options.outdir, options.outname, options.path, options.pdbf_tgt, options.pdbf_qry};
+    char * names_of_strings[STRINGS] = {"outdir", "outname", "path", "pdbf_tgt", "pdbf_qry"};
 
     char * ptrs_to_chars[CHARACTERS] = {&(options.chain_tgt), &(options.chain_qry)};
     char * names_of_chars[STRINGS]   = {"chain_tgt", "chain_qry"};
@@ -228,6 +228,17 @@ int read_cmd_file (char *filename) {
 	memset (line, 0, LONGSTRING);
     }
     fclose (fptr);
+
+
+    if ( options.outdir[0] ) {
+	/* chcek whther this directory exists */
+	struct stat st;
+	if ( stat(options.outdir, &st) )  {
+	    fprintf (stderr, "%s  not found.\n", options.outdir);
+	    return 1;
+	}
+
+    }
     
     
     return 0;

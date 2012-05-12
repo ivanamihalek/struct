@@ -34,7 +34,7 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
     FILE *digest = *digest_ptr;
     
     if (!digest) { /*open new one */
-	char outname[MEDSTRING] = {'\0'};
+	char outname[LONGSTRING] = {'\0'};
 	if (!options.outname[0] ) {
 	    if ( qry_descr->name[0] &&  tgt_descr->name[0] ) {
 		sprintf (outname, "%s_%s.struct_out", qry_descr->name, tgt_descr->name);
@@ -45,6 +45,13 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 	    
 	} else {
 	    sprintf (outname, "%s.struct_out", options.outname);
+	}
+
+	if ( options.outdir[0])  {
+	    char aux[MEDSTRING] = {'\0'};
+	    sprintf (aux, "%s", outname);
+	    memset (&outname[0], 0, LONGSTRING*sizeof(char));
+	    sprintf (outname, "%s/%s",  options.outdir, aux);
 	}
 	digest  = efopen (outname, "w");
     }
