@@ -250,8 +250,8 @@ int main ( int argc, char * argv[]) {
 		    }
 		    db_effective_ctr ++;
 		    
-		    //printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
-		    //	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
+		    printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
+		    	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
 
 		    if  (match_found) {
 
@@ -272,7 +272,8 @@ int main ( int argc, char * argv[]) {
 			
 		    } else {
 			/* write all zeros to the digest file  */
-			if (options.report_no_match) write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
+			if (options.report_no_match)
+			    write_digest(&qry_descr, &tgt_descr, &qry_rep, &tgt_rep, NULL, digest);
 			if (options.verbose) printf ("no match for db:%s  query:%s \n",
 						     tgt_descr.name, qry_descr.name);
 		    }

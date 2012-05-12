@@ -41,7 +41,8 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat);
 
-int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array, double * best_rmsd_array, double ** best_quat_array);
+int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
+		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd);
 
 
 
@@ -262,10 +263,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	if ( opt_quat ( x,  NX, anchor_x, y, NY, anchor_y, no_anchors, q, &rmsd)) continue;
 
-
-	
-	retval = monte_carlo (alpha, x, x_type_fudg, NX,
-			       y,  y_type_fudg, NY, q, &F_current);
+	retval = monte_carlo (alpha, x, x_type_fudg, NX,  y,  y_type_fudg, NY, q, &F_current);
 
 
 
@@ -1161,7 +1159,7 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
         free(best_rmsd_local);  
         
         // parallel sort of elements of arrays 
-        sortTriplets(best_triple_x_array, best_triple_y_array, best_rmsd_array, best_quat_array);
+        sortTriplets(best_triple_x_array, best_triple_y_array, best_rmsd_array, best_quat_array, no_top_rmsd);
     }
      
    // 
@@ -1192,7 +1190,7 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
  */
  
 int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
-		  double * best_rmsd_array, double ** best_quat_array){
+		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd){
      int stride, j, k, chunk;
      int myid = omp_get_thread_num();
  
@@ -1200,36 +1198,36 @@ int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
          #pragma omp barrier
          j = 0;
          if (myid < stride){
-             for (k = 0; k < TOP_RMSD; ++k){                
-                 while (j < TOP_RMSD) {
-                     if (best_rmsd_array[myid*TOP_RMSD + stride*TOP_RMSD  + k]
-			 < best_rmsd_array[myid*TOP_RMSD + j]) {
+             for (k = 0; k < top_rmsd; ++k){                
+                 while (j < top_rmsd) {
+                     if (best_rmsd_array[myid*top_rmsd + stride*top_rmsd  + k]
+			 < best_rmsd_array[myid*top_rmsd + j]) {
                          
-                         chunk = TOP_RMSD - j - 1;
+                         chunk = top_rmsd - j - 1;
 
                          if (chunk) {
-                             memmove(best_rmsd_array + myid*TOP_RMSD + j + 1,
-				     best_rmsd_array + myid*TOP_RMSD +j, chunk * sizeof (double));
-                             memmove(best_triple_x_array[myid*TOP_RMSD + j + 1],
-				     best_triple_x_array[myid*TOP_RMSD + j], chunk * 3 * sizeof (int));
-                             memmove(best_triple_y_array[myid*TOP_RMSD + j + 1],
-				     best_triple_y_array[myid*TOP_RMSD + j], chunk * 3 * sizeof (int));
-                             memmove(best_quat_array[myid*TOP_RMSD + j + 1],
-				     best_quat_array[myid*TOP_RMSD + j], chunk * 4 * sizeof (double));
+                             memmove(best_rmsd_array + myid*top_rmsd + j + 1,
+				     best_rmsd_array + myid*top_rmsd +j, chunk * sizeof (double));
+                             memmove(best_triple_x_array[myid*top_rmsd + j + 1],
+				     best_triple_x_array[myid*top_rmsd + j], chunk * 3 * sizeof (int));
+                             memmove(best_triple_y_array[myid*top_rmsd + j + 1],
+				     best_triple_y_array[myid*top_rmsd + j], chunk * 3 * sizeof (int));
+                             memmove(best_quat_array[myid*top_rmsd + j + 1],
+				     best_quat_array[myid*top_rmsd + j], chunk * 4 * sizeof (double));
                          }
-                         best_rmsd_array[myid*TOP_RMSD + j] = best_rmsd_array[myid*TOP_RMSD +
-									      stride *TOP_RMSD  + k];
-                         memcpy(best_triple_x_array[myid*TOP_RMSD + j],
-				best_triple_x_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 3 * sizeof (int));
-                         memcpy(best_triple_y_array[myid*TOP_RMSD + j],
-				best_triple_y_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 3 * sizeof (int));
-                         memcpy(best_quat_array[myid*TOP_RMSD + j], best_quat_array[myid*TOP_RMSD + stride * TOP_RMSD + k], 4 * sizeof (double));
+                         best_rmsd_array[myid*top_rmsd + j] = best_rmsd_array[myid*top_rmsd +
+									      stride *top_rmsd  + k];
+                         memcpy(best_triple_x_array[myid*top_rmsd + j],
+				best_triple_x_array[myid*top_rmsd + stride * top_rmsd + k], 3 * sizeof (int));
+                         memcpy(best_triple_y_array[myid*top_rmsd + j],
+				best_triple_y_array[myid*top_rmsd + stride * top_rmsd + k], 3 * sizeof (int));
+                         memcpy(best_quat_array[myid*top_rmsd + j], best_quat_array[myid*top_rmsd + stride * top_rmsd + k], 4 * sizeof (double));
                          j++;
                          break; 
                      }
                      j++;
                  }
-                 if (j == TOP_RMSD -1) break; // there is not any lower value
+                 if (j == top_rmsd -1) break; // there is not any lower value
                  
              }
          }
