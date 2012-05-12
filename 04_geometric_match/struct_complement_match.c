@@ -66,7 +66,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     double z_scr = 0.0, *z_best;
     double avg, avg_sq, stdev;
     double alpha = options.alpha;
-    double rmsd, best_rmsd[TOP_RMSD] = {0.0};
+    double rmsd, *best_rmsd;
     double **best_quat;
     double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
     int *x_type_fudg, *y_type_fudg;
@@ -125,7 +125,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
   
 
     smaller = (NX <= NY) ? NX : NY;
- 
+    no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
+
     /***********************/
     /* memory allocation   */
     /***********************/
@@ -133,6 +134,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     if ( ! (x_rotated    = dmatrix (NX,3)) ) return 1;
     if ( ! (tr_x_rotated = dmatrix (NX,3)) ) return 1;
     if ( ! (best_quat    = dmatrix (no_top_rmsd,4)) ) return 1;
+    if ( ! (best_rmsd    = emalloc (no_top_rmsd*sizeof(double))) ) return 1;
     if ( ! (best_triple_x    = intmatrix (no_top_rmsd,3)) ) return 1;
     if ( ! (best_triple_y    = intmatrix (no_top_rmsd,3)) ) return 1;
     if ( ! (z_best = emalloc(NX*NY*sizeof(double) )) ) return 1;
@@ -179,8 +181,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /*  and can be mapped onto each other  */
     /***************************************/
 
-    no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
-    if (options.exhaustive) {
+     if (options.exhaustive) {
 	/*
 	 * Exhaustive search for all triplets
 	 */
@@ -397,6 +398,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     free_imatrix (best_triple_x);
     free_imatrix (best_triple_y);
     free (z_best);
+    free (best_rmsd);
     free (x_type_fudg);
     free (y_type_fudg);
     free (anchor_x);
