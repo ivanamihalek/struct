@@ -22,13 +22,14 @@ Contact: ivana.mihalek@gmail.com.
 
 # include "struct.h"
 
-int pdb_output ( char *filename, double  **tfm_matrix, double * transl_vector, Residue * sequence, int no_res);
+int pdb_output (char *filename, double  **tfm_matrix, double * transl_vector,
+		Residue * sequence, int no_res);
 
 int transform_pdb (double  **tfm_matrix, double * transl_vector,
 		   Residue * sequence, int no_res, Residue * sequence_new);
 
 
-int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr) {
+int write_tfmd_pdb (Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr, Descr *qry_descr) {
     
     if ( list->no_maps_used == 0) return 1;
      

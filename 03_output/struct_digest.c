@@ -38,10 +38,11 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 	if (!options.outname[0] ) {
 	    if ( qry_descr->name[0] &&  tgt_descr->name[0] ) {
 		sprintf (outname, "%s_%s.struct_out", qry_descr->name, tgt_descr->name);
+		sprintf (options.outname, "%s_%s", qry_descr->name, tgt_descr->name );
 	    } else {
 		sprintf (outname, "digest.struct_out");
+		sprintf (options.outname, "struct_out");
 	    }
-	    sprintf (options.outname, "%s", outname);
 	    
 	} else {
 	    sprintf (outname, "%s.struct_out", options.outname);

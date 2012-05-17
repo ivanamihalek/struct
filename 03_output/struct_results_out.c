@@ -11,7 +11,7 @@ int results_out (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_
 
     if (options.postprocess) {
 	write_tfmd_pdb  (tgt_structure, list, tgt_descr, qry_descr);
-	write_alignment (tgt_structure, qry_structure, list);
+	write_alignment (tgt_structure, qry_structure, list, tgt_descr, qry_descr);
     }
     
     write_digest (qry_descr, tgt_descr, qry_rep, tgt_rep, list, digest);               

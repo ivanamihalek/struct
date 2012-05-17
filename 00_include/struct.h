@@ -389,7 +389,7 @@ int smith_waterman (Penalty_parametrization *params, int max_i, int max_j, doubl
 
 int unnorm_dot (double *x, double *y, double * dot);
 int vec_out (double *vec, int dim,  char * name );
-int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list);
+int write_alignment (Protein *protein1, Protein *protein2, List_of_maps * list, Descr *descr1, Descr *descr2);
 int write_digest(Descr *qry_descr, Descr *tgt_descr,
 		 Representation * qry_rep, Representation * tgt_rep,
 		 List_of_maps *list,FILE * digest);

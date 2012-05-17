@@ -62,7 +62,8 @@ typedef struct {
 typedef struct {
     int type; /* helix or strand */
     char begin_id[PDB_HELIX_BEGIN_LEN+2]; /* this is a string identifier fomr PDB*/
-    char end_id[PDB_HELIX_END_LEN+2]; 
+    char end_id[PDB_HELIX_END_LEN+2];
+    char chain;
     int begin, end; /* this may be added as post-processing step */
     int length;
     double p[3], cm[3];

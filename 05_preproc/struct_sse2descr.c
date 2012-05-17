@@ -173,7 +173,8 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
     
     residue = protein->sequence+last_res_index;
     strncpy (element->end_id, residue->pdb_id, (PDB_ATOM_RES_NO_LEN+2)*sizeof(char));
-    
+
+    element->chain  = residue->chain;
     element->begin  = first_res_index;
     element->end    =  last_res_index;
     element->length = last_res_index-first_res_index+1;

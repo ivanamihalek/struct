@@ -6,8 +6,8 @@ Copyright (C) 2012 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License, or,
+at your option, any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -197,12 +197,15 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
     
     /* header */
     if (options.print_header) {
+	fprintf ( fptr, "%%");
 	if (tab) fprintf ( fptr, "\t");
 	fprintf ( fptr, " %9s   %4s %6s   %8s  %9s  %9s\n", "SSE map", "type",
 		  " cosine", "Gauss wt.", "res range", "res range");
 	if ( descr1 && descr2) {
+	    fprintf ( fptr, "%%");
 	    if (tab) fprintf ( fptr, "\t");
-	    fprintf ( fptr, "%5s-->%5s   %4s   %6s %8s in %5s   in %5s\n", descr1->name, descr2->name,
+	    fprintf ( fptr, "%5s-->%5s   %4s   %6s %8s in %5s   in %5s\n",
+		      descr1->name, descr2->name,
 		      "", "", "",  descr1->name, descr2->name);
 	}
     }
@@ -222,18 +225,39 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	    }
 	}
 	
+	fprintf ( fptr, "%%");
 	if (tab) fprintf ( fptr, "\t");
 	fprintf ( fptr, " %2d --> %2d  %4c  %6.2lf   %8.1le ",
 		  index_x+1, index_y+1,  type, map->cosine[index_x][index_y],
 		map->image[index_x][index_y]);
-	if ( descr1 && descr2)  
-	    fprintf ( fptr,  " %4s -%4s  %4s -%4s",
-		     descr1->element[index_x].begin_id,
+	if ( descr1 && descr2) {
+	    char c1, c2;
+	    if ( descr1->element[index_x].chain == '\0' ||
+		 descr1->element[index_x].chain == ' ') {
+		c1 = '-';
+	    } else {
+		c1 =  descr1->element[index_x].chain;
+	    }
+	    if ( descr2->element[index_y].chain == '\0' ||
+		 descr2->element[index_y].chain == ' ') {
+		c2 = '-';
+	    } else {
+		c2 =  descr2->element[index_y].chain;
+	    }
+
+	    
+	
+	    fprintf (fptr,  "    %c %4s %4s   %c %4s %4s",
+		     c1, descr1->element[index_x].begin_id,
 		     descr1->element[index_x].end_id,
-		     descr2->element[index_y].begin_id,
+		     c2, descr2->element[index_y].begin_id,
 		     descr2->element[index_y].end_id);
+	}
 	fprintf ( fptr, "\n");
     }
+    fprintf ( fptr, "%%\n");
+    fprintf ( fptr, "%%\n");
+    fprintf ( fptr, "%%");
     if (tab) fprintf ( fptr, "\t");
     fprintf ( fptr, "total assigned score %8.4lf \n", map->assigned_score);
 
