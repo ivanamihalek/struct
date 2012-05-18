@@ -41,6 +41,10 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat);
 
+int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
+				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+					double **best_quat);
+
 int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
 		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd);
 
@@ -190,6 +194,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    find_best_triples_exhaustive_parallel (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 						   best_triple_x, best_triple_y, best_quat);
 	} else {
+	    //find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+	    //				  best_triple_x, best_triple_y, best_quat);
 	    find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 					  best_triple_x, best_triple_y, best_quat);
 	}
@@ -519,6 +525,54 @@ int find_next_triple (double **X, double **Y,
     return 0;
 }
 
+
+
+
+
+/**********************************************************/
+/**********************************************************/
+/* check that the two are not mirror images - count on it being  a triple*/
+int hand (Representation * X_rep,  int *set_of_directions_x) {
+    
+    double **x    = X_rep->full;
+    double **x_cm = X_rep->cm;
+    double cm_vector[3], avg_cm[3], cross[3], d, aux;
+    int i, ray_a, ray_b,  ray_c, a, b, c;
+    
+ 
+ 
+    a = 0;
+    b = 1;
+    c = 2;
+    
+    /*****************************/
+    /*****************************/
+    ray_a = set_of_directions_x[a];
+    ray_b = set_of_directions_x[b];
+    ray_c = set_of_directions_x[c];
+    /* I better not use the cross prod here: a small diff
+       int he angle makeing them pointing toward each other or
+       away from each other changes the direction of cross prod;
+       rather, use one vector, and distance between the cm's as the other */
+    for (i=0; i<3; i++ ) {
+	cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
+    }
+    normalized_cross (x[ray_a], x[ray_b], cross, &aux); 
+    /* note I am making another cm vector here */
+    for (i=0; i<3; i++ ) {
+	avg_cm[i] = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
+	cm_vector[i] = x_cm[ray_c][i] - avg_cm[i];
+    }
+    unnorm_dot (cm_vector, cross, &d);
+
+     
+    if ( d > 0 ) {
+	return 0;
+    } else {
+	return 1;
+    }
+    
+}
 
 /**********************************************************/
 /**********************************************************/
@@ -894,9 +948,146 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
  * @return 
  */
 
+# define MAX_TRIPLES  1000
+
+typedef struct {
+    int  member[3];
+    char fingerprint; /* types of the three vectors and their hand */
+} Triple;
+
+# define TYPE1 1<<3
+# define TYPE2 1<<2
+# define TYPE3 1<<1
+# define HAND  1
+
+int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
+				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+				  double **best_quat) {
+
+    int top_ctr, i, j, k;
+    int xtrip_ct, ytrip_ct;
+    int chunk;
+    int NX = X_rep->N_full;
+    int NY = Y_rep->N_full;
+    int * x_type = X_rep->full_type;
+    int * y_type = Y_rep->full_type;
+    Triple *x_triple, *y_triple;
+ 
+    double **x = X_rep->full;    
+    double **y = Y_rep->full;
+    
+    double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
+    double rmsd;
+    double q_init[4] = {0.0};
+    double threshold_dist = options.threshold_distance;
+     
+    double ** cmx = X_rep->cm;
+    double ** cmy = Y_rep->cm;
+
+    if (options.verbose) printf ("exhaustive search \n");
+
+    /***************************************/
+    /* find reasonable triples of SSEs      */
+    /* that correspond in type             */
+    /*  and can be mapped onto each other  */
+    /***************************************/
+    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
+        best_rmsd[top_ctr] = BAD_RMSD + 1;
+        best_triple_x[top_ctr][0] = -1;
+    }
+
+    if ( ! (x_triple = emalloc (MAX_TRIPLES*sizeof(Triple) ) ) )  return 1;
+    if ( ! (y_triple = emalloc (MAX_TRIPLES*sizeof(Triple) ) ) )  return 1;
+    
+
+    xtrip_ct = 0;
+    for (i = 0; i < NX - 2; ++i) {
+	for (j = i+1; j < NX - 1; ++j) {
+	    
+	    if (two_point_distance(cmx[i],cmx[j]) > threshold_dist) continue;
+	    
+	    for (k = j+1; k < NX; ++k) {
+		
+		if (two_point_distance(cmx[i],cmx[k]) > threshold_dist) continue;  
+		if (two_point_distance(cmx[j],cmx[k]) > threshold_dist) continue;
+		
+		x_triple[xtrip_ct].fingerprint = 0;
+		if (x_type[i] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE1;
+		if (x_type[j] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE2;
+		if (x_type[k] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE3;
+
+		x_triple[xtrip_ct].member[0] = i;
+		x_triple[xtrip_ct].member[1] = j;
+		x_triple[xtrip_ct].member[2] = k;
+		
+		if ( hand(X_rep, x_triple[xtrip_ct].member ) ) x_triple[xtrip_ct].fingerprint | HAND;
+		
+		xtrip_ct++;
+	    }
+	}
+    }
+        
+    ytrip_ct = 0;
+    for (i = 0; i < NY - 2; ++i) {
+	for (j = i+1; j < NY - 1; ++j) {
+	    
+	    if (two_point_distance(cmy[i],cmy[j]) > threshold_dist) continue;
+	    
+	    for (k = j+1; k < NY - 1; ++k) {
+		
+		if (two_point_distance(cmy[i],cmy[k]) > threshold_dist) continue;  
+		if (two_point_distance(cmy[j],cmy[k]) > threshold_dist) continue;  
+	    		
+		y_triple[ytrip_ct].fingerprint = 0;
+		if (y_type[i] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE1;
+		if (y_type[j] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE2;
+		if (y_type[k] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE3;
+
+		y_triple[ytrip_ct].member[0] = i;
+		y_triple[ytrip_ct].member[1] = j;
+		y_triple[ytrip_ct].member[2] = k;
+
+		if ( hand(Y_rep, y_triple[ytrip_ct].member ) ) y_triple[ytrip_ct].fingerprint | HAND;
+		
+		ytrip_ct++;
+	    }
+	}
+    }
+        
+    printf ("no trips in x: %d\n",  xtrip_ct);
+    printf ("no trips in y: %d\n",  ytrip_ct);
+
+
+    exit (1);
+
+    
+
+
+    free (x_triple);
+    free (y_triple);
+    
+    return 0;
+    
+    return 0;
+
+}
+
+
+/**
+ * 
+ * @param X_rep
+ * @param Y_rep
+ * @param no_top_rmsd
+ * @param best_rmsd
+ * @param best_triple_x
+ * @param best_triple_y
+ * @param best_quat
+ * @return 
+ */
+
 int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-        double **best_quat) {
+				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+				  double **best_quat) {
 
     int top_ctr, i, j, k, l, m, n;
     double **x = X_rep->full;
@@ -917,7 +1108,7 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
     if (options.verbose) printf ("exhaustive search \n");
 
     /***************************************/
-    /* find reasonable triples of SSEs      */
+    /* find reasonable triples of SSEs     */
     /* that correspond in type             */
     /*  and can be mapped onto each other  */
     /***************************************/
