@@ -23,6 +23,8 @@ Contact: ivana.mihalek@gmail.com.
 # include "sys/time.h"
 # include "omp.h"
 
+# include "gperftools/profiler.h"
+
 # define  TOP_RMSD 200
 # define  BAD_RMSD 10.0
 # define JACKFRUIT 8
@@ -186,7 +188,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /*  and can be mapped onto each other  */
     /***************************************/
 
-     if (options.exhaustive) {
+
+    //ProfilerStart("profile.out") ; /* the output will got to the file called profile.out */
+    if (options.exhaustive) {
 	/*
 	 * Exhaustive search for all triplets
 	 */
@@ -194,10 +198,10 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    find_best_triples_exhaustive_parallel (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 						   best_triple_x, best_triple_y, best_quat);
 	} else {
-	    //find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-	    //				  best_triple_x, best_triple_y, best_quat);
-	    find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-					  best_triple_x, best_triple_y, best_quat);
+	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+	    				  best_triple_x, best_triple_y, best_quat);
+	    //find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+	    //best_triple_x, best_triple_y, best_quat);
 	}
     } else {
     
@@ -207,8 +211,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
   	find_best_triples_greedy (X_rep, Y_rep, no_top_rmsd, best_rmsd,  
 			      best_triple_x, best_triple_y, best_quat);
     }
-
     
+    //ProfilerStop();
 
     /*********************************************/
     /*   main loop                               */
@@ -948,7 +952,7 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
  * @return 
  */
 
-# define MAX_TRIPLES  1000
+# define MAX_TRIPS  5000
 
 typedef struct {
     int  member[3];
@@ -964,8 +968,12 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
 				  double **best_quat) {
 
-    int top_ctr, i, j, k;
+    int top_ctr, i_x, j_x, k_x, i_y, j_y, k_y;
     int xtrip_ct, ytrip_ct;
+    int no_xtrips, no_ytrips, no_trip_pairs_to_compare;
+    int y_list_full, x_list_full;
+    int x_enumeration_done, y_enumeration_done;
+    int panic_ctr;
     int chunk;
     int NX = X_rep->N_full;
     int NY = Y_rep->N_full;
@@ -996,79 +1004,204 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
         best_triple_x[top_ctr][0] = -1;
     }
 
-    if ( ! (x_triple = emalloc (MAX_TRIPLES*sizeof(Triple) ) ) )  return 1;
-    if ( ! (y_triple = emalloc (MAX_TRIPLES*sizeof(Triple) ) ) )  return 1;
+    if ( ! (x_triple = emalloc (MAX_TRIPS*sizeof(Triple) ) ) )  return 1;
+    if ( ! (y_triple = emalloc (MAX_TRIPS*sizeof(Triple) ) ) )  return 1;
     
 
-    xtrip_ct = 0;
-    for (i = 0; i < NX - 2; ++i) {
-	for (j = i+1; j < NX - 1; ++j) {
-	    
-	    if (two_point_distance(cmx[i],cmx[j]) > threshold_dist) continue;
-	    
-	    for (k = j+1; k < NX; ++k) {
-		
-		if (two_point_distance(cmx[i],cmx[k]) > threshold_dist) continue;  
-		if (two_point_distance(cmx[j],cmx[k]) > threshold_dist) continue;
-		
-		x_triple[xtrip_ct].fingerprint = 0;
-		if (x_type[i] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE1;
-		if (x_type[j] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE2;
-		if (x_type[k] == HELIX) x_triple[xtrip_ct].fingerprint | TYPE3;
+    no_trip_pairs_to_compare = 0;
+    x_enumeration_done = 0;
+    i_x = 0;
+    j_x = 1;
+    k_x = 1;
 
-		x_triple[xtrip_ct].member[0] = i;
-		x_triple[xtrip_ct].member[1] = j;
-		x_triple[xtrip_ct].member[2] = k;
-		
-		if ( hand(X_rep, x_triple[xtrip_ct].member ) ) x_triple[xtrip_ct].fingerprint | HAND;
-		
-		xtrip_ct++;
+    panic_ctr = 0;	
+    while ( ! x_enumeration_done ) {
+	
+	x_list_full = 0;
+	xtrip_ct = 0;
+
+	while ( ! x_list_full  && !x_enumeration_done) {
+
+	    k_x ++;
+	    if ( k_x == NX ) {
+		    
+		if ( j_x <  NX-2 ) {
+		    j_x++;
+		    k_x = j_x+1;
+			
+		} else {
+			
+		    if ( i_x <  NX-3) {
+			i_x++;
+			j_x = i_x+1;
+			k_x = j_x+1;
+			    
+		    } else {
+			x_enumeration_done = 1;
+			break; /* from filling the x list */
+		    }			
+		}
 	    }
-	}
-    }
-        
-    ytrip_ct = 0;
-    for (i = 0; i < NY - 2; ++i) {
-	for (j = i+1; j < NY - 1; ++j) {
 	    
-	    if (two_point_distance(cmy[i],cmy[j]) > threshold_dist) continue;
-	    
-	    for (k = j+1; k < NY - 1; ++k) {
+	    if (two_point_distance(cmx[i_x],cmx[j_x]) > threshold_dist) continue;
+	    if (two_point_distance(cmx[i_x],cmx[k_x]) > threshold_dist) continue;  
+	    if (two_point_distance(cmx[j_x],cmx[k_x]) > threshold_dist) continue;  
+	    		
+	    x_triple[xtrip_ct].fingerprint = 0;
+	    if (x_type[i_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE1;
+	    if (x_type[j_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE2;
+	    if (x_type[k_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE3;
+
+	    x_triple[xtrip_ct].member[0] = i_x;
+	    x_triple[xtrip_ct].member[1] = j_x;
+	    x_triple[xtrip_ct].member[2] = k_x;
+
+	    if ( hand(X_rep, x_triple[xtrip_ct].member ) ) x_triple[xtrip_ct].fingerprint |= HAND;
 		
-		if (two_point_distance(cmy[i],cmy[k]) > threshold_dist) continue;  
-		if (two_point_distance(cmy[j],cmy[k]) > threshold_dist) continue;  
+	    xtrip_ct++;
+	    x_list_full = ( xtrip_ct == MAX_TRIPS);
+
+	    
+	} /* end filling the x trips list */
+
+	no_xtrips = xtrip_ct;
+
+	 
+	y_enumeration_done = 0;
+	i_y = 0;
+	j_y = 1;
+	k_y = 1;
+	while ( !y_enumeration_done) {
+
+
+	    y_list_full = 0;
+	    ytrip_ct = 0;
+	    
+	    while ( ! y_list_full  && !y_enumeration_done) {
+
+		k_y ++;
+		if ( k_y == NY ) {
+		    
+		    if ( j_y <  NY-2 ) {
+			j_y++;
+			k_y = j_y+1;
+			
+		    } else {
+			
+			if ( i_y <  NY-3) {
+			    i_y++;
+			    j_y = i_y+1;
+			    k_y = j_y+1;
+			    
+			} else {
+			    y_enumeration_done = 1;
+			    break; /* from filling the y list */
+			}			
+		    }
+		}
+	    
+		if (two_point_distance(cmy[i_y],cmy[j_y]) > threshold_dist) continue;
+		if (two_point_distance(cmy[i_y],cmy[k_y]) > threshold_dist) continue;  
+		if (two_point_distance(cmy[j_y],cmy[k_y]) > threshold_dist) continue;  
 	    		
 		y_triple[ytrip_ct].fingerprint = 0;
-		if (y_type[i] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE1;
-		if (y_type[j] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE2;
-		if (y_type[k] == HELIX) y_triple[ytrip_ct].fingerprint | TYPE3;
+		if (y_type[i_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE1;
+		if (y_type[j_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE2;
+		if (y_type[k_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE3;
 
-		y_triple[ytrip_ct].member[0] = i;
-		y_triple[ytrip_ct].member[1] = j;
-		y_triple[ytrip_ct].member[2] = k;
+		y_triple[ytrip_ct].member[0] = i_y;
+		y_triple[ytrip_ct].member[1] = j_y;
+		y_triple[ytrip_ct].member[2] = k_y;
 
-		if ( hand(Y_rep, y_triple[ytrip_ct].member ) ) y_triple[ytrip_ct].fingerprint | HAND;
+		if ( hand(Y_rep, y_triple[ytrip_ct].member ) ) y_triple[ytrip_ct].fingerprint |= HAND;
 		
 		ytrip_ct++;
-	    }
-	}
-    }
-        
-    printf ("no trips in x: %d\n",  xtrip_ct);
-    printf ("no trips in y: %d\n",  ytrip_ct);
+		y_list_full = ( ytrip_ct == MAX_TRIPS);
+	    
+	    } /* end filling the y trips list */
 
+	    
+	    no_ytrips = ytrip_ct;
+	    panic_ctr ++;
+	    if ( panic_ctr == 1000 ) {
+		fprintf (stderr, "Exit by panic ctr in %s:%d.\n", __FILE__, __LINE__);
+		exit (1);
+	    }
+	
+	    //printf ("\t no trips in x: %d\n",  no_xtrips);
+	    //printf ("\t no trips in y: %d\n\n",  no_ytrips);
+
+	    
+	    for (xtrip_ct=0; xtrip_ct<no_xtrips; xtrip_ct++) {
+		for (ytrip_ct=0; ytrip_ct<no_ytrips; ytrip_ct++) {
+
+		    no_trip_pairs_to_compare ++;
+		    /* filters :*/
+		    if ( x_triple[xtrip_ct].fingerprint ^ y_triple[ytrip_ct].fingerprint) continue;
+
+		    if (distance_of_nearest_approach(X_rep, x_triple[xtrip_ct].member,
+						     Y_rep, y_triple[ytrip_ct].member, 3, &rmsd)) continue;
+		    if ( rmsd > cutoff_rmsd) continue;
+	    
+		    if (opt_quat(x, NX, x_triple[xtrip_ct].member, y, NY, y_triple[ytrip_ct].member, 3, q_init, &rmsd)) continue;
+	    
+
+		    /* store the survivors */
+		    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
+
+			if (rmsd <= best_rmsd[top_ctr]) {
+
+			    chunk = no_top_rmsd - top_ctr - 1;
+
+			    if (chunk) {
+				memmove(best_rmsd + top_ctr + 1, best_rmsd + top_ctr, chunk * sizeof (double));
+				memmove(best_quat[top_ctr + 1],
+					best_quat[top_ctr], chunk * 4 * sizeof (double));
+				memmove(best_triple_x[top_ctr + 1],
+					best_triple_x[top_ctr], chunk * 3 * sizeof (int));
+				memmove(best_triple_y[top_ctr + 1],
+					best_triple_y[top_ctr], chunk * 3 * sizeof (int));
+			    }
+			    best_rmsd[top_ctr] = rmsd;
+			    memcpy(best_quat[top_ctr], q_init, 4 * sizeof (double));
+			    memcpy(best_triple_x[top_ctr], x_triple[xtrip_ct].member, 3 * sizeof (int));
+			    memcpy(best_triple_y[top_ctr], y_triple[ytrip_ct].member, 3 * sizeof (int));
+                                    
+			    break;
+
+			}
+		    }
+
+		}
+	    }
+
+	    
+	} /* y enumeration loop */
+    } /* x enumeration loop  */
+    
+
+# if 0
+    printf ("no trips in x: %d\n",  no_xtrips);
+    printf ("no trips in y: %d\n",  no_ytrips);
+    printf ("no trips to compare : %d\n",  no_trip_pairs_to_compare);
+    
+   for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
+
+	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
+	printf (" %8.3lf      %3d  %3d  %3d     %3d  %3d  %3d \n",   best_rmsd[top_ctr],
+		best_triple_x[top_ctr][0], best_triple_x[top_ctr][1], best_triple_x[top_ctr][2], 
+		best_triple_y[top_ctr][0], best_triple_y[top_ctr][1], best_triple_y[top_ctr][2]);
+   }
 
     exit (1);
-
+# endif
     
 
 
     free (x_triple);
     free (y_triple);
     
-    return 0;
-    
-    return 0;
+     return 0;
 
 }
 

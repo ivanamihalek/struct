@@ -16,7 +16,7 @@ VPATH = ../01_data_structures:../02_parsers:../03_output:\
 PLATFORM = $(shell uname)
 
 
-LIBS    =  -lm -lc  -L/usr/lib  -llapack  
+LIBS    =  -lm -lc  -L/usr/lib  -llapack   -lprofiler
 INCLUDE =  -I ../00_include
 
 
