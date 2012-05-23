@@ -23,7 +23,7 @@ Contact: ivana.mihalek@gmail.com.
 # include "sys/time.h"
 # include "omp.h"
 
-# include "gperftools/profiler.h"
+	 //# include "gperftools/profiler.h"
 
 # define  TOP_RMSD 200
 # define  BAD_RMSD 10.0
@@ -195,13 +195,17 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	 * Exhaustive search for all triplets
 	 */
 	if (options.omp) {
+# ifdef OMP
 	    find_best_triples_exhaustive_parallel (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 						   best_triple_x, best_triple_y, best_quat);
+# else
+	    fprintf (stderr, "from %s:%d: to use omp, please recompile with -DOMP flag.\n",
+		     __FILE__, __LINE__);
+	    exit (1);
+# endif
 	} else {
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 	    				  best_triple_x, best_triple_y, best_quat);
-	    //find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-	    //best_triple_x, best_triple_y, best_quat);
 	}
     } else {
     
@@ -1341,10 +1345,11 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
  * @return 
  */
 
+
 int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat) {
-
+# ifdef OMP
     // initialization of global array of values
     double ** best_quat_array = dmatrix(no_top_rmsd * NUM_THREADS, 4);
     int ** best_triple_x_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
@@ -1498,7 +1503,8 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
     free_imatrix(best_triple_y_array);
     free(best_rmsd_array);
 
-
+# endif
+    
     return 0;
 
 }
@@ -1515,6 +1521,9 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
  
 int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
 		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd){
+
+# ifdef OMP
+    
      int stride, j, k, chunk;
      int myid = omp_get_thread_num();
  
@@ -1557,7 +1566,7 @@ int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
          }
      }
      
-     
+# endif     
      return 0;
 
  }

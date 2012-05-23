@@ -1,11 +1,9 @@
-CFLAGS=     # options for C compiler
-CCOMPL = gcc -Wall  -fopenmp
-CPLUSCOMPL = g++
+CCOMPL =  gcc 
+CFLAGS =  -Wall  -g
+#CFLAGS += -fopenmp
 
-HERE = $(shell pwd)
 
 NAME = ../struct
-OPTM =  -O
 
 
 VPATH = ../01_data_structures:../02_parsers:../03_output:\
@@ -13,16 +11,11 @@ VPATH = ../01_data_structures:../02_parsers:../03_output:\
 	../07_utils
 
 
-PLATFORM = $(shell uname)
-
-
-LIBS    =  -lm -lc  -L/usr/lib  -llapack   -lprofiler
+LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
 
 
-DEFINES =   # -DDMALLOC # -DDEBUG
-SOURCES.F = 
-SOURCES.f = 
+DEFINES =   # -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c                                \
 	     struct_map_reduced_reps.c struct_align_backbone.c  struct_hungarian.c        \
@@ -31,8 +24,8 @@ SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c                  
 	     struct_pdb_out.c  struct_quaternion.c struct_read_pdb.c                          \
 	     struct_read_cmd_file.c struct_representation.c struct_results_out.c              \
 	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                \
-	     struct_structure2sse.c                                                           \
-	     struct_table.c  struct_table_input.c struct_input.c struct_utils.c 
+	     struct_structure2sse.c struct_table.c                                   \
+	     struct_table_input.c struct_input.c struct_utils.c 
 
 
 
@@ -46,23 +39,14 @@ OBJECTS =  $(SOURCES.F:.F=.o)  $(SOURCES.f:.f=.o) $(SOURCES.c:.c=.o)
 
 
 $(NAME): $(OBJECTS)
-	$(CCOMPL) $(FFLAGS) -o $@  $(OBJECTS) $(OPTM) \
-	$(LIBS)    $(INCLUDE)
-
+	$(CCOMPL) $(CFLAGS)  $(DEFINES) -o $@  $(OBJECTS)  $(LIBS)    $(INCLUDE)
 
 
 .c.o:
-	$(CCOMPL)  $(CFLAGS)  -c   $(DEFINES) $<  $(OPTM) $(INCLUDE)
+	$(CCOMPL) $(CFLAGS) $(DEFINES)  -c $<  $(INCLUDE)
 
 clean:
 	rm  $(OBJECTS) 
 
-tar:
-	tar -cf $(NAME).tar $(SOURCES) $(AUX)
-
-
-
-ls:
-	 ls $(SOURCES) $(AUX) 
 
 

@@ -55,7 +55,7 @@ int main ( int argc, char * argv[]) {
     
     if ( argc < 2 ) {
 	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
-		  "[ -in2 <pdb/db qry file>] [ -c2 <qry chain>] [ -p <parameter file>].\n",
+		  "[ -in2 <pdb/db qry file>] [ -c2 <qry chain>] [-no_bb] [ -p <parameter file>].\n",
 		  argv[0]);
 	exit (1);
     }
@@ -81,7 +81,7 @@ int main ( int argc, char * argv[]) {
     tgt_input_type = check_input_type (tgt_fptr);
     if ( tgt_input_type != PDB && tgt_input_type != DB ) {
 	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
-	exit (1);
+	return 1;
     }
     /*do something about the names for the output:                        */
     if ( tgt_input_type==PDB) {
@@ -338,9 +338,14 @@ int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt
 	if ( argv[argi][0] != '-' ) {
 	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
 	    return 1;
+	} else if ( ! strcmp (argv[argi], "-no_bb")) {
+	    options.postprocess  = 0;
+	    options.print_header = 0;
 	} else if (  argi+1 >= argc ) {
 	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
 	    return 1;
+	} else if ( ! strcmp (argv[argi], "-in")) {
+	    *tgt_filename_ptr = argv[argi+1];
 	} else if ( ! strncmp (argv[argi], "-in1", 4)) {
 	    *tgt_filename_ptr = argv[argi+1];
 	} else if ( ! strncmp (argv[argi], "-in2", 4)) {
@@ -436,9 +441,11 @@ int set_default_options () {
 
     options.search_algorithm = SEQUENTIAL;
     
+
+    options.postprocess    = 1;
     
     options.verbose        = 0;
-    options.print_header   = 0;
+    options.print_header   = 1;
     options.report_no_sse_overlap = 0; /* refers to the digest file */
     options.report_no_match = 0;      /* refers to the digest file */
     
