@@ -166,8 +166,8 @@ int read_cmd_file (char *filename) {
 	    options.omp = 1;
 	    token_assigned = 1;
 	}
-	if ( ! token_assigned  &&  !strcmp (token[0], "postp")  ) {
-	    options.postprocess = 1;
+	if ( ! token_assigned  &&  !strcmp (token[0], "no_postp")  ) {
+	    options.postprocess = 0;
 	    token_assigned = 1;
 	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "report_no_sse_overlap")  ) {
@@ -240,6 +240,10 @@ int read_cmd_file (char *filename) {
 
     }
     
+    if (!options.postprocess) {
+         options.number_maps_out = 1;
+	 options.print_header    = 0;
+    }
     
     return 0;
 }

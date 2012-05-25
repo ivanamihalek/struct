@@ -117,6 +117,7 @@ int main ( int argc, char * argv[]) {
 	/***********************************************************************/
 	/***********************************************************************/
 	/* preprocessing only :                                                */
+
 	tgt_done = 0;
 	db_ctr   = 0;
 	while ( ! tgt_done) {
@@ -430,7 +431,7 @@ int set_default_options () {
                             /* look for a complement */ 
 	= 0;
     options.number_maps_out /* number of top scoring maps to output     */
-	= 0;
+	= 10;
     options.grad_max_step   /* max number of steps in  gradient descent */
 	= 100;
     options.exp_table_size  /* size of the lookup table for the exp funcion */
