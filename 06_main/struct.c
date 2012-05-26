@@ -258,9 +258,14 @@ int main ( int argc, char * argv[]) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
 			
-			if (options.postprocess) align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
-								 &qry_descr, &qry_structure, &qry_rep,
-								 &list_uniq);
+			if (options.postprocess) {
+			    align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
+					    &qry_descr, &qry_structure, &qry_rep, &list_uniq);
+			    if (options.optimize)  {
+				optimize_backbone_alignment (&tgt_descr, &tgt_structure, &tgt_rep,
+					    &qry_descr, &qry_structure, &qry_rep, &list_uniq);
+			    }
+			}
 			
 			
 			results_out (&tgt_descr, &tgt_structure, &tgt_rep,
@@ -437,13 +442,14 @@ int set_default_options () {
     options.exp_table_size  /* size of the lookup table for the exp funcion */
 	= TABLE_SIZE;       /* note: changing exp table size not implemented */
 
-    options.exhaustive     = 0; /* try all triples instead of consecutive only */
+    options.exhaustive     = 1; /* try all triples instead of consecutive only */
     options.smith_waterman = 1;
 
     options.search_algorithm = SEQUENTIAL;
     
 
     options.postprocess    = 1;
+    options.optimize       = 1;
     
     options.verbose        = 0;
     options.print_header   = 1;

@@ -129,7 +129,8 @@ typedef struct {
     int report_no_sse_overlap; /*produce short output line even when
 				 there is no overlap in the SSE type */
     int report_no_match;
-    int postprocess;     /* produce an output for postprocessing */
+    int postprocess;      /* produce an output for postprocessing */
+    int optimize;         /* optimize backbone alignment */
     int preproc_only;
     char pdbf_tgt[BUFFLEN];  /* for postprocessing, we'll need the full set of
 			     coordinates - the path to PDB file */
@@ -137,9 +138,9 @@ typedef struct {
     char chain_tgt;
     char chain_qry;
   
-    char outdir[BUFFLEN]; /* output directory - will not be crated if not present   */
+    char outdir [BUFFLEN]; /* output directory - will not be crated if not present   */
     char outname[BUFFLEN];/* root name for the output file(s)   */
-    char path[BUFFLEN];   /* path to the integral table */
+    char path   [BUFFLEN];   /* path to the integral table */
     
 } Options;
 
@@ -357,6 +358,9 @@ int multiply (double *quat1, double *quat2_in,
 int needleman_wunsch (int max_i, int max_j, double **distance,
 		      int *map_i2j, int * map_j2i, double *aln_score);
 int normalized_cross (double *x, double *y, double * v, double *norm_ptr);
+int optimize_backbone_alignment (Descr *descr1, Protein * protein1, Representation *rep1, 
+				 Descr *descr2, Protein * protein2, Representation *rep2, 
+				 List_of_maps *list);
 int output (FILE * fptr,char *name, char chain,  Protein * protein);
 int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	       Protein *protein1, Protein *protein2,  int tab);

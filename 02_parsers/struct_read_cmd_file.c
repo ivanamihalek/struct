@@ -170,6 +170,10 @@ int read_cmd_file (char *filename) {
 	    options.postprocess = 0;
 	    token_assigned = 1;
 	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "no_opt")  ) {
+	    options.optimize = 0;
+	    token_assigned = 1;
+	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "report_no_sse_overlap")  ) {
 	    options.report_no_sse_overlap = 1;
 	    token_assigned = 1;
@@ -190,8 +194,8 @@ int read_cmd_file (char *filename) {
 	    options.verbose = 1;
 	    token_assigned  = 1;
 	}
-	if ( ! token_assigned  &&  !strcmp (token[0], "exhaustive")  ) {
-	    options.exhaustive = 1;
+	if ( ! token_assigned  &&  !strcmp (token[0], "greedy")  ) {
+	    options.exhaustive = 0;
 	    token_assigned = 1;
 	}
 

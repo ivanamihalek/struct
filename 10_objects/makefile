@@ -1,5 +1,5 @@
 CCOMPL =  gcc 
-CFLAGS =  -Wall  -g
+CFLAGS =  -Wall  -O
 #CFLAGS += -fopenmp
 
 
@@ -17,14 +17,14 @@ INCLUDE =  -I ../00_include
 
 DEFINES =   # -DOMP  -DDEBUG  -DDMALLOC 
 
-SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c                                \
-	     struct_map_reduced_reps.c struct_align_backbone.c  struct_hungarian.c        \
-	     struct_complement_match.c  struct_descr_out.c struct_digest.c  struct_geometry.c \
-	     struct_linalg.c  struct_map.c struct_map2rotation.c                              \
-	     struct_pdb_out.c  struct_quaternion.c struct_read_pdb.c                          \
-	     struct_read_cmd_file.c struct_representation.c struct_results_out.c              \
-	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                \
-	     struct_structure2sse.c struct_table.c                                   \
+SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c                                   \
+	     struct_map_reduced_reps.c struct_align_backbone.c  struct_hungarian.c               \
+	     struct_complement_match.c  struct_descr_out.c struct_digest.c  struct_geometry.c    \
+	     struct_linalg.c  struct_map.c struct_map2rotation.c  struct_optimize_bb_almt.c      \
+	     struct_pdb_out.c  struct_quaternion.c struct_read_pdb.c                             \
+	     struct_read_cmd_file.c struct_representation.c struct_results_out.c                 \
+	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                            \
+	     struct_structure2sse.c struct_table.c                                               \
 	     struct_table_input.c struct_input.c struct_utils.c 
 
 
