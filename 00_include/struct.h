@@ -52,6 +52,7 @@ Contact: ivana.mihalek@gmail.com.
 /* used in preprocessor */
 # define MIN_HELIX_LENGTH 8
 # define MIN_STRAND_LENGTH 3
+
 /* pdb parser errors */
 # define ERR_SSE_NONE    2
 # define ERR_CA_TRACE    4
@@ -79,6 +80,11 @@ typedef enum   /* Declares an enumeration data type called ALGORITHM */
 
 
 typedef struct {
+    char * tgt_filename;  /* input filename for the target (set); pointer to argv, if given */
+    char * qry_filename;  /* input filename for the qry (set) */
+
+    char * tgt_db;        /* for testing purposes only - outside db, separate from the pdb */
+    char * qry_db; 
     double merge_cosine;  /* min cos angle between two SSEs to be represented
 			     by (merged into) the same vector */
     double alpha;         /* gaussian width for the scoring fn F */
@@ -132,9 +138,6 @@ typedef struct {
     int postprocess;      /* produce an output for postprocessing */
     int optimize;         /* optimize backbone alignment */
     int preproc_only;
-    char pdbf_tgt[BUFFLEN];  /* for postprocessing, we'll need the full set of
-			     coordinates - the path to PDB file */
-    char pdbf_qry[BUFFLEN];
     char chain_tgt;
     char chain_qry;
   

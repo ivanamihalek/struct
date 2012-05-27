@@ -57,12 +57,11 @@ int single_map_optimize_bb_almt (Protein * protein1, Protein * protein2, Map * m
        map->q (the rotation representeed as a 4-component quaternion; the components defined as doubles),
        and  map->T (3 component; double); to get the rotation matrix use 
        quat_to_R (q, R); defined in  04_geometric_match/struct_quaternion.c:30
-       Map is defined in 00_include/struct.h:190
-       
+       Map is defined in 00_include/struct.h:190      
     */
 
 
-    /* after optimization replace map-> and map->T with the new values */
+    /* after optimization replace map->q and map->T with the new values */
  
     
     return 0;

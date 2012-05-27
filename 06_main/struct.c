@@ -29,7 +29,6 @@ int main ( int argc, char * argv[]) {
 
 
     char tgt_chain = '\0', qry_chain = '\0';
-    char *tgt_filename = NULL, *qry_filename = NULL, *cmd_filename = NULL;
     int retval, qry_done, tgt_done;
     int db_ctr, db_effective_ctr;
     int tgt_input_type = 0, qry_input_type = 0;
@@ -48,9 +47,9 @@ int main ( int argc, char * argv[]) {
     List_of_maps *list1=NULL, *list2=NULL;
      
     int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);   
-    int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
-			char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr);
-    int read_cmd_file (char *filename);
+    int process_input_instructions (int argc, char *argv[],
+				    int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FILE ** tgt_fptr_ptr,
+				    int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
     int set_default_options ();
     
     if ( argc < 2 ) {
@@ -63,55 +62,12 @@ int main ( int argc, char * argv[]) {
     /* set defaults: */
     set_default_options ();
 
-    /* process cmd line input */
-    if (parse_cmd_line (argc, argv, &tgt_filename, &tgt_chain,
-			&qry_filename, &qry_chain, &cmd_filename)) return 1;
-
-    /* process the command (parameters) file, if provided */
-    if (cmd_filename && read_cmd_file(cmd_filename))  return 1;
-
-   
-    /* check if the tgt file is  present and readable; open               */
-    if ( ! (tgt_fptr = efopen(tgt_filename, "r"))) {
-	fprintf (stderr, "Error reading %s.\n", tgt_filename);
-	return 1;
-    }
+    retval = process_input_instructions(argc, argv,
+					&tgt_input_type, &tgt_chain, &tgt_descr, &tgt_fptr,
+					&qry_input_type, &qry_chain, &qry_descr, &qry_fptr);
+    if (retval) return retval;
     
-    /* figure out whether we have a pdb or db input:                      */
-    tgt_input_type = check_input_type (tgt_fptr);
-    if ( tgt_input_type != PDB && tgt_input_type != DB ) {
-	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
-	return 1;
-    }
-    /*do something about the names for the output:                        */
-    if ( tgt_input_type==PDB) {
-	improvize_name (tgt_filename, tgt_chain, tgt_descr.name);
-    }
     
-    /**********************************************************************/
-    /* the same for the qry file, but may not be necessary if we are      */
-    /* preprocessing only                                                 */
-    if ( qry_filename) {
-	if ( ! (qry_fptr = efopen(qry_filename, "r"))) {
-	    fprintf (stderr, "Error reading %s.\n", qry_filename);
-	    return 1;
-	}
-	qry_input_type = check_input_type (qry_fptr);
-	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
-	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
-	    exit (1);
-	}
-	if ( qry_input_type==PDB) {
-	    improvize_name (qry_filename, qry_chain, qry_descr.name);
-	}
-	if (options.postprocess) {
-	    if (tgt_input_type != PDB  ||  qry_input_type != PDB) {
-		fprintf ( stderr, "Both input files must be PDB to do the postprocessing.\n");
-		exit (1);
-	    }
-	}
-    }
-
     if (options.preproc_only) {
 	/***********************************************************************/
 	/***********************************************************************/
@@ -166,7 +122,7 @@ int main ( int argc, char * argv[]) {
             
 	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
 	    if ( retval == 1 ) {
-		fprintf (stderr, "Error reading %s.\n", qry_filename);
+		fprintf (stderr, "Error reading %s.\n", options.qry_filename);
 		continue;
 	    } else if ( retval == -1 ) {
 		qry_done = 1;
@@ -186,7 +142,7 @@ int main ( int argc, char * argv[]) {
 		db_ctr++;
 		retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, &tgt_descr);
 		if ( retval == 1 ) {
-		    fprintf (stderr, "Error reading %s.\n", tgt_filename);
+		    fprintf (stderr, "Error reading %s.\n", options.tgt_filename);
 		    continue;
 		} else if ( retval == -1 ) {
 		    tgt_done = 1;
@@ -323,63 +279,6 @@ int main ( int argc, char * argv[]) {
 }
 
 /**************************************************************************************/
-/**************************************************************************************/
-/**************************************************************************************/
-int parse_cmd_line (int argc, char * argv[], char **tgt_filename_ptr, char * tgt_chain_ptr,
-		    char **qry_filename_ptr, char * qry_chain_ptr, char **cmd_filename_ptr) {
-
-    int argi;
-
-    *tgt_filename_ptr =  NULL;
-    *qry_filename_ptr =  NULL;
-
-    *tgt_chain_ptr = '\0';
-    *qry_chain_ptr = '\0';
-   
-    *cmd_filename_ptr = NULL;
-
-
-    for (argi=1; argi<argc; argi+=2) {
-	
-	if ( argv[argi][0] != '-' ) {
-	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
-	    return 1;
-	} else if ( ! strcmp (argv[argi], "-no_bb")) {
-	    options.postprocess  = 0;
-	    options.print_header = 0;
-	} else if (  argi+1 >= argc ) {
-	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
-	    return 1;
-	} else if ( ! strcmp (argv[argi], "-in")) {
-	    *tgt_filename_ptr = argv[argi+1];
-	} else if ( ! strncmp (argv[argi], "-in1", 4)) {
-	    *tgt_filename_ptr = argv[argi+1];
-	} else if ( ! strncmp (argv[argi], "-in2", 4)) {
-	    *qry_filename_ptr = argv[argi+1];
-	} else if ( ! strncmp (argv[argi], "-c1", 3)) {
-	    *tgt_chain_ptr = argv[argi+1][0];
-	} else if ( ! strncmp (argv[argi], "-c2", 3)) {
-	    *qry_chain_ptr = argv[argi+1][0];
-	} else if ( ! strncmp (argv[argi], "-p", 2)) {
-	    *cmd_filename_ptr = argv[argi+1];
-	} else {
-	    fprintf (stderr, "Unrecognized option: %s\n",  argv[argi]);
-	    return 1;
-	}
-	
-
-    }
-
-    if  (!*qry_filename_ptr)
-	options.preproc_only = 1;/*automatically assume preprocessing only */
-    
-    
-    return 0;
-
-}
-
-
-
 /**************************************************************************/
 
 int set_default_options () {

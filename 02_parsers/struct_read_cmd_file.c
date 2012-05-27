@@ -69,8 +69,8 @@ int read_cmd_file (char *filename) {
 	"grid_size", "number_maps_cpl", "number_maps_out",
 	"grad_max_step", "exp_table_size", "min_no_SSEs"};
     
-    char * strings[STRINGS] = { options.outdir, options.outname, options.path, options.pdbf_tgt, options.pdbf_qry};
-    char * names_of_strings[STRINGS] = {"outdir", "outname", "path", "pdbf_tgt", "pdbf_qry"};
+    char * strings[STRINGS] = { options.outdir, options.outname, options.path};
+    char * names_of_strings[STRINGS] = {"outdir", "outname", "path"};
 
     char * ptrs_to_chars[CHARACTERS] = {&(options.chain_tgt), &(options.chain_qry)};
     char * names_of_chars[STRINGS]   = {"chain_tgt", "chain_qry"};
@@ -186,6 +186,30 @@ int read_cmd_file (char *filename) {
 	    options.smith_waterman = 1;
 	    token_assigned = 1;
 	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "tgt_filename")  ) {
+	    if ( max_token < 1 ) {
+		errmsg ( log, line_ctr, line,
+			 "\tKeyord %s should be followed by a character.\n",
+			 token[0]);
+		return 1;
+	    }
+	    if ( ! (options.tgt_filename = emalloc(LONGSTRING*sizeof(char) ) ) ) return 1;
+	    sprintf ( options.tgt_filename, "%s", token[1]);
+	    token_assigned = 1;
+	}
+	if ( ! token_assigned  &&  !strcmp (token[0], "qry_filename")  ) {
+	    if ( max_token < 1 ) {
+		errmsg ( log, line_ctr, line,
+			 "\tKeyord %s should be followed by a character.\n",
+			 token[0]);
+		return 1;
+	    }
+	    if ( ! (options.qry_filename = emalloc(LONGSTRING*sizeof(char) ) ) ) return 1;
+	    sprintf ( options.qry_filename, "%s", token[1]);
+	    token_assigned = 1;
+	}
+
+	
 	if ( ! token_assigned  &&  !strcmp (token[0], "use_endgap")  ) {
 	    options.use_endgap = 1;
 	    token_assigned = 1;
