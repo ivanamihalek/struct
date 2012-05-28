@@ -229,7 +229,7 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
 	if (tab) fprintf ( fptr, "\t");
 	fprintf ( fptr, " %2d --> %2d  %4c  %6.2lf   %8.1le ",
 		  index_x+1, index_y+1,  type, map->cosine[index_x][index_y],
-		map->image[index_x][index_y]);
+		map->sse_pair_score[index_x][index_y]);
 	if ( descr1 && descr2) {
 	    char c1, c2;
 	    if ( descr1->element[index_x].chain == '\0' ||

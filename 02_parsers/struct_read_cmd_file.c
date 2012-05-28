@@ -25,7 +25,7 @@ Contact: ivana.mihalek@gmail.com.
 /* how many vars of each type need to be read in: */
 # define DOUBLES 18
 # define INTS    6
-# define STRINGS 5
+# define STRINGS 3
 # define CHARACTERS 2
     
 int read_cmd_file (char *filename) {

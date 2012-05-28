@@ -31,9 +31,9 @@ int initialize_map (Map *map, int NX, int NY ) {
     map->x2y_size = NX;
     map->y2x_size = NY;
     map->cosine  = dmatrix (NX, NY);
-    map->image   = dmatrix (NX, NY);
+    map->sse_pair_score   = dmatrix (NX, NY);
     if ( !map->x2y ||  !map->y2x ||
-	 !map->cosine || !map->image ) {
+	 !map->cosine || !map->sse_pair_score ) {
 	return 1;
     }
     map->submatch_best = NULL;
@@ -62,7 +62,7 @@ int free_map (Map *map) {
  
     
     free_dmatrix (map->cosine);
-    free_dmatrix (map->image); 
+    free_dmatrix (map->sse_pair_score); 
     if (map->submatch_best) {
 	free (map->submatch_best );
     }
@@ -130,7 +130,7 @@ int list_shutdown (List_of_maps * list, int fake) {
 /********************************/
 /********************************/
 
-int store_image ( Representation *X_rep,  Representation *Y_rep, 
+int store_sse_pair_score ( Representation *X_rep,  Representation *Y_rep, 
 		  double **R, double alpha,  Map *map ){
     
     int i,j, i_is_helix;
@@ -152,22 +152,22 @@ int store_image ( Representation *X_rep,  Representation *Y_rep,
 		unnorm_dot (x_full_rotated[i], y_full[j], &cosine);
 		exponent = 2*(1.0-cosine)/alpha_sq;
 		if ( exponent < 10 ) {
-		    map->image[i][j]  = exp (-exponent);
+		    map->sse_pair_score[i][j]  = exp (-exponent);
 		    /* are we using the info about the length? */
 		    if (options.use_length && cosine > 0.0) {
 			length_dif = abs (X_rep->length[i] - Y_rep->length[j]);
 			if ( i_is_helix ) {
-			    map->image[i][j]  *=  1/(1.0+length_dif/options.H_length_mismatch_tol);
+			    map->sse_pair_score[i][j]  *=  1/(1.0+length_dif/options.H_length_mismatch_tol);
 			} else {
-			    map->image[i][j]  *=  1/(1.0+length_dif/options.S_length_mismatch_tol);
+			    map->sse_pair_score[i][j]  *=  1/(1.0+length_dif/options.S_length_mismatch_tol);
 			}
 		    }
 		} else {
-		    map->image[i][j] = 0.0;
+		    map->sse_pair_score[i][j] = 0.0;
 		}
 		map->cosine[i][j] = cosine;
 	    } else {
-		map->image[i][j]  = options.far_far_away;
+		map->sse_pair_score[i][j]  = options.far_far_away;
 		map->cosine[i][j] = -0.9999;
 	    }
 	}
@@ -243,105 +243,18 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 /***************************************/
 /***************************************/
 /***************************************/
-
-int map_quality_metrics (Representation *X_rep, Representation *Y_rep,
-			 double ** tr_x_rotated, Map * map, int *reasonable_match_ct) {
-    
-    int i,j,k;
-    int NX = X_rep->N_full;
-    int map_size, old_map_size;
-    int done, loop_ct;
-    double rmsd, dist_sq, aux;
-    double avg_length_mismatch;
-
-    /***********************************************/
-    /* number of reasonable translation directions */
-    map_size = 0;
-    for (i=0; i < NX; i++ ) {	
-	j = map->x2y[i];
-	if ( j < 0) continue;
-	map_size++;
-    }
-
-
-
-    /***********************************************/
-    /* too distant .....                           */
-    done = 0;
-    loop_ct = 0;
-    while ( !done ) {
-	
-	old_map_size = map_size;
-	construct_translation_vecs (X_rep, Y_rep, map);
-	rmsd     = 0;
-	map_size = 0;
-	
-	for (i=0; i<NX; i++ ) {
-	    j =  map->x2y[i];
-	    if ( j < 0 ) continue;
-	
-	    dist_sq = 0.0;
-	    for (k=0; k<3; k++) {
-		aux      = tr_x_rotated[i][k]-Y_rep->translation[j][k];
-		dist_sq += aux*aux;
-	    }
-	    printf ("\t\t %3d --> %3d  dist:  %8.3lf\n", 
-		    i+1, j+1,  sqrt(dist_sq) );
-
-	    if (dist_sq < 100) { /**** hard coded parameter <<<<<<<<<<<< */
-		rmsd += dist_sq;
-		map_size ++;
-	    } else {
-		map->x2y[i] = FAR_FAR_AWAY;
-		map->y2x[j] = FAR_FAR_AWAY;
-	    }
-	}
-	loop_ct ++;
-	done = (map_size==old_map_size || loop_ct >2);
-	    
-    }
-    
-    if (map_size) {
-	rmsd /= map_size;
-	map->rmsd = sqrt (rmsd);
-    } else {
-	map->rmsd = 100.0;
-    }
-    
-    *reasonable_match_ct = map_size;
-
-    
-    /***********************************************/
-    /* length mismatch of mapped SSEs              */
-    avg_length_mismatch = 0;
-    for (i=0; i < NX; i++ ) {
-	j =  map->x2y[i];
-	if ( j <  0 )  continue;
-	avg_length_mismatch += fabs(X_rep->length[i] - Y_rep->length[j]);
-    }
-    map->size    =  map_size;
-    avg_length_mismatch /= map_size;
-    map->avg_length_mismatch  = avg_length_mismatch;
-
-    
-    
-    return 0;
-}
-/***************************************/
-/***************************************/
-/***************************************/
 int find_map ( Penalty_parametrization * penalty_params,
 	       Representation *X_rep,  Representation *Y_rep,
 	       double ** R,
 	       double alpha, double * F_effective,  Map *map,
 	       int *anchor_x, int *anchor_y, int anchor_size) {
     
-    int i, j;
+    int i, j, map_size;
     int NX=X_rep->N_full, NY=Y_rep->N_full;
-    double F_eff, aln_score;
+    double aln_score;
     
-    /* "image" is the matrix of values (exp weight)*(-1 for SSE mismatch) */
-    store_image (X_rep, Y_rep, R,  alpha, map);
+    /* "sse_pair_score" is the matrix of values (exp weight)*(-1 for SSE mismatch) */
+    store_sse_pair_score (X_rep, Y_rep, R,  alpha, map);
 
     /* if the anchors are given, somebody insists
        they should be considered as already aligned */
@@ -359,7 +272,7 @@ int find_map ( Penalty_parametrization * penalty_params,
 		  penalty_params->custom_gap_penalty_x[i] = options.far_far_away;
 	      for (j=0; j<NY; j++) {
 		   if ( j ==  anchor_y[a] )  continue;
-		   map->image[i][j]  =  options.far_far_away;
+		   map->sse_pair_score[i][j]  =  options.far_far_away;
 		   map->cosine[i][j] = -0.9999;
 	      }
 	      
@@ -368,18 +281,18 @@ int find_map ( Penalty_parametrization * penalty_params,
 		  penalty_params->custom_gap_penalty_y[j] = options.far_far_away;
 	      for (i=0; i<NX; i++) {
 		   if ( i ==  anchor_x[a] )  continue;
-		   map->image [i][j] =  options.far_far_away;
+		   map->sse_pair_score [i][j] =  options.far_far_away;
 		   map->cosine[i][j] = -0.9999;
 	      }
 
 	 }
     }
     
-    /* dynamic programming using the "image" */
+    /* dynamic programming using the sse_pair_score */
     if (options.current_algorithm == SEQUENTIAL) {
-        smith_waterman (penalty_params, NX, NY, map->image, map->x2y, map->y2x, &aln_score);
+        smith_waterman (penalty_params, NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
-         hungarian_alignment (NX, NY, map->image, map->x2y, map->y2x, &aln_score);
+         hungarian_alignment (NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
     } else {
         printf("Wrong algorithm type\n");
         return 1;
@@ -387,20 +300,24 @@ int find_map ( Penalty_parametrization * penalty_params,
    
     map_assigned_score (X_rep, map);
 
-    F_eff = 0;
+    map -> avg_length_mismatch = 0;
+    map_size = 0;
     for (i=0; i<NX; i++) {
 	 j = map->x2y[i];
 	 if ( j<0) continue;
 	 
 	 if ( map->cosine[i][j] < options.far_away_cosine) {
-	      map->x2y[i] =  options.far_far_away; 
-	      map->y2x[j] =  options.far_far_away; /*everything crashes; investigate later */
+	     map->x2y[i] =  options.far_far_away; 
+	     map->y2x[j] =  options.far_far_away; /*everything crashes; investigate later */
 	 } else {
-	      F_eff --;
+	     map_size++;
+	     map->avg_length_mismatch += fabs(X_rep->length[i] - Y_rep->length[j]);
+	     
 	 }    
     }
 
-    *F_effective = F_eff;
+    map->avg_length_mismatch /= map_size;
+    *F_effective = -map_size;
     
     return 0;
 }
@@ -418,7 +335,7 @@ int map_assigned_score ( Representation *X_rep,  Map* map) {
 	j =  map->x2y[i];
 	if ( j <  0 )  continue;
 	
-	map->assigned_score += map->image[i][j];
+	map->assigned_score += map->sse_pair_score[i][j];
     }
     
     /* what's the difference btw this and map->size?*/
@@ -431,7 +348,7 @@ int map_assigned_score ( Representation *X_rep,  Map* map) {
 double find_map_overlap (Map *map1, Map *map2){
 
     int i, j1, j2;
-    double **a= map1->image, **b= map2->image;
+    double **a= map1->sse_pair_score, **b= map2->sse_pair_score;
     double overlap, norm1, norm2;
     
     if ( map1->x2y_size != map2->x2y_size ) {
@@ -519,10 +436,12 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
 	    for ( uniq_map_ctr= 0;  uniq_map_ctr<list_uniq->no_maps_used;  uniq_map_ctr++) {
 		/* if current overlaps uniq, store that info  */
 		double map_overlap = find_map_overlap (list_uniq->map + uniq_map_ctr, current_map);
+
+		
 		if ( map_overlap >= MAP_SIM_THRESHOLD) {
 		    overlap_found = 1;
 		    break;
-		}
+		} 
 	    }
 
 	    if (!overlap_found) {
@@ -970,7 +889,7 @@ int map_complementarity (Map *map1, Map *map2,  double *z) {
     int i, j, size = 0;
     int * map[2];
     double **array;
-    double **image[2];
+    double **sse_pair_score[2];
     double complementarity = 0.0, z_c,avg, avg_sq, stdev;
     double upper, lower;
     int ctr, length;
@@ -985,8 +904,8 @@ int map_complementarity (Map *map1, Map *map2,  double *z) {
 
     map[0]  =  map1->x2y;
     map[1]  =  map2->x2y;
-    image[0] = map1->image;
-    image[1] = map2->image;
+    sse_pair_score[0] = map1->sse_pair_score;
+    sse_pair_score[1] = map2->sse_pair_score;
     
 	
     length = 0;
@@ -995,7 +914,7 @@ int map_complementarity (Map *map1, Map *map2,  double *z) {
 	
 	for (ctr=0; ctr<2; ctr++ ) {
 	    if ( (j=map[ctr][i]) >= 0 ) {
-		array[ctr][length] = image[ctr][i][j];
+		array[ctr][length] = sse_pair_score[ctr][i][j];
 		if (upper < array[ctr][length] ) {
 		    upper =  array[ctr][length];
 		} else if ( lower > array[ctr][length] ) {
@@ -1074,22 +993,22 @@ int map_consistence (  int NX, int NY, Map * combined_map, Map *map1, Map *map2,
     
     for (i=0; i<NX; i++) {
 	for (j=0; j<NY; j++) {
-	    val1 =  map1->image[i][j];
-	    val2 =  map2->image[i][j];
+	    val1 =  map1->sse_pair_score[i][j];
+	    val2 =  map2->sse_pair_score[i][j];
 
 	    if ( val1 > val2) {
-		combined_map->image[i][j]  = val1;
+		combined_map->sse_pair_score[i][j]  = val1;
 		combined_map->cosine[i][j] = map1->cosine[i][j];
 	    } else {
-		combined_map->image[i][j]  = val2;
+		combined_map->sse_pair_score[i][j]  = val2;
 		combined_map->cosine[i][j] = map2->cosine[i][j];
 	    }
 	}
     }
       
 
-    /* Needleman on combined image */
-    needleman_wunsch (NX, NY, combined_map->image,
+    /* Needleman on combined sse_pair_score */
+    needleman_wunsch (NX, NY, combined_map->sse_pair_score,
 		      combined_map->x2y,  combined_map->y2x, &aln_score );
     /* how do lengths compare? */
     combined_map->matches = match_length (NX, combined_map->x2y);
@@ -1100,7 +1019,7 @@ int map_consistence (  int NX, int NY, Map * combined_map, Map *map1, Map *map2,
 	for (i=0; i<NX; i++) {
 	    j = combined_map->x2y[i];
 	    if (j<0) continue;
-	    total += combined_map->image[i][j];
+	    total += combined_map->sse_pair_score[i][j];
 	}
 	combined_map->assigned_score = total;
     }
@@ -1119,7 +1038,7 @@ int map_consistence (  int NX, int NY, Map * combined_map, Map *map1, Map *map2,
 	printf ( "\n unique_map: %d  score: %8.3lf\n", uniq_map_ctr, current_map->assigned_score);
 	for (i=0; i<current_map->x2y_size; i++) {
 	     j = current_map->x2y[i];
-	     printf ("  %3d  %3d    %8.3lf \n", i, j, current_map->image[i][j]);
+	     printf ("  %3d  %3d    %8.3lf \n", i, j, current_map->sse_pair_score[i][j]);
 	}
     }
     exit(1);

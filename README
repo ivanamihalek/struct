@@ -1,34 +1,56 @@
+This file is part of deconSTRUCT,
+protein structure database search and backbone alignment application.
+Written by Ivana Mihalek, with contributions from Mile Sikic.
+Copyright (C) 2008-2012 Ivana Mihalek.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or,
+at your option, any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see<http://www.gnu.org/licenses/>.
+
+Contact: ivana.mihalek@gmail.com.
+
+
+
+DEPENDENCIES
+------------
+
+depends on lapack, and  assumes the lapack is installed in /usr/lib/ 
+(sudo apt-get install liblapack-dev)
+
+
 INSTALLING
 ----------
 
-a) making the pre-processor
+after unpacking
 
-depends on lapack, and 
-assumes it is installed in /usr/lib/ 
-(sudo apt-get install liblapack-dev)
-also depends stride, which is included
-
-> cd $STRUCT_HOME/05_preproc/stride
-> make
-> make clean
-
-> cd ..
-> make
-> make clean
-
-the executable called preproc should appear in $STRUCT_HOME
-both give usage statements if ran without arguments
-
-b) making struct proper
-
-also depends on lapack
-
-> cd ../10_objects/
+> cd $STRUCT_HOME/10_objects/
 > make
 > make clean
 
 the executable called struct should now be in $STRUCT_HOME
 
+
+
+USAGE
+-----
+$STRUCT_HOME/struct -in1 <pdb/db tgt file> [-in2 <pdb/db qry file>] \
+        [-c1 <tgt chain>][-c2 <qry chain>][-no_bb][-v][-p <parameter file>]
+
+  -in1/2  input files in db or pdb format (to do the alignment 
+          on backbone level, bith files should be pdb
+  -c1/2   chains for the pdb inputs 1 and 2
+  -no_bb  do not do the alignment on the backbone level
+  -v      verbose output
+  -p      parameter file
 
 
 
@@ -37,82 +59,36 @@ TEST CASES
 
 a) 1-on-1 comparison
 
-> cd $STRUCT_HOME/11_tests/01_1d4xG_2d8bA/
+> cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
+> $STRUCT_HOME/struct -in1 2d8bA.pdb  -in2 1d0nA.pdb
 
-preprocessing:
-> $STRUCT_HOME/preproc 1d4xG 1d4xG.pdb 1d4xG.db
-> $STRUCT_HOME/preproc 2d8bA 2d8bA.pdb 2d8bA.db
-
-comparing 1d4xG("target") and 2d8bA("query")
-> $STRUCT_HOME/struct 1d4xG 2d8bA params
-
-in the params file, the exclamation mark (!)
-is the comment sign - comment it out to get a silent run
-(only the output file with the score is produced)
+view the results:
+> cat   2d8bA_1d0nA.struct_out
+> pymol 1d0nA.pdb 2d8bA.to_1d0nA.*.pdb
 
 
-b) 1-to-many comparison
+b) making a db file
 
-> cd $STRUCT_HOME/11_tests/00_kolodny
+> $STRUCT_HOME/struct -in1 1d0nA.pdb
 
-the presprocessing already done (db files
-for the target are concatenated in all.db)
-
-> $STRUCT_HOME/struct all.db  cathdbdir/1a02N01.db params
-(any other dbfile from cathdbdir/1a02N01.db can be used)
-
-postprocessing - producing a match on the backbone level 
-for the top 10 (substitute your own number) best hits:
-
-> $STRUCT_HOME/15_postproc/perlscr/postp_3.pl 1a02N01.struct_out params 10
-1a02N01.struct_out will be moved (by the script) to 1a02N01.struct_out.full
+[[ note: it is possible to use the full pdb file here,
+provided you have it available in your directory
+> $STRUCT_HOME/struct -in1 1d0n.pdb -c1 A ]]
 
 
-THE MAP STRUCTURE
-----------
+view the output:
+> cat 1d0nA.db
 
-typedef struct {
-    
-    ////////////////////
-    // general
-    int size;                // max number of mapped elements (SSEs or Ca, depending where we use the structure
-    int matches;             // the number ofactually mapped SSEs
-    double q[4]; /* rotation (quaternion)  -- the rotation which results in this particular map */
-    double T[3]; /* translation (once we believe we know it)  -- the translation (for the Ca level)*/
-    
-    ////////////////////
-    // referring to SSE-level map:
-    int *x2y, *y2x;          // x2y: for each mapped pair (x,y), returns y, the index of the SSE in the structure Y,
-                             // given x, the index of SSE in structure X  ( x2y[x] = y, e.g. x2y[3] = 7)
-    int x2y_size, y2x_size;  // the size of the two maps above; ultimately the two should be equal
-                             // in some general intermediate step that might not be the case, in the
-                             // current implementation it always is
-    double avg_length_mismatch; // average difference in the length of mapped SSEs
-    double rmsd;             /* rmsd for the centers of matched SSEs */
 
-    ////////////////////
-    // "urchin" scoring
-    double **cosine;          // table of angle cosines for all pairs (x,y) (all of them, not just the mapped ones)
-    double **image;           // table of exp terms for all pairs (x,y) (all of them, not just the mapped ones)
-    double F;                 // value of the  function F for this map
-    double avg, avg_sq;       // refers to the avg and average square of F over the sapce of all rotations
-                              // the input for the calulcation of the z-score
-    double z_score;           // z-score for F (based on avg and avg_sq0
-    double assigned_score;    // sum of the exp terms of but only for the  matched SSE pairs (x,y)
-    
-    ////////////////////
-    // referring to Ca-level map:
-    int *x2y_residue_level, *y2x_residue_level;  // the same as the x2y above, this time not on SSE, but on Ca level
-    int x2y_residue_l_size, y2x_residue_l_size;
-    int res_almt_length;    // length of the alignment on the Ca level
-    double res_rmsd;        /* rmsd for the matched Ca atoms*/
-    double aln_score;         // like the "assigned score" above, but for the Ca level
-    double res_almt_score;  /*not sure - cou;ld be I am duplicating the aln_score */
-    
-    ////////////////////
-    // complementary or sub-maps - never mind for now, just leave as is
-    int *submatch_best;         // the best map which complements this one; don't worry about it right now
-    double score_with_children; // this goes with the submatch above = never mind
-    double compl_z_score;       // z-score for the submatch
-    
-} Map;
+c) database search
+
+> cd $STRUCT_HOME/11_tests/02_db_search
+> $STRUCT_HOME/struct -in1 small_test.db -in2 2d8bA.db
+
+view the output
+> cat digest.struct_out
+
+view the output sorted by the direction score
+[[ note: direction is the only info we have in this case ]]
+
+> awk '$1 != "%" && $1 != "done"' digest.struct_out | sort -grk 5

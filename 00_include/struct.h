@@ -62,7 +62,7 @@ Contact: ivana.mihalek@gmail.com.
 # define ERR_MAX_ATOMS  64
 # define ERR_NO_FILE_OR_CHAIN  128
 
-# define MAP_SIM_THRESHOLD 0.7
+# define MAP_SIM_THRESHOLD 0.5
 
 /* used in alignment functions */
 # define FAR_FAR_AWAY -1000
@@ -112,6 +112,7 @@ typedef struct {
 				     in matched helices */
     double S_length_mismatch_tol; /* tolerance for the difference in length
 				     in matched strands */
+    double avg_length_mismatch_tol;
     
     int min_no_SSEs;      /* min number of SSEs we are willing to consider as a hit */
     int exhaustive;       /* try all SSE triples (within the threshold (above)
@@ -213,7 +214,7 @@ typedef struct {
     ////////////////////
     // "urchin" scoring
     double **cosine;          // table of angle cosines for all pairs (x,y) (all of them, not just the mapped ones)
-    double **image;           // table of exp terms for all pairs (x,y) (all of them, not just the mapped ones)
+    double **sse_pair_score;           // table of exp terms for all pairs (x,y) (all of them, not just the mapped ones)
     double F;                 // value of the  function F for this map
     double avg, avg_sq;       // refers to the avg and average square of F over the sapce of all rotations
                               // the input for the calulcation of the z-score
@@ -386,7 +387,7 @@ int set_up_exp_table ();
 void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) ;
 char single_letter ( char code[]);
 int sse2descriptor (Protein *protein, Descr *descr);
-int store_image (Representation *X_rep,  Representation *Y_rep, 
+int store_sse_pair_score (Representation *X_rep,  Representation *Y_rep, 
 		 double **R, double alpha,  Map *map);
 int structure2sse  (Protein *protein);
 

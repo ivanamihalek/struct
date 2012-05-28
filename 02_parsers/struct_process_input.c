@@ -82,12 +82,11 @@ int process_input_instructions (int argc, char *argv[],
 	if ( qry_input_type==PDB) {
 	    improvize_name (options.qry_filename, qry_chain, qry_descr->name);
 	}
-	if (options.postprocess) {
-	    if (tgt_input_type != PDB  ||  qry_input_type != PDB) {
-		fprintf ( stderr, "Both input files must be PDB to do the postprocessing.\n");
-		exit (1);
-	    }
+	if (tgt_input_type != PDB  ||  qry_input_type != PDB)  {
+	    options.postprocess        = 0;
+	    options.number_maps_out = 1;
 	}
+	
     }
 
     *tgt_input_type_ptr = tgt_input_type;
@@ -125,6 +124,9 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	} else if ( ! strcmp (argv[argi], "-no_bb")) {
 	    options.postprocess  = 0;
 	    options.print_header = 0;
+	} else if ( ! strncmp (argv[argi], "-v", 2)) {
+	    options.verbose = 1;
+	    
 	} else if (  argi+1 >= argc ) {
 	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
 	    return 1;

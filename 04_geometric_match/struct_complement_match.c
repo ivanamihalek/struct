@@ -6,8 +6,8 @@ Copyright (C) 2012 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License, or,
+at your option, any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -112,11 +112,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 			  int *x_type, int *y_type, int NX, int NY,
 			  int *x_triple, int *y_triple);
     int gradient_descent (int first_call, double alpha,
-			  double **x, int * x_type, int NX,
-			  double **y, int * y_type, int NY,
+			  double **x, int *x_type, int NX,
+			  double **y, int *y_type, int NY,
 			  double *q_best, double *F_best_ptr) ;
-    int map_quality_metrics (Representation *X_rep, Representation *Y_rep,
-			     double ** tr_x_rotated, Map * map, int *reasonable_angle_ct);
     int monte_carlo (double alpha,
 		 double **x, int * x_type, int NX,
 		 double **y, int * y_type, int NY,
@@ -239,7 +237,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + map_ctr,
 		   best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
-	
+
+	/* does this map still map the two triples we started with? */
 	x2y = (map + map_ctr) ->x2y;
 	map_unstable  = 0;
 	for (t=0; t<3; t++ ) {
@@ -248,6 +247,11 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    }
 	}
 	if ( map_unstable) continue;
+
+	/* do the mapped SSEs match in length? */
+	if (options.use_length &&
+	    (map+map_ctr)->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
+	
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
@@ -275,7 +279,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	}
 
 
-	if ( opt_quat ( x,  NX, anchor_x, y, NY, anchor_y, no_anchors, q, &rmsd)) continue;
+	if ( opt_quat (x,  NX, anchor_x, y, NY, anchor_y, no_anchors, q, &rmsd)) continue;
 
 	retval = monte_carlo (alpha, x, x_type_fudg, NX,  y,  y_type_fudg, NY, q, &F_current);
 
@@ -290,8 +294,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    z_scr =  0.0;
 	}
 	quat_to_R (q, R);
-	/* store_image() is waste of time, but perhaps not critical */
-	store_image (X_rep, Y_rep, R,  alpha, map + map_ctr);
+	/* store_sse_pair_score() is waste of time, but perhaps not critical */
+	store_sse_pair_score (X_rep, Y_rep, R,  alpha, map + map_ctr);
 	map_assigned_score (X_rep, map + map_ctr);
 
 

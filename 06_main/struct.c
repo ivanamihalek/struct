@@ -356,9 +356,10 @@ int set_default_options () {
     options.report_no_match = 0;      /* refers to the digest file */
     
     /* penalizing the length mismatch */
-    options.use_length = 0;
-    options.H_length_mismatch_tol = 10.0;
-    options.S_length_mismatch_tol = 5.0;
+    options.use_length              =  1;
+    options.H_length_mismatch_tol   = 10.0;
+    options.S_length_mismatch_tol   =  5.0;
+    options.avg_length_mismatch_tol =  5.0;
     
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);

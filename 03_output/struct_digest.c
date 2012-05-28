@@ -37,8 +37,8 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 	char outname[LONGSTRING] = {'\0'};
 	if (!options.outname[0] ) {
 	    if ( qry_descr->name[0] &&  tgt_descr->name[0] ) {
-		sprintf (outname, "%s_%s.struct_out", qry_descr->name, tgt_descr->name);
-		sprintf (options.outname, "%s_%s", qry_descr->name, tgt_descr->name );
+		sprintf (outname, "%s_%s.struct_out", tgt_descr->name, qry_descr->name);
+		sprintf (options.outname, "%s_%s",    tgt_descr->name, qry_descr->name);
 	    } else {
 		sprintf (outname, "digest.struct_out");
 		sprintf (options.outname, "struct_out");
@@ -68,13 +68,14 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
 	fprintf ( digest,"%% <dL>:    average length mismatch for matched SSEs \n");
 	fprintf ( digest,"%% T:       total score assigned to matched SSEs \n");
 	fprintf ( digest,"%% frac:    T divided by the number of matched SSEs \n");
-	fprintf ( digest,"%% GC_rmsd: RMSD btw geometric centers "
-		  "of matched SSEs (before postprocessing) \n");
-	fprintf ( digest,"%% A:       (after postprocessing) the alignment score \n");
-	fprintf ( digest,"%% aln_L:   (after postprocessing) the alignment length \n\n");
-	fprintf ( digest,"%% %6s%6s %6s %6s  %6s %6s %6s %6s %6s %6s \n",
-		  "query ", "target ", "geom_z", "<dL>", "  T  ", "frac",
-		  "GC_rmsd", "rmsd  ", "A  ", "aln_L  " );	
+	fprintf ( digest,"%% gc_rmsd: RMSD btw geometric centers "
+		  "of matched SSEs (before backbone alignment) \n");
+	fprintf ( digest,"%% Ca_rmsd:(after backbone alignment) rmsd for matched C-alpha \n");
+	fprintf ( digest,"%% A:       (after backbone alignment) the alignment score \n");
+	fprintf ( digest,"%% aln_L:   (after backbone alignment) the alignment length \n\n");
+	fprintf ( digest,"%% %6s%6s %6s %6s %3s %6s %6s %6s %6s  %6s  %6s \n",
+		  "query ", "target ", "geom_z", "<dL>", " T ", "frac",
+		  "gc_rmsd", "res_rmsd  ", "A  ", "aln_L  ", "mapped_pdb" );	
     }
 
     return 0;
@@ -97,7 +98,7 @@ int write_digest(Descr *qry_descr, Descr *tgt_descr,
 	    current_map = list->map+map_id;
 	    fill_scorecard (tgt_rep, qry_rep, current_map, &score);
 	    fprintf ( digest,
-		      "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %6.3lf %4d ",
+		      "%6s %6s %8.3lf %6.3lf %6.2lf %6.2lf %6.3lf %6.3lf %8.3lf %4d ",
 		      qry_descr->name,
 		      tgt_descr->name,
 			      
@@ -112,7 +113,11 @@ int write_digest(Descr *qry_descr, Descr *tgt_descr,
 		      score.res_rmsd,
 		      score.res_almt_score,
 		      score.res_almt_length);
-	    if (current_map->filename) fprintf (digest, "  %s", current_map->filename);
+	    if (current_map->filename) {
+		fprintf (digest, "  %s", current_map->filename);
+	    } else {
+		fprintf (digest, "  %s", "  -  " );
+	    }
 	    fprintf (digest, "\n");
 	}
 	

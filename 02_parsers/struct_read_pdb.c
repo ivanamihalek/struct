@@ -6,8 +6,8 @@ Copyright (C) 2012 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License, or,
+at your option, any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -89,8 +89,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 	    is_nmr = 1;
 	    break;
 	}
-	
-	if (chain  && line[PDB_ATOM_CHAINID] != chain) continue;
+
+	if (chain  &&  (line[PDB_ATOM_CHAINID] != chain) ) continue;
 	chain_found  = 1;
 	
 	if( ! strncmp(line,"ATOM", 4)){
@@ -108,8 +108,8 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
 
     /* sanity: */
     if ( chain && !chain_found) {
-	fprintf (stderr, "Chain %c not found.\n", chain);
-	return ERR_NO_FILE_OR_CHAIN;
+	fprintf (stderr, "%s:%d: Chain %c not found.\n", __FILE__, __LINE__, chain);
+	exit (1);
     }
 
     no_res = resctr;
@@ -266,7 +266,11 @@ int fill_protein_info ( FILE * fptr,  char chain, Protein * protein) {
     protein->sequence = sequence;
     protein->length   = no_res;
 
-    if (is_nmr)  fseek(fptr, 0L, SEEK_END);  /* go to the end of file */
+    if (is_nmr)  {
+	fseek(fptr, 0L, SEEK_END);  /* go to the end of file */
+	/* ( this is not enough, bcs fsees clears the EOF value (?!) */
+	while(fgets(line, BUFFLEN, fptr)!=NULL) {}
+    }
     
     return 0;
 }

@@ -24,13 +24,14 @@ struct
 
 # Logs and databases #
 ######################
-11_tests
 *log*
 *.sql
 *.sqlite
 *~
 pdbchains
 sys_tfm
+*.aln
+*to_*.pdb
 
 # OS generated files #
 ######################

@@ -151,9 +151,9 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list,
 	/* create the name for the output file and output it                       */
 	out_ctr++;
 	if (options.outdir[0] ) {
-	    sprintf (outname, "%s/%s.%d.alignment", options.outdir, options.outname,out_ctr );
+	    sprintf (outname, "%s/%s.%d.aln", options.outdir, options.outname,out_ctr );
 	} else {
-	    sprintf (outname, "%s.%d.alignment", options.outname, out_ctr);
+	    sprintf (outname, "%s.%d.aln", options.outname, out_ctr);
 	}
 	fptr  = efopen (outname, "w");
 	if ( !fptr) exit (1);
