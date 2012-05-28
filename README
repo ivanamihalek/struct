@@ -69,6 +69,7 @@ view the results:
 
 b) making a db file
 
+> cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
 > $STRUCT_HOME/struct -in1 1d0nA.pdb
 
 [[ note: it is possible to use the full pdb file here,
@@ -89,6 +90,10 @@ view the output
 > cat digest.struct_out
 
 view the output sorted by the direction score
-[[ note: direction is the only info we have in this case ]]
+[[ note: the "database" we are searching here is a  
+   concatenation of db files, like the one produce in  
+   the testcase (b); 
+   direction is the only info we have in this case ]]
 
 > awk '$1 != "%" && $1 != "done"' digest.struct_out | sort -grk 5
+
