@@ -30,7 +30,7 @@ depends on lapack, and  assumes the lapack is installed in /usr/lib/
 INSTALLING
 ----------
 
-after unpacking
+after unpacking in $STRUCT_HOME directory
 
 > cd $STRUCT_HOME/10_objects/
 > make
@@ -65,9 +65,15 @@ a) 1-on-1 comparison
 view the results:
 > cat   2d8bA_1d0nA.struct_out
 > pymol 1d0nA.pdb 2d8bA.to_1d0nA.*.pdb
+[[ if you do not use pymol, you can view these files in your
+favorite molecular viewer by finding them under open->file menu ]]
 
 
-b) making a db file
+b) making a db file 
+[[ db file is a file containing directions and cetnerpoints for
+   each tentative, heuristically determined, element of secondary
+   structure; it is used for fast searching though a large set 
+   of structures, such as PDB itself ]]
 
 > cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
 > $STRUCT_HOME/struct -in1 1d0nA.pdb
@@ -91,7 +97,7 @@ view the output
 
 view the output sorted by the direction score
 [[ note: the "database" we are searching here is a  
-   concatenation of db files, like the one produce in  
+   concatenation of db files, like the one produced in  
    the testcase (b); 
    direction is the only info we have in this case ]]
 

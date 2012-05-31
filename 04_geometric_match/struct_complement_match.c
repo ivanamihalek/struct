@@ -21,7 +21,9 @@ Contact: ivana.mihalek@gmail.com.
 */
 # include "struct.h"
 # include "sys/time.h"
-# include "omp.h"
+# ifdef OMP
+#   include "omp.h"
+# endif
 
 	 //# include "gperftools/profiler.h"
 

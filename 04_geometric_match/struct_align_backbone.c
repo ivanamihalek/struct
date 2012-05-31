@@ -102,7 +102,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 	    protein1->length : protein2->length;
    
     char tmp[PDB_ATOM_RES_NO_LEN+1] = {'\0'};
-    double d, d0 = 10.0;
+    double d, d0 = options.distance_tol_in_bb_almt;
     double aln_score, rmsd;
     double ca1[3], ca2[3], rotated_ca1[3];
     double ** similarity;
@@ -123,8 +123,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     double aux; // step = NR_POINTS/MAX_EXP_VALUE;
    
      
-    double alignment_score (Protein * protein1, Protein * protein2, int * residue_map_i2j,
-			    double **R, double *T,  double d0 );
     int  alignment_size  (int * residue_map_i2j, int no_res_1 );
     int  closeness_score (Descr *descr1, Representation *rep1, Representation *rep2, Map * map,
 			  int *element_1_begin, int *element_1_end,

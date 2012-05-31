@@ -107,7 +107,10 @@ typedef struct {
     double endgap;
     double threshold_distance; /* the max distance for exhaustive search
 				  for init triple of SSEs */
-    double far_away_cosine;    /* minimum cosine for F_effective estimate */
+
+    double distance_tol_in_bb_almt; /* exp fallof for the bb almt score */
+    
+    double far_away_cosine;       /* minimum cosine for F_effective estimate */
     double H_length_mismatch_tol; /* tolerance for the difference in length
 				     in matched helices */
     double S_length_mismatch_tol; /* tolerance for the difference in length
@@ -309,6 +312,8 @@ extern Options options; /* defined in struct.c */
 /* function declarations :    */
 /******************************/
 
+double alignment_score (Protein * protein1, Protein * protein2, int * residue_map_i2j,
+			    double **R, double *T,  double d0 );
 int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
 		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep, List_of_maps *list);
 int check_gap_lengths (Map * map, double *gap_score );

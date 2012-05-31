@@ -327,6 +327,8 @@ int set_default_options () {
 	= 0.0;
     options.threshold_distance /* for the "seed" triples in direction search */
 	= 30.0;
+    options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
+	= 10.0;
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
         = 0.8;
     options.grid_size     /* minimal number of points for the sphere grid */
