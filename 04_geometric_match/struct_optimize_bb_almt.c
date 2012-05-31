@@ -76,6 +76,9 @@ int single_map_optimize_bb_almt (Protein * protein1, Protein * protein2, Map * m
     memcpy (&q[0], &(map->q[0]), 4*sizeof(double));
     memcpy (&T[0], &(map->T[0]), 3*sizeof(double));
     
+    memcpy (&q_best[0], &(map->q[0]), 4*sizeof(double));
+    memcpy (&T_best[0], &(map->T[0]), 3*sizeof(double));
+    
     quat_to_R (q, R);
     
     best_score = map->aln_score;
@@ -125,7 +128,7 @@ int single_map_optimize_bb_almt (Protein * protein1, Protein * protein2, Map * m
 	    memcpy (&(q_best[0]), &q_new[0], 4*sizeof(double));	    
 	    
 	    //printf ("step %4d    dice: %5.2lf   score: %8.4lf  diff: %8.4lf\n",
-	    //	    step, dice, new_score, score_diff);
+	    //step, dice, new_score, score_diff);
 	}
 
 	
