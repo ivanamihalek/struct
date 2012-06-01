@@ -115,8 +115,9 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
    
     *cmd_filename_ptr = NULL;
 
+    argi = 1;
 
-    for (argi=1; argi<argc; argi+=2) {
+    while (argi<argc) {
 	
 	if ( argv[argi][0] != '-' ) {
 	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
@@ -124,30 +125,44 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	} else if ( ! strcmp (argv[argi], "-no_bb")) {
 	    options.postprocess  = 0;
 	    options.print_header = 0;
+	    argi += 1;
+	    
 	} else if ( ! strncmp (argv[argi], "-v", 2)) {
 	    options.verbose = 1;
+	    argi += 1;
 	    
 	} else if (  argi+1 >= argc ) {
 	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
 	    return 1;
+	    
 	} else if ( ! strcmp (argv[argi], "-in") ||  ! strncmp (argv[argi], "-in1", 4)) {
 	    options.tgt_filename = argv[argi+1];
+	    argi += 2;
+	    
 	} else if ( ! strncmp (argv[argi], "-in2", 4)) {
 	    options.qry_filename = argv[argi+1];
+	    argi += 2;
 
 	} else if ( ! strncmp (argv[argi], "-c1", 3)) {
 	    *tgt_chain_ptr = argv[argi+1][0];
+	    argi += 2;
+
 	} else if ( ! strncmp (argv[argi], "-c2", 3)) {
 	    *qry_chain_ptr = argv[argi+1][0];
+	    argi += 2;
+
 	} else if ( ! strncmp (argv[argi], "-p", 2)) {
 	    *cmd_filename_ptr = argv[argi+1];
+	    argi += 2;
 
 	/* this is upposed to be fo r testing purposes only: outside db file */
 	} else if ( ! strncmp (argv[argi], "-db1", 4)) {
 	    options.tgt_db = argv[argi+1];
+	    argi += 2;
+
 	} else if ( ! strncmp (argv[argi], "-db2", 4)) {
 	    options.qry_db = argv[argi+1];
-	    
+	    argi += 2;	    
 	    
 	} else {
 	    fprintf (stderr, "Unrecognized option: %s\n",  argv[argi]);

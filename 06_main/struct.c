@@ -326,7 +326,7 @@ int set_default_options () {
     options.endgap
 	= 0.0;
     options.threshold_distance /* for the "seed" triples in direction search */
-	= 30.0;
+	=  30.0;
     options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
 	= 10.0;
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
@@ -350,7 +350,7 @@ int set_default_options () {
     
 
     options.postprocess    = 1;
-    options.optimize       = 1;
+    options.optimize       = 0;
     
     options.verbose        = 0;
     options.print_header   = 1;

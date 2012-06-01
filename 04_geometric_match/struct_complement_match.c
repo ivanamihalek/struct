@@ -226,6 +226,17 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
+    
+/* 	    printf ("   %d  %d  %d   topctr:  %4d     %3d %3d %3d     %3d %3d %3d    %8.3lf   ", */
+/* 		    NX, NY, no_top_rmsd, top_ctr, */
+/* 		    best_triple_x[top_ctr][0],  best_triple_x[top_ctr][1],  best_triple_x[top_ctr][2], */
+/* 		    best_triple_y[top_ctr][0],  best_triple_y[top_ctr][1],  best_triple_y[top_ctr][2], */
+/* 		    best_rmsd[top_ctr] ); */
+/* 	    printf ("     %8.3lf   %8.3lf   %8.3lf  %8.3lf\n", */
+/* 		    best_quat[top_ctr][0], best_quat[top_ctr][1], best_quat[top_ctr][2], best_quat[top_ctr][3]); */
+
+	    
+	    
 	quat_to_R (best_quat[top_ctr], R);
 	rotate (x_rotated, NX, R, x);
 
@@ -252,8 +263,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	/* do the mapped SSEs match in length? */
 	if (options.use_length &&
-	    (map+map_ctr)->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
-	
+	   (map+map_ctr)->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
@@ -984,7 +994,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     int y_list_full, x_list_full;
     int x_enumeration_done, y_enumeration_done;
     int panic_ctr;
-    int chunk;
+    int chunk, same, i;
     int NX = X_rep->N_full;
     int NY = Y_rep->N_full;
     int * x_type = X_rep->full_type;
@@ -993,7 +1003,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
  
     double **x = X_rep->full;    
     double **y = Y_rep->full;
-    
+
+    double epsilon = 0.05;
     double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
     double rmsd;
     double q_init[4] = {0.0};
@@ -1154,7 +1165,42 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		    if ( rmsd > cutoff_rmsd) continue;
 	    
 		    if (opt_quat(x, NX, x_triple[xtrip_ct].member, y, NY, y_triple[ytrip_ct].member, 3, q_init, &rmsd)) continue;
-	    
+
+
+		    same = 0;
+		    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
+			    
+			if (best_rmsd[top_ctr] > BAD_RMSD) break;
+			same = 1;
+			for (i=0; i<4; i++) {
+			    if ( fabs(q_init[i] - best_quat[top_ctr][i]) > epsilon) {
+				same = 0;
+				break;
+			    }
+			}
+			if ( same ) {
+			    /*
+			    printf ("same  %8.3f  %8.3f      %8.3f  %8.3f    %8.3f  %8.3f     %8.3f  %8.3f    \n",
+				    q_init[0],  best_quat[top_ctr][0],
+				    q_init[1],  best_quat[top_ctr][1],
+				    q_init[2],  best_quat[top_ctr][2],
+				    q_init[3],  best_quat[top_ctr][3]
+				);
+			    printf ("   %3d %3d %3d     %3d %3d %3d    %8.3lf  \n",
+				    best_triple_x[top_ctr][0],  best_triple_x[top_ctr][1],  best_triple_x[top_ctr][2],
+				    best_triple_y[top_ctr][0],  best_triple_y[top_ctr][1],  best_triple_y[top_ctr][2],
+				    best_rmsd[top_ctr] );
+				    
+			    printf ("   %3d %3d %3d     %3d %3d %3d   \n\n",
+				    x_triple[xtrip_ct].member[0],  x_triple[xtrip_ct].member[1],  x_triple[xtrip_ct].member[2],
+				    y_triple[xtrip_ct].member[0],  y_triple[xtrip_ct].member[1],  y_triple[xtrip_ct].member[2]);
+			    */
+			    break;
+			}
+				
+		    }
+		    if (same) continue;
+			    
 
 		    /* store the survivors */
 		    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
@@ -1240,7 +1286,8 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
     int * y_type = Y_rep->full_type;
     int NY = Y_rep->N_full;
     int x_triple[3], y_triple[3];
-    int chunk;
+    int chunk, same;
+    double epsilon = 0.05;
     double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
     double rmsd;
     double q_init[4] = {0.0};
@@ -1292,7 +1339,6 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
                             y_triple[2] = n;
 
 
-
 			    if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
 
 			    if (distance_of_nearest_approach(X_rep, x_triple,
@@ -1300,8 +1346,53 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
                             
                             if (rmsd > cutoff_rmsd) continue;
 
- 				
+ 	
+			
 			    if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
+
+			    /* do we already have a similar quat ?*/
+			    
+			    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
+			    
+				if (best_rmsd[top_ctr] > BAD_RMSD) break;
+				same = 1;
+				for (i=0; i<4; i++) {
+				    if ( fabs(q_init[i] - best_quat[top_ctr][i]) > epsilon) {
+					same = 0;
+					break;
+				    }
+				}
+				if ( same ) {
+				    printf ("same  %8.3f  %8.3f      %8.3f  %8.3f    %8.3f  %8.3f     %8.3f  %8.3f    \n",
+					    q_init[0],  best_quat[top_ctr][0],
+					    q_init[1],  best_quat[top_ctr][1],
+					    q_init[2],  best_quat[top_ctr][2],
+					    q_init[3],  best_quat[top_ctr][3]
+					);
+				    printf ("   %3d %3d %3d     %3d %3d %3d    %8.3lf  \n",
+					    best_triple_x[top_ctr][0],  best_triple_x[top_ctr][1],  best_triple_x[top_ctr][2],
+					    best_triple_y[top_ctr][0],  best_triple_y[top_ctr][1],  best_triple_y[top_ctr][2],
+					    best_rmsd[top_ctr] );
+				    
+				    printf ("   %3d %3d %3d     %3d %3d %3d   \n\n",
+					    x_triple[0],  x_triple[1],  x_triple[2],
+					    y_triple[0],  y_triple[1],  y_triple[2]);
+				    
+				    exit (1);
+				}
+				
+			    }
+		    
+			    if ( x_triple[0] == 10 &&
+				  x_triple[1] == 11 &&
+				  x_triple[2] == 12 &&
+				  y_triple[0] ==  3 &&
+				  y_triple[1] ==  4 &&
+				 y_triple[2] == 5 ) {
+				printf ( "blah  %8.3f\n", rmsd);
+				
+				
+			    }
 			    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
 
                                 if (rmsd <= best_rmsd[top_ctr]) {

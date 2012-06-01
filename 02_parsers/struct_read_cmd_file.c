@@ -78,7 +78,8 @@ int read_cmd_file (char *filename) {
     fptr   = efopen ( filename, "r" );
     if (! fptr ) return 1;
     
- 
+    printf ("aifughidfghaighafggf\n");
+    
     line_ctr = 0;
     memset ( line, 0, LONGSTRING);
     while(fgets(line,LONGSTRING,fptr)!=NULL){
@@ -157,6 +158,9 @@ int read_cmd_file (char *filename) {
 	if ( ! token_assigned  &&  !strcmp (token[0], "length")  ) {
 	    options.use_length = 1;
 	    token_assigned = 1;
+	    if ( max_token >= 1 ) {
+		options.avg_length_mismatch_tol = atof(token[1]);
+	    }
 	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "header")  ) {
 	    options.print_header = 1;
@@ -170,8 +174,8 @@ int read_cmd_file (char *filename) {
 	    options.postprocess = 0;
 	    token_assigned = 1;
 	}
-	if ( ! token_assigned  &&  !strcmp (token[0], "no_opt")  ) {
-	    options.optimize = 0;
+	if ( ! token_assigned  &&  !strcmp (token[0], "opt")  ) {
+	    options.optimize = 1;
 	    token_assigned = 1;
 	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "report_no_sse_overlap")  ) {
