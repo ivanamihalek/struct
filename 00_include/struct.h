@@ -358,10 +358,10 @@ int map_complementarity (Map *map1, Map *map2, double *z);
 int map_consistence (int NX, int NY, Map *combined_map, Map *map1, Map *map2,
 		     double *total_ptr, double * gap_score);
 int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);
-int mat_out (double A[4][4], char *name);
+int mat_out  (double A[4][4], char *name);
 int mat_mult (double new [4][4], double  A[4][4], double  B[4][4]);
-int mat_sum (double sum[4][4], double  new_term[4][4]);
-int mat_diag ( double B[4][4], double eval[4], double evect[4][4] );
+int mat_sum  (double sum[4][4], double  new_term[4][4]);
+int mat_diag (double B[4][4], double eval[4], double evect[4][4] );
 int mat_exp (double expB[4][4], double B[4][4]);
 int match_length (int N, int *x2y);
 int multiply (double *quat1, double *quat2_in,

@@ -51,9 +51,8 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
      
      Map *current_map;
 
-     if ( !(bb_score_array = emalloc(list->no_maps_used*sizeof(double))))  return 1;
-     
-     memset (list->map_best, 0, list->no_maps_used*sizeof(int));
+     if ( !(bb_score_array = emalloc(list->no_maps_used*sizeof(double))))  return 1;    
+     memset (list->map_best, 0, list->best_array_allocated*sizeof(int));
      
      for (map_ctr=0; map_ctr<list->no_maps_used; map_ctr++) {
 	 current_map = list->map+map_ctr;
@@ -63,6 +62,11 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 		     descr1->name, descr2->name);
 	     exit (retval);
 	 }
+	 if ( map_ctr >= list->best_array_allocated) {
+	     printf ("%s:%d error assigning array size.\n", __FILE__, __LINE__ );
+	     exit (1);
+	 }
+	 
 	 list->map_best[map_ctr] = map_ctr;
 	 /* the array_qsort sorts in the increasing order, so use negative aln score: */
 	 bb_score_array[map_ctr] = -current_map->aln_score;
@@ -439,7 +443,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     quat_to_R (q, R);
  
     
-    aln_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
+    //aln_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
     map_size  = alignment_size  (residue_map_i2j, protein1->length);		
 
     memcpy (&(map->q[0]), &q[0], 4*sizeof(double));
