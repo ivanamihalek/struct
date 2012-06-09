@@ -330,19 +330,32 @@ int enumerate_structures(Protein *protein){
 int structure2sse (Protein *protein) {
 
     Neighbors * neighbors = malloc(sizeof(Neighbors) * protein->length);
+    int i;
     if (neighbors == NULL) {
         fprintf(stderr, "Can not allocate memory in function structure2seq\n");
         return 1;
     }
     calculate_neighbors_distances(protein, neighbors);
 
+    /* fill protein->sequence[resctr].belongs_to_helix or
+       protein->sequence[resctr].belongs_to_strand */
     determine_sec_structure(neighbors, protein);
     free(neighbors);
     enumerate_structures(protein);
-    
-    
-    /* fill protein->sequence[resctr].belongs_to_helix or
-       protein->sequence[resctr].belongs_to_strand */
+        
+    /* fill protein->sse_sequence */
+    if ( ! (protein->sse_sequence = emalloc (protein->length*sizeof(int))) ) exit (1);
+    protein->no_helices = 0;
+    protein->no_strands = 0;
+    for (i=0; i<protein->length; i++) {
+	if ( protein->sequence[i].belongs_to_strand) {
+	    protein->sse_sequence[i] = STRAND;
+	    protein->no_strands ++;;
+	} else if ( protein->sequence[i].belongs_to_helix) {
+	    protein->sse_sequence[i] = HELIX;
+	    protein->no_helices ++;
+	}
+    }
     
     return 0;
 }

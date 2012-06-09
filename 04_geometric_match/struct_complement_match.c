@@ -1178,25 +1178,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 				break;
 			    }
 			}
-			if ( same ) {
-			    /*
-			    printf ("same  %8.3f  %8.3f      %8.3f  %8.3f    %8.3f  %8.3f     %8.3f  %8.3f    \n",
-				    q_init[0],  best_quat[top_ctr][0],
-				    q_init[1],  best_quat[top_ctr][1],
-				    q_init[2],  best_quat[top_ctr][2],
-				    q_init[3],  best_quat[top_ctr][3]
-				);
-			    printf ("   %3d %3d %3d     %3d %3d %3d    %8.3lf  \n",
-				    best_triple_x[top_ctr][0],  best_triple_x[top_ctr][1],  best_triple_x[top_ctr][2],
-				    best_triple_y[top_ctr][0],  best_triple_y[top_ctr][1],  best_triple_y[top_ctr][2],
-				    best_rmsd[top_ctr] );
-				    
-			    printf ("   %3d %3d %3d     %3d %3d %3d   \n\n",
-				    x_triple[xtrip_ct].member[0],  x_triple[xtrip_ct].member[1],  x_triple[xtrip_ct].member[2],
-				    y_triple[xtrip_ct].member[0],  y_triple[xtrip_ct].member[1],  y_triple[xtrip_ct].member[2]);
-			    */
-			    break;
-			}
+			if ( same )  break;
+			
 				
 		    }
 		    if (same) continue;

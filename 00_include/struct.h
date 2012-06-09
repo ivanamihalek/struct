@@ -109,12 +109,12 @@ typedef struct {
 				  for init triple of SSEs */
 
     double distance_tol_in_bb_almt; /* exp fallof for the bb almt score */
-    
-    double far_away_cosine;       /* minimum cosine for F_effective estimate */
-    double H_length_mismatch_tol; /* tolerance for the difference in length
-				     in matched helices */
-    double S_length_mismatch_tol; /* tolerance for the difference in length
-				     in matched strands */
+    double max_almt_dist;           /* max distance for which we want to call something "aligned" */
+    double far_away_cosine;         /* minimum cosine for F_effective estimate */
+    double H_length_mismatch_tol;   /* tolerance for the difference in length
+				       in matched helices */
+    double S_length_mismatch_tol;   /* tolerance for the difference in length
+				       in matched strands */
     double avg_length_mismatch_tol;
     
     int min_no_SSEs;      /* min number of SSEs we are willing to consider as a hit */
@@ -319,6 +319,8 @@ int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * t
 int check_gap_lengths (Map * map, double *gap_score );
 int check_input_type  (FILE *fptr);
 int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
+int closeness_score_for_bb_almt (Map *map,  Protein *protein1, Protein *protein2,
+				  double **R, double *T, double d0, double **similarity, double *score_ptr);
 int compare_descr     (Descr *descr1, Descr *descr2, List_of_maps *list, Score *score);
 int complement_match  (Representation* X_rep, Representation* Y_rep, List_of_maps * list);
 int construct_translation_vecs (Representation *X_rep,  Representation *Y_rep, Map *map);
@@ -390,10 +392,13 @@ int rotate(double **Ynew, int NY, double **R, double ** Y);
 int set_match_algebra ();
 int set_up_exp_table ();
 void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) ;
-char single_letter ( char code[]);
+char single_letter (char code[]);
+int smith_waterman_2 (int max_i, int max_j, double **similarity,
+			  int *map_i2j, int * map_j2i, double * aln_score);
+
 int sse2descriptor (Protein *protein, Descr *descr);
 int store_sse_pair_score (Representation *X_rep,  Representation *Y_rep, 
-		 double **R, double alpha,  Map *map);
+			  double **R, double alpha,  Map *map);
 int structure2sse  (Protein *protein);
 
 

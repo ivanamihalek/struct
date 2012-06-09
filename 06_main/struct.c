@@ -329,6 +329,8 @@ int set_default_options () {
 	=  30.0;
     options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
 	= 10.0;
+    options.max_almt_dist           /* max distance for which we want to call something "aligned" */
+        = 10.0; 
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
         = 0.8;
     options.grid_size     /* minimal number of points for the sphere grid */

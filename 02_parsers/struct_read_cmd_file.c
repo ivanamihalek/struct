@@ -78,8 +78,6 @@ int read_cmd_file (char *filename) {
     fptr   = efopen ( filename, "r" );
     if (! fptr ) return 1;
     
-    printf ("aifughidfghaighafggf\n");
-    
     line_ctr = 0;
     memset ( line, 0, LONGSTRING);
     while(fgets(line,LONGSTRING,fptr)!=NULL){
