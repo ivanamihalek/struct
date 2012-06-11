@@ -70,7 +70,7 @@ typedef struct {
 } SSElement;
 
 
-typedef struct {    
+typedef struct {
     int length;
     Residue * sequence;
     int no_helices;

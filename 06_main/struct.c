@@ -36,8 +36,8 @@ int main ( int argc, char * argv[]) {
     FILE *qry_fptr    = NULL, *tgt_fptr = NULL, *digest = NULL;
     Protein qry_structure = {0};
     Protein tgt_structure = {0};
-    Descr qry_descr   = {{0}};
-    Descr tgt_descr   = {{0}};
+    Descr qry_descr   = {0};
+    Descr tgt_descr   = {0};
     Representation qry_rep = {0};
     Representation tgt_rep = {0};
     

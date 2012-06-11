@@ -56,6 +56,15 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     int retval = fill_protein_info (fptr, chain, protein);
     if (retval) return retval;
 
+    if ( descr->db_file) {
+	FILE *fptr  = NULL;
+	if ( ! (fptr = efopen(descr->db_file, "r")) ) return 1;
+	retval = db_input (fptr, descr);
+	if ( retval) return retval;
+
+	return 0;
+    }
+    
     /* find positions of SSEs on the sequence           */
     if ( structure2sse (protein)) {
 	fprintf ( stderr, "%s:%d: Error  finding SSEs.\n",
@@ -161,8 +170,7 @@ int db_input (FILE * fptr, Descr * descr) {
 	return 1;
     }
     
-    /* make sure that p is normalized */
-    
+    /* make sure that p is normalized */    
     for ( element_ctr=descr->no_of_elements-1; element_ctr >=0; element_ctr-- ) {
 	double norm, aux;
 	int i;

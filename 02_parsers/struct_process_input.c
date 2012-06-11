@@ -50,10 +50,8 @@ int process_input_instructions (int argc, char *argv[],
 
    
     /* check if the tgt file is  present and readable; open               */
-    if ( ! (tgt_fptr = efopen(options.tgt_filename, "r"))) {
-	fprintf (stderr, "Error reading %s.\n", options.tgt_filename);
-	return 1;
-    }
+    if ( ! (tgt_fptr = efopen(options.tgt_filename, "r"))) return 1;
+    
     
     /* figure out whether we have a pdb or db input:                      */
     tgt_input_type = check_input_type (tgt_fptr);
@@ -61,6 +59,12 @@ int process_input_instructions (int argc, char *argv[],
 	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
 	return 1;
     }
+
+    /* for testing purposes we might have both: */
+    if ( options.tgt_db) tgt_descr->db_file  =  options.tgt_db;
+    if ( options.qry_db) qry_descr->db_file  =  options.qry_db;
+    
+    
     /*do something about the names for the output:                        */
     if ( tgt_input_type==PDB) {
 	improvize_name (options.tgt_filename, tgt_chain, tgt_descr->name);
@@ -70,10 +74,8 @@ int process_input_instructions (int argc, char *argv[],
     /* the same for the qry file, but may not be necessary if we are      */
     /* preprocessing only                                                 */
     if ( options.qry_filename) {
-	if ( ! (qry_fptr = efopen(options.qry_filename, "r"))) {
-	    fprintf (stderr, "Error reading %s.\n", options.qry_filename);
-	    return 1;
-	}
+	if ( ! (qry_fptr = efopen(options.qry_filename, "r"))) return 1;
+	
 	qry_input_type = check_input_type (qry_fptr);
 	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
 	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
@@ -155,7 +157,7 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	    *cmd_filename_ptr = argv[argi+1];
 	    argi += 2;
 
-	/* this is upposed to be fo r testing purposes only: outside db file */
+	/* this is upposed to be for testing purposes only: an externally provided db file */
 	} else if ( ! strncmp (argv[argi], "-db1", 4)) {
 	    options.tgt_db = argv[argi+1];
 	    argi += 2;

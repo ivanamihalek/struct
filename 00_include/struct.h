@@ -161,6 +161,7 @@ typedef struct {
 
 
 typedef struct {
+    char *db_file;
     char name[SHORTSTRING];
     int no_of_residues, no_of_elements; 
     int no_of_helices, no_of_strands;
