@@ -345,15 +345,12 @@ int structure2sse (Protein *protein) {
         
     /* fill protein->sse_sequence */
     if ( ! (protein->sse_sequence = emalloc (protein->length*sizeof(int))) ) exit (1);
-    protein->no_helices = 0;
-    protein->no_strands = 0;
+    
     for (i=0; i<protein->length; i++) {
 	if ( protein->sequence[i].belongs_to_strand) {
 	    protein->sse_sequence[i] = STRAND;
-	    protein->no_strands ++;;
 	} else if ( protein->sequence[i].belongs_to_helix) {
 	    protein->sse_sequence[i] = HELIX;
-	    protein->no_helices ++;
 	}
     }
     

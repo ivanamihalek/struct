@@ -235,7 +235,10 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 /* 	    printf ("     %8.3lf   %8.3lf   %8.3lf  %8.3lf\n", */
 /* 		    best_quat[top_ctr][0], best_quat[top_ctr][1], best_quat[top_ctr][2], best_quat[top_ctr][3]); */
 
-	    
+
+	if (top_ctr==1114) {
+	    printf ( " %5d \n", top_ctr);
+	}
 	    
 	quat_to_R (best_quat[top_ctr], R);
 	rotate (x_rotated, NX, R, x);
