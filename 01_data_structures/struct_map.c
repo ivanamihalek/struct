@@ -41,6 +41,68 @@ int initialize_map (Map *map, int NX, int NY ) {
 
     return 0;
 }
+/********************************/
+int clear_map (Map *map) {
+
+    int NX = map->x2y_size;
+    int NY = map->y2x_size;
+
+    int  *hide1[2];;
+    double**hide2[2];
+
+    hide1[0] = map->x2y;    hide1[1] = map->y2x;
+    hide2[0] = map->cosine; hide2[1] = map->sse_pair_score;
+
+    memset (map, 0, sizeof(Map));
+    map->x2y            = hide1[0];
+    map->y2x            = hide1[1];
+    map->cosine         = hide2[0];
+    map->sse_pair_score = hide2[1];
+    
+    
+    memset (map->x2y, 0, NX*sizeof(int));
+    memset (map->y2x, 0, NY*sizeof(int));
+    memset (map->cosine[0], 0,  NX*NY*sizeof(double));
+    memset (map->sse_pair_score[0], 0,  NX*NY*sizeof(double));
+ 
+
+    return 0;
+}
+
+
+
+/********************************/
+int copy_map (Map *to, Map* from) {
+
+    int NX = from->x2y_size;
+    int NY = from->y2x_size;
+
+    int  *hide1[2];;
+    double**hide2[2];
+
+    hide1[0] = to->x2y;    hide1[1] = to->y2x;
+    hide2[0] = to->cosine; hide2[1] = to->sse_pair_score;
+
+    memcpy (to, from, sizeof(Map));
+    
+    to->x2y            = hide1[0];
+    to->y2x            = hide1[1];
+    to->cosine         = hide2[0];
+    to->sse_pair_score = hide2[1];
+    
+    
+    memcpy (to->x2y, from->x2y, NX*sizeof(int));
+    memcpy (to->y2x, from->y2x, NY*sizeof(int));
+    memcpy (to->cosine[0], from->cosine[0],  NX*NY*sizeof(double));
+    memcpy (to->sse_pair_score[0], from->sse_pair_score[0],  NX*NY*sizeof(double));
+ 
+
+    return 0;
+}
+
+
+
+
 
 
 /********************************/

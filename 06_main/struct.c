@@ -51,6 +51,9 @@ int main ( int argc, char * argv[]) {
 				    int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FILE ** tgt_fptr_ptr,
 				    int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
     int set_default_options ();
+
+    printf ("buggy.\n");
+    exit (1);
     
     if ( argc < 2 ) {
 	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "

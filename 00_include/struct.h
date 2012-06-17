@@ -319,11 +319,13 @@ int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * t
 		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep, List_of_maps *list);
 int check_gap_lengths (Map * map, double *gap_score );
 int check_input_type  (FILE *fptr);
+int clear_map (Map *map);
 int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
 int closeness_score_for_bb_almt (Map *map,  Protein *protein1, Protein *protein2,
 				  double **R, double *T, double d0, double **similarity, double *score_ptr);
 int compare_descr     (Descr *descr1, Descr *descr2, List_of_maps *list, Score *score);
 int complement_match  (Representation* X_rep, Representation* Y_rep, List_of_maps * list);
+int copy_map          (Map* to, Map* from);
 int construct_translation_vecs (Representation *X_rep,  Representation *Y_rep, Map *map);
 int descr_init ( Descr * description);
 int descr_out (FILE * fptr, Descr * descr);
