@@ -47,18 +47,22 @@ int clear_map (Map *map) {
     int NX = map->x2y_size;
     int NY = map->y2x_size;
 
-    int  *hide1[2];;
-    double**hide2[2];
+    int    *stash1[2];;
+    double**stash2[2];
+    double *stash3[2];
 
-    hide1[0] = map->x2y;    hide1[1] = map->y2x;
-    hide2[0] = map->cosine; hide2[1] = map->sse_pair_score;
+    stash1[0] = map->x2y;       stash1[1] = map->y2x;
+    stash2[0] = map->cosine;    stash2[1] = map->sse_pair_score;
+    stash3[0] = map->cosine[0]; stash3[1] = map->sse_pair_score[0];
 
     memset (map, 0, sizeof(Map));
     
-    map->x2y            = hide1[0];
-    map->y2x            = hide1[1];
-    map->cosine         = hide2[0];
-    map->sse_pair_score = hide2[1];
+    map->x2y            = stash1[0];
+    map->y2x            = stash1[1];
+    map->cosine         = stash2[0];
+    map->sse_pair_score = stash2[1];
+    map->cosine[0]         = stash3[0];
+    map->sse_pair_score[0] = stash3[1];
     
     
     memset (map->x2y, 0, NX*sizeof(int));
@@ -169,9 +173,9 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
     
     int map_ctr;
 
-    list->no_maps_allocated      = MAP_MAX*9;
+    list->no_maps_allocated      = MAP_MAX;
     list->no_maps_used           = 0;
-    list->best_array_allocated =   list->no_maps_allocated;
+    list->best_array_allocated =   list->no_maps_allocated-1; /* we'll use extra map for storage*/
     list->best_array_used      = 0;
     
     list->map = emalloc (list->no_maps_allocated*sizeof(Map) );/* TODO is this enough? */
@@ -186,8 +190,7 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
     if (fake) { /* fake init - these will actually be used as pointers
 		   to containers in other maps */
     } else {
-	
-	
+		
 	for ( map_ctr= 0; map_ctr<list->no_maps_allocated; map_ctr++) {
 	    if ( initialize_map(list->map+map_ctr, NX, NY) ) return 1;
 	}
@@ -202,7 +205,6 @@ int list_report (List_of_maps * list) {
     int map_ctr, best_ctr;
 
     printf ("==========================================\n");
-    printf ("list 0x%x\n", list);
     printf ("maps allocated:   %4d   maps used : %4d   best used : %4d  \n",
 	    list->no_maps_allocated, list->no_maps_used, list->best_array_used);
 

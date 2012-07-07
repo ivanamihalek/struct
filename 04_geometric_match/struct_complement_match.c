@@ -93,8 +93,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     int map_ctr  = 0;
     int no_maps_sorted;
     int * x2y, map_unstable;
+    int current_map_id;
     //time_t  time_now, time_start;
-    Map temp_map;
+    Map *current_map;
    
     int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 		 Representation * Y_rep, int *set_of_directions_y,
@@ -123,7 +124,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 		  double ** y, int NY, int *set_of_directions_y,
 		  int set_size, double * q, double * rmsd);
     int qmap (double *x0, double *x1, double *y0, double *y1, double * quat);
-    int store_sorted (List_of_maps * list,  double * best_score, Map * new_map);
+    int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id);
     
     smaller = (NX <= NY) ? NX : NY;
     no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
@@ -212,9 +213,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     }
     
     //ProfilerStop();
-
-    initialize_map (&temp_map, NX, NY);
-   
+    current_map_id = 0;
+    
     /*********************************************/
     /*   main loop                               */
     /*********************************************/
@@ -234,13 +234,14 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	/* find map which uses the 2 triples as anchors */
 	no_anchors = 3;
 	
-	clear_map (&temp_map);
-	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, &temp_map,
+	current_map    = list->map+current_map_id;
+	clear_map (current_map);
+	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, current_map,
 		   best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
 
 	/* does this map still map the two triples we started with? */
-	x2y = temp_map.x2y;
+	x2y = current_map->x2y;
 	map_unstable  = 0;
 	for (t=0; t<3; t++ ) {
 	    if ( x2y[best_triple_x[top_ctr][t]] != best_triple_y[top_ctr][t] ) {
@@ -251,11 +252,11 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	/* do the mapped SSEs match in length? */
 	if (options.use_length &&
-	   temp_map.avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
+	   current_map->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
-		      Y_rep, best_triple_y[top_ctr],  3,  &temp_map, cutoff_rmsd );
+		      Y_rep, best_triple_y[top_ctr],  3,  current_map, cutoff_rmsd );
 	
 
 	/* monte that optimizes the aligned vectors only */
@@ -269,7 +270,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	no_anchors = 0;
 
 	for (i=0; i<NX; i++) {
-	     j = temp_map.x2y[i];
+	     j = current_map->x2y[i];
 	     if (j < 0 ) continue;
 	     x_type_fudg[i] = x_type[i];
 	     y_type_fudg[j] = y_type[j];
@@ -290,34 +291,27 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	quat_to_R (q, R);
 	/* store_sse_pair_score() is waste of time, but perhaps not critical */
-	store_sse_pair_score (X_rep, Y_rep, R,  alpha, &temp_map);
+	store_sse_pair_score (X_rep, Y_rep, R,  alpha, current_map);
 	/* recalculate the assigned score*/
-	map_assigned_score   (X_rep, &temp_map);
+	map_assigned_score   (X_rep, current_map);
 
 
         /*   store the map that passed all the filters down to here*/
-	temp_map.F       = F_current;
-	temp_map.avg     = avg;
-	temp_map.avg_sq  = avg_sq;
-	temp_map.z_score = z_scr;
-	memcpy ( temp_map.q, q, 4*sizeof(double) );
+	current_map->F       = F_current;
+	current_map->avg     = avg;
+	current_map->avg_sq  = avg_sq;
+	current_map->z_score = z_scr;
+	memcpy ( current_map->q, q, 4*sizeof(double) );
 		
 
 	/************************/
 	/* store sorted         */
 	/************************/
 	/* find the place for the new score and the new map */
-	store_sorted (list, list_of_best_scores, &temp_map);
-
-	
-	/* is this pretty much as good as it can get ?
-	if ( fabs (temp_map.assigned_score - smaller) < options.tol )  done = 1; */
+    	store_sorted (list, list_of_best_scores, &current_map_id);
 
     }
 
-    //list_report (list);
-    //exit (1);
-    
     /**********************/
     /* garbage collection */
     gradient_descent (1, 0.0,  NULL, NULL, 0,
@@ -345,11 +339,11 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 /***************************************/
 /***************************************/
 
-int store_sorted (List_of_maps * list,  double * best_score, Map * new_map) {
+int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id) {
 
+    Map *new_map =  list->map+ (*new_map_id); 
     int sorted_position, chunk, best_ctr = list->best_array_used;
-    int map_max = list ->no_maps_allocated;
-    int new_map_position = 0;
+    int map_max = list ->best_array_allocated;
     int *map_best = list->map_best;
     double new_score = -new_map->assigned_score;
     
@@ -363,31 +357,41 @@ int store_sorted (List_of_maps * list,  double * best_score, Map * new_map) {
 	    
     } else { /* store the map  */
 	
-	if ( list->no_maps_used<map_max-1) {/* add to the first available place */
-	    new_map_position = list->no_maps_used;
-	    list->no_maps_used++;
-            list->best_array_used++;
-	    
-	} else { /* add to the first available place */
-	    int worst_map = map_best[map_max-1];
-	    /* replace the worst map wiht the new  one */
-	    new_map_position = worst_map;
-	}
-	copy_map ( list->map+new_map_position, new_map);
 	
 	/* store  the score and the map position*/
 	/* move */
 	chunk = best_ctr - sorted_position;
 	if ( chunk ) {
 	    memmove (best_score+sorted_position+1, best_score+sorted_position, chunk*sizeof(double)); 
-	    memmove (  map_best+sorted_position+1,   map_best+sorted_position, chunk*sizeof(int)); 
+	    memmove (map_best+sorted_position+1, map_best+sorted_position, chunk*sizeof(int)); 
 	}
 	best_score[sorted_position]   = new_score;
-	map_best  [sorted_position]   = new_map_position;
+	map_best  [sorted_position]   = *new_map_id;
 
+	/* what is the next available place in the map list? */
+	if ( list->no_maps_used<map_max-1) {/* add to the first available place */
+	    *new_map_id = list->no_maps_used;
+	    list->no_maps_used++;
+            list->best_array_used++;
+	    
+	} else { /* add to the first available place */
+	    int worst_map = map_best[map_max-1];
+	    /* replace the worst map wiht the new  one */
+	    *new_map_id = worst_map;
+	}
     }
- 
-   
+
+# if 0
+    for ( sorted_position=0; sorted_position< list->no_maps_used; sorted_position++) {
+	printf ( "  %3d   %8.3lf    0x%x    %8.3lf  %3d     0x%x     0x%x   \n",  sorted_position,  best_score[sorted_position],
+		 list->map+ map_best[sorted_position], (list->map+ map_best[sorted_position])->assigned_score,
+		 map_best[sorted_position], (list->map+ map_best[sorted_position])->cosine ,
+		 (list->map+ map_best[sorted_position])->cosine[0] );
+    }
+    printf ("*****\n");
+# endif
+
+    
     return 0;
 }
 /****************************************************************/

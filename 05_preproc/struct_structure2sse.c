@@ -353,6 +353,37 @@ int structure2sse (Protein *protein) {
 	    protein->sse_sequence[i] = HELIX;
 	}
     }
+
+    /* ivana: I'll need the info about the element bounds  to do the bb alignment */
+    int no_res = protein->length;
+    int id, old_id;
+    int element_ctr;
+    if ( ! (protein->element_begin     = emalloc (no_res*sizeof(int))) ) return 1;
+    if ( ! (protein->element_end       = emalloc (no_res*sizeof(int))) ) return 1;
+ 
+    old_id = 0;
+    element_ctr =-1;
+    for (i=0; i<protein->length; i++) {
+	
+	if ( protein->sequence[i].belongs_to_strand) {
+	    id = -protein->sequence[i].belongs_to_strand; /*strand and helix numbers can be the same */
+	} else if ( protein->sequence[i].belongs_to_helix) {
+	    id =  protein->sequence[i].belongs_to_helix;
+	}
+
+	if ( id != old_id) {
+	    if (element_ctr >=0) protein->element_end[element_ctr]   = i;
+	    if (id)     {
+		element_ctr++;
+		protein->element_begin[element_ctr] = i;
+	    }
+	}
+
+	old_id = id;
+    }
+    if (old_id) protein->element_end[element_ctr]   = protein->length-1;
+   
+
     
     return 0;
 }

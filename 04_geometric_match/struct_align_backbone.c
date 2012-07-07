@@ -44,17 +44,24 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 		    Descr *descr2, Protein * protein2, Representation *rep2, 
 		    List_of_maps *list){
     
-     if ( list->no_maps_used == 0) return 1;
+     if ( list->best_array_used == 0) return 1;
      
-     int map_ctr,retval;
+     int best_ctr, map_ctr, retval;
+     int * new_best;
      double *bb_score_array;
-     
      Map *current_map;
 
-     if ( !(bb_score_array = emalloc(list->no_maps_used*sizeof(double))))  return 1;    
-     memset (list->map_best, 0, list->best_array_allocated*sizeof(int));
+     if ( !(bb_score_array = emalloc(list->best_array_used*sizeof(double))))  return 1;    
+     if ( !(new_best = emalloc(list->best_array_used*sizeof(int))))  return 1;    
+ 
      
-     for (map_ctr=0; map_ctr<list->no_maps_used; map_ctr++) {
+     for (best_ctr=0; best_ctr<list->best_array_used; best_ctr++) {
+
+	 map_ctr = list->map_best[best_ctr];
+	 if ( map_ctr >= list->best_array_allocated) {
+	     printf ("%s:%d error assigning array size.\n", __FILE__, __LINE__ );
+	     exit (1);
+	 }
 	 current_map = list->map+map_ctr;
 	 retval = single_map_align_backbone (descr1, protein1, rep1, descr2, protein2, rep2, current_map);
 	 if (retval) {
@@ -62,19 +69,18 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
 		     descr1->name, descr2->name);
 	     exit (retval);
 	 }
-	 if ( map_ctr >= list->best_array_allocated) {
-	     printf ("%s:%d error assigning array size.\n", __FILE__, __LINE__ );
-	     exit (1);
-	 }
 	 
-	 list->map_best[map_ctr] = map_ctr;
+	 new_best[best_ctr] = map_ctr;
 	 /* the array_qsort sorts in the increasing order, so use negative aln score: */
-	 bb_score_array[map_ctr] = -current_map->aln_score;
+	 bb_score_array[best_ctr] = -current_map->aln_score;
      }
 
-     array_qsort (list->map_best, bb_score_array, list->no_maps_used);
+     array_qsort ( new_best, bb_score_array, list->best_array_used);
+
+     memcpy (list->map_best, new_best, list->best_array_used*sizeof(int));
      
      free (bb_score_array);
+     free (new_best);
      
      return 0;
 }
@@ -88,13 +94,8 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 
     int no_res_1 = protein1->length, no_res_2= protein2->length;
     int resctr1, resctr2;
-    int element_ctr_1, element_ctr_2;
     int *element_1_begin, *element_1_end; /* "element" here means SSE */
     int *element_2_begin, *element_2_end;
-    /* the labels that the beginnings and ends of an element have in pdb:*/
-    int *element_1_begin_pdb, *element_1_end_pdb;
-    int *element_2_begin_pdb, *element_2_end_pdb;
-    int num_pdb_id;
     int map_size;
     int *residue_map_i2j, *residue_map_j2i;
     
@@ -102,7 +103,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     int longest_element_length = (protein1->length > protein2->length) ?
 	    protein1->length : protein2->length;
    
-    char tmp[PDB_ATOM_RES_NO_LEN+1] = {'\0'};
     double d0 = options.distance_tol_in_bb_almt;
     double aln_score, rmsd;
     double ** similarity;
@@ -110,9 +110,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     double **x, **y;
     double **R, T[3], q[4];
     double total_score = 0;
-  
-    SSElement * element;
-    /* for the MC: */
+     /* for the MC: */
     int max_no_steps = 20, no_steps = 0;
     int done = 0, toggle = 0;
     double *current_q,  *old_q, *current_T, *old_T;
@@ -159,18 +157,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     }
     
     /* alloc */
-    if ( ! (element_1_begin     = emalloc (no_res_1*sizeof(int))) ) return 1;
-    if ( ! (element_1_end       = emalloc (no_res_1*sizeof(int))) ) return 1;
-    
-    if ( ! (element_2_begin     = emalloc (no_res_2*sizeof(int))) ) return 2;
-    if ( ! (element_2_end       = emalloc (no_res_2*sizeof(int))) ) return 2;
-    
-    if ( ! (element_1_begin_pdb = emalloc (no_res_1*sizeof(int))) ) return 1;
-    if ( ! (element_1_end_pdb   = emalloc (no_res_1*sizeof(int))) ) return 1;
-    
-    if ( ! (element_2_begin_pdb = emalloc (no_res_2*sizeof(int))) ) return 2;
-    if ( ! (element_2_end_pdb   = emalloc (no_res_2*sizeof(int))) ) return 2;
-    
 
     type_1 = protein1->sse_sequence;
     type_2 = protein2->sse_sequence;
@@ -182,107 +168,18 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     if ( ! (x = dmatrix (3, no_res_1+no_res_2)))  exit(1);
     if ( ! (y = dmatrix (3, no_res_1+no_res_2)))  exit(1);
 
-
-    protein1->element_begin     = element_1_begin;
-    protein1->element_end       = element_1_end;
-    protein1->element_begin_pdb = element_1_begin_pdb;
-    protein1->element_end_pdb   = element_1_end_pdb;
-    
-    protein2->element_begin     = element_2_begin;
-    protein2->element_end       = element_2_end;
-    protein2->element_begin_pdb = element_2_begin_pdb;
-    protein2->element_end_pdb   = element_2_end_pdb;
-
     
     /*********************************************************************/
     /*********************************************************************/
-    /* some bookkeeping */
-    /* find the beginning and the end of SSEs according to the pdb_tag   */
-    for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
-	element = descr1->element+element_ctr_1;
-	/* get rid of the insertion tag, in case we
-	   haven't shaken it off along the way */
-	memcpy (tmp,  element->begin_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	element_1_begin_pdb[element_ctr_1] = atoi (tmp);
-	
-	memcpy (tmp,  element->end_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	element_1_end_pdb[element_ctr_1] = atoi (tmp);
-    }
-
-
-    for (element_ctr_2=0; element_ctr_2 < descr2->no_of_elements; element_ctr_2++) {
-	element = descr2->element+element_ctr_2;
-	/* get rid of the insertion tag, in case we
-	   haven't shaken if off along the way */
-	memcpy (tmp,  element->begin_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	element_2_begin_pdb[element_ctr_2] = atoi (tmp);
-	
-	memcpy (tmp,  element->end_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	element_2_end_pdb[element_ctr_2] = atoi (tmp);
-    }
+     /* aliases */
     
-    /* translate the beginning and the end of SSEs from pdb_tag to the position on the sequence*/
-    element_ctr_1 = 0;
-    for (resctr1=0; resctr1<no_res_1; resctr1++) {
-	
-	memcpy (tmp, protein1->sequence[resctr1].pdb_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	num_pdb_id = atoi (tmp);
-	
-	/* break if we are outside of the last element */
-	if ( num_pdb_id > element_1_end_pdb [descr1->no_of_elements-1]) {
-	    /*see for example 1k4j - the first residue has the number 399 */
-	    continue;
-	}
-	
-	if (  num_pdb_id == element_1_end_pdb[element_ctr_1] ) {
-	    element_1_end [element_ctr_1] = resctr1;
-	    element_ctr_1++;
-	}
-	
-	if ( num_pdb_id == element_1_begin_pdb[element_ctr_1] ) {
-	    element_1_begin [element_ctr_1] = resctr1;
-	}
-	/* also if there is some disagreement about where the first element starts: */
-	if ( ! resctr1 && num_pdb_id >= element_1_begin_pdb[element_ctr_1] ) {
-	    element_1_begin [element_ctr_1] = resctr1;
-	}
-    }	    
+    element_1_begin = protein1->element_begin     ;
+    element_1_end = protein1->element_end       ;
+     
+    element_2_begin = protein2->element_begin     ;
+    element_2_end   = protein2->element_end       ;
+ 
 
-  
-    element_ctr_2 = 0;
-    for (resctr2=0; resctr2<no_res_2; resctr2++) {
-	
-	memcpy (tmp, protein2->sequence[resctr2].pdb_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
-	num_pdb_id = atoi (tmp);
-
-	/* break if we are outside of the last element */
-	if ( num_pdb_id > element_2_end_pdb [descr2->no_of_elements-1]) break;
-	
-	if (  num_pdb_id==element_2_end_pdb  [element_ctr_2] ) {
-	    element_2_end [element_ctr_2] = resctr2;
-	    element_ctr_2++;
-	}
-	
-	if ( num_pdb_id == element_2_begin_pdb[element_ctr_2] ) {
-	    element_2_begin [element_ctr_2] = resctr2;
-	}
-	/* also if there is some disagreement about where the first element starts: */
-	if ( ! resctr2 && num_pdb_id >= element_2_begin_pdb[element_ctr_2] ) {
-	    element_2_begin [element_ctr_2] = resctr2;
-	}
-    }
-   
-    /*****************************************************************/
-    /* we'll allow for a bit of sloppiness here to accomodaite cath's
-       mis-definition of domains:  */
-    if ( element_1_end[descr1->no_of_elements-1] >= protein1->length) {
-	 element_1_end[descr1->no_of_elements-1]  = protein1->length-1;
-    }
-    if ( element_2_end[descr2->no_of_elements-1] >= protein2->length) {
-	 element_2_end[descr2->no_of_elements-1]  = protein2->length-1;
-    }
-    
-  
 
     /************************************************************/
     /************************************************************/
@@ -891,7 +788,7 @@ int  closeness_score_for_sse_almt (Descr *descr1,
 		       for (i=0; i<3; i++) ca2[i] += -rep2->origin[i] + rep2->translation[element_ctr_2][i];
 		   }
 		   /* finally, find the distance & assign the "similarity" score */
-		   d = two_point_distance (rotated_ca1, ca2);
+		   d = two_point_distance (rotated_ca1, ca2);		   
 		   if ( d<options.max_almt_dist) { 
 		       aux = d/d0;
 		       if (  aux <  MAX_EXP_VALUE ) {
@@ -907,7 +804,7 @@ int  closeness_score_for_sse_almt (Descr *descr1,
 	 }
 
     }
-
+    
     *score_ptr = score;
     
     return 0;
@@ -1219,7 +1116,32 @@ int out_of_order_alignment ( Descr *descr1, Descr *descr2, Map *map, int *elemen
     return 0;
 }
 
+/*************************************************************************/
+/*************************************************************************/
+int element_check (Protein *protein, Descr *descr) {
 
+    int element_ctr;
+    int * element_begin = protein->element_begin;
+    int * element_end   = protein->element_end;
+
+    
+    printf (">>>>>>>>>>>>>>\n");
+    printf (">>>>   %s \n", descr->name);
+    for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
+	printf (">>  %3d    %3d   %3d \n", element_ctr, element_begin[element_ctr], element_end[element_ctr]); 
+    }
+    printf (">>>>>>>>>>>>>>\n");
+
+    return 0;
+
+}
+
+
+
+
+/*********************************************************************/
+/*********************************************************************/
+ 
 # if 0
 	int residue_map_i2j_2[1000] = {0}, residue_map_j2i_2[1000] = {0};
 	int i,j;

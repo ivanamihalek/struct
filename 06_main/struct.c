@@ -215,9 +215,6 @@ int main ( int argc, char * argv[]) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
 			
-			    list_report (list1);
-			    list_report (&list_uniq);
-			    exit (1);
 			    
 			if (options.postprocess) {
 			    align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
