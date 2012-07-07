@@ -52,8 +52,6 @@ int main ( int argc, char * argv[]) {
 				    int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
     int set_default_options ();
 
-    printf ("buggy.\n");
-    exit (1);
     
     if ( argc < 2 ) {
 	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
@@ -217,6 +215,10 @@ int main ( int argc, char * argv[]) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
 			
+			    list_report (list1);
+			    list_report (&list_uniq);
+			    exit (1);
+			    
 			if (options.postprocess) {
 			    align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
 					    &qry_descr, &qry_structure, &qry_rep, &list_uniq);

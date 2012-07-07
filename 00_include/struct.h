@@ -354,6 +354,7 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
 int input  (FILE * fptr, Descr * description);
 int list_alloc (List_of_maps * list, int NX, int NY, int fake);
+int list_report (List_of_maps * list);
 int list_shutdown (List_of_maps * list, int fake);
 double lookup ( double alpha, double beta);
 int map_assigned_score (Representation *X_rep,  Map* map);

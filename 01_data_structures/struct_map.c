@@ -54,6 +54,7 @@ int clear_map (Map *map) {
     hide2[0] = map->cosine; hide2[1] = map->sse_pair_score;
 
     memset (map, 0, sizeof(Map));
+    
     map->x2y            = hide1[0];
     map->y2x            = hide1[1];
     map->cosine         = hide2[0];
@@ -64,7 +65,9 @@ int clear_map (Map *map) {
     memset (map->y2x, 0, NY*sizeof(int));
     memset (map->cosine[0], 0,  NX*NY*sizeof(double));
     memset (map->sse_pair_score[0], 0,  NX*NY*sizeof(double));
- 
+
+    map->x2y_size = NX;
+    map->y2x_size = NY;
 
     return 0;
 }
@@ -74,29 +77,58 @@ int clear_map (Map *map) {
 /********************************/
 int copy_map (Map *to, Map* from) {
 
+    if ( from->x2y_size !=  to->x2y_size
+	 ||  from->y2x_size !=  to->y2x_size) {
+	fprintf ( stderr, "%s:%d:  two maps to be copied "
+		  "must be of the same size.\n", __FILE__, __LINE__);
+	exit (1);
+    }
+    
     int NX = from->x2y_size;
     int NY = from->y2x_size;
 
-    int  *hide1[2];;
-    double**hide2[2];
-
-    hide1[0] = to->x2y;    hide1[1] = to->y2x;
-    hide2[0] = to->cosine; hide2[1] = to->sse_pair_score;
-
-    memcpy (to, from, sizeof(Map));
+    to->size    = from->size;
+    to->matches = from->matches;
     
-    to->x2y            = hide1[0];
-    to->y2x            = hide1[1];
-    to->cosine         = hide2[0];
-    to->sse_pair_score = hide2[1];
-    
+    memcpy (to->q, from->q, 4*sizeof(double));
+    memcpy (to->T, from->T, 3*sizeof(double));
     
     memcpy (to->x2y, from->x2y, NX*sizeof(int));
     memcpy (to->y2x, from->y2x, NY*sizeof(int));
-    memcpy (to->cosine[0], from->cosine[0],  NX*NY*sizeof(double));
-    memcpy (to->sse_pair_score[0], from->sse_pair_score[0],  NX*NY*sizeof(double));
- 
 
+    to->avg_length_mismatch = from->avg_length_mismatch;
+    to->rmsd = from->rmsd;
+
+    
+    memcpy (&(to->cosine[0]), &(from->cosine[0]),  NX*NY*sizeof(double));    
+    memcpy (&(to->sse_pair_score[0]), &(from->sse_pair_score[0]),  NX*NY*sizeof(double));
+
+  
+    to->F = from->F;
+    to->avg = from->avg;
+    to->avg_sq = from->avg_sq;
+
+    to->z_score = from->z_score;
+    to->assigned_score = from->assigned_score;
+
+    if ( from->x2y_residue_level ) {
+
+	fprintf (stderr, "copying res level info in a map not implemented\n");
+	exit (1);
+    }
+   
+
+    if ( from->submatch_best ) {
+
+	fprintf (stderr, "copying submatch info in a map not implemented\n");
+	exit (1);
+    }
+
+    if ( from->filename[0] ) {
+	sprintf (to->filename, "%s", from->filename);
+    }
+
+    
     return 0;
 }
 
@@ -139,7 +171,7 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
 
     list->no_maps_allocated      = MAP_MAX*9;
     list->no_maps_used           = 0;
-    list->best_array_allocated = MAP_MAX*9;
+    list->best_array_allocated =   list->no_maps_allocated;
     list->best_array_used      = 0;
     
     list->map = emalloc (list->no_maps_allocated*sizeof(Map) );/* TODO is this enough? */
@@ -163,6 +195,55 @@ int list_alloc (List_of_maps * list, int NX, int NY, int fake) {
 
     return 0;
 }
+
+
+int list_report (List_of_maps * list) {
+
+    int map_ctr, best_ctr;
+
+    printf ("==========================================\n");
+    printf ("list 0x%x\n", list);
+    printf ("maps allocated:   %4d   maps used : %4d   best used : %4d  \n",
+	    list->no_maps_allocated, list->no_maps_used, list->best_array_used);
+
+
+    if ( list->best_array_used ) {
+	
+	for ( best_ctr= 0; best_ctr<list->no_maps_used; best_ctr++) {
+
+	    map_ctr = list->map_best[best_ctr];
+	    
+	    printf ("\n  %3d: %3d   %8.3lf %8.3lf %8.3lf %8.3lf \n",
+		    best_ctr, map_ctr, 
+		    list->map[map_ctr].q[0],
+		    list->map[map_ctr].q[1],
+		    list->map[map_ctr].q[2],
+		    list->map[map_ctr].q[3]);
+
+	    print_map (stdout, list->map+map_ctr, NULL, NULL, NULL, NULL, 2);
+	}
+ 
+
+    } else {
+    
+	for ( map_ctr= 0; map_ctr<list->no_maps_used; map_ctr++) {
+	
+	    printf ("  %3d   %8.3lf %8.3lf %8.3lf %8.3lf \n", map_ctr,
+		    list->map[map_ctr].q[0],
+		    list->map[map_ctr].q[1],
+		    list->map[map_ctr].q[2],
+		    list->map[map_ctr].q[3]);
+
+	    print_map (stdout, list->map+map_ctr, NULL, NULL, NULL, NULL, 2);
+	}
+    }
+
+ 
+    
+    return 0;
+
+}
+
     
 /*********************************************************************/  
 int list_shutdown (List_of_maps * list, int fake) {
