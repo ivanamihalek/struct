@@ -362,6 +362,7 @@ int structure2sse (Protein *protein) {
     if ( ! (protein->element_end       = emalloc (no_res*sizeof(int))) ) return 1;
  
     old_id = 0;
+    id     = 1; /* make the compiler shut up */
     element_ctr =-1;
     for (i=0; i<protein->length; i++) {
 	
