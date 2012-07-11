@@ -59,6 +59,8 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     if ( descr->db_file) { /* we read in the positions of SSEs */
 	FILE *fptr  = NULL;
 	int find_element_bounds (Protein *protein, Descr *descr) ;
+
+	printf (" reading db from %s\n", descr->db_file);
 	
 	if ( ! (fptr = efopen(descr->db_file, "r")) ) return 1;
 	retval = db_input (fptr, descr);
