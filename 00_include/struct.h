@@ -194,7 +194,7 @@ typedef struct{
 
 # define MAX_MULT_MATCH 100
 
-# define MAP_MAX   100 /*number of maps to keep */
+# define MAP_MAX   1000 /*number of maps to keep */
 
 typedef struct {
     

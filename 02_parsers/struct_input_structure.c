@@ -68,7 +68,7 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
 
 	find_element_bounds(protein, descr);
 	
-    }  else { /* we calcultae the ourselves */
+    }  else { /* we calculate the ourselves */
     
 	/* find positions of SSEs on the sequence           */
 	if ( structure2sse (protein)) {

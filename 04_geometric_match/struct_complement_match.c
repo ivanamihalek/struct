@@ -128,7 +128,9 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     
     smaller = (NX <= NY) ? NX : NY;
     no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
+    if (no_top_rmsd < 100) no_top_rmsd = 100;
 
+    
     /***********************/
     /* memory allocation   */
     /***********************/
@@ -178,7 +180,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 
     /***************************************/
-    /* find reasonable triples of SSEs      */
+    /* find reasonable triples of SSEs     */
     /* that correspond in type             */
     /*  and can be mapped onto each other  */
     /***************************************/
@@ -202,6 +204,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	} else {
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 	    				  best_triple_x, best_triple_y, best_quat);
+	    //find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+	    //best_triple_x, best_triple_y, best_quat);
 	}
     } else {
     
@@ -381,9 +385,10 @@ int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id) {
 	}
     }
 
-# if 0
+# if 1
     for ( sorted_position=0; sorted_position< list->no_maps_used; sorted_position++) {
-	printf ( "  %3d   %8.3lf    0x%x    %8.3lf  %3d     0x%x     0x%x   \n",  sorted_position,  best_score[sorted_position],
+	printf ( "  %3d   %8.3lf    0x%x    %8.3lf  %3d     0x%x     0x%x   \n",
+		 sorted_position,  best_score[sorted_position],
 		 list->map+ map_best[sorted_position], (list->map+ map_best[sorted_position])->assigned_score,
 		 map_best[sorted_position], (list->map+ map_best[sorted_position])->cosine ,
 		 (list->map+ map_best[sorted_position])->cosine[0] );
@@ -1010,7 +1015,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 			}			
 		    }
 		}
-	    
+		printf ( " %8.3f  %8.3f  %8.3f     %8.3f \n", two_point_distance(cmy[i_y],cmy[j_y]),
+			 two_point_distance(cmy[i_y],cmy[k_y]), two_point_distance(cmy[j_y],cmy[k_y]), threshold_dist);
 		if (two_point_distance(cmy[i_y],cmy[j_y]) > threshold_dist) continue;
 		if (two_point_distance(cmy[i_y],cmy[k_y]) > threshold_dist) continue;  
 		if (two_point_distance(cmy[j_y],cmy[k_y]) > threshold_dist) continue;  
@@ -1019,7 +1025,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		if (y_type[i_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE1;
 		if (y_type[j_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE2;
 		if (y_type[k_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE3;
-
+		
 		y_triple[ytrip_ct].member[0] = i_y;
 		y_triple[ytrip_ct].member[1] = j_y;
 		y_triple[ytrip_ct].member[2] = k_y;
@@ -1041,20 +1047,27 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	
 	    //printf ("\t no trips in x: %d\n",  no_xtrips);
 	    //printf ("\t no trips in y: %d\n\n",  no_ytrips);
-
-	    
 	    for (xtrip_ct=0; xtrip_ct<no_xtrips; xtrip_ct++) {
 		for (ytrip_ct=0; ytrip_ct<no_ytrips; ytrip_ct++) {
 
 		    no_trip_pairs_to_compare ++;
 		    /* filters :*/
+
+		    printf (" **  %d  %d\n",  x_triple[xtrip_ct].fingerprint, y_triple[ytrip_ct].fingerprint);
+
+		    
 		    if ( x_triple[xtrip_ct].fingerprint ^ y_triple[ytrip_ct].fingerprint) continue;
+
+		    printf ("passed 1\n");
 
 		    if (distance_of_nearest_approach(X_rep, x_triple[xtrip_ct].member,
 						     Y_rep, y_triple[ytrip_ct].member, 3, &rmsd)) continue;
+		    printf ("passed 2\n");
 		    if ( rmsd > cutoff_rmsd) continue;
+		    printf ("passed 3\n");
 	    
 		    if (opt_quat(x, NX, x_triple[xtrip_ct].member, y, NY, y_triple[ytrip_ct].member, 3, q_init, &rmsd)) continue;
+		    printf ("passed 4\n");
 
 
 		    same = 0;
@@ -1109,7 +1122,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     } /* x enumeration loop  */
     
 
-# if 0
+# if 1
     printf ("no trips in x: %d\n",  no_xtrips);
     printf ("no trips in y: %d\n",  no_ytrips);
     printf ("no trips to compare : %d\n",  no_trip_pairs_to_compare);
