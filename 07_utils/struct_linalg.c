@@ -82,6 +82,8 @@ int unnorm_dot (double *x, double *y, double * dot) {
 
     if (cosine > 1.0 ) 
 	cosine = 1.0; /* this should be numerical */
+    if (cosine < -1.0 ) 
+	cosine = -1.0; /* this should be numerical */
    
     *dot = cosine;
    

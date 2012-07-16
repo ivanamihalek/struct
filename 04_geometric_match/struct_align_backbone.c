@@ -94,8 +94,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 
     int no_res_1 = protein1->length, no_res_2= protein2->length;
     int resctr1, resctr2;
-    int *element_1_begin, *element_1_end; /* "element" here means SSE */
-    int *element_2_begin, *element_2_end;
     int map_size;
     int *residue_map_i2j, *residue_map_j2i;
     
@@ -171,13 +169,15 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     
     /*********************************************************************/
     /*********************************************************************/
-     /* aliases */
-    
-    element_1_begin = protein1->element_begin     ;
-    element_1_end = protein1->element_end       ;
+    /* aliases */
+    int *element_1_begin, *element_1_end; /* "element" here means SSE */
+    int *element_2_begin, *element_2_end;
+ 
+    element_1_begin = protein1->element_begin;
+    element_1_end   = protein1->element_end;
      
-    element_2_begin = protein2->element_begin     ;
-    element_2_end   = protein2->element_end       ;
+    element_2_begin = protein2->element_begin;
+    element_2_end   = protein2->element_end;
  
 
 
@@ -191,7 +191,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 
     closeness_score_for_sse_almt (descr1, rep1, rep2, map, protein1, protein2,
 		     R, NULL, d0, similarity, &total_score);
-	    
 
     /* run Smith-Waterman and use the mapped CA to find the transformation        */
     /* I have another copy of SW here (the first one is in struct_map.c)          */
@@ -201,6 +200,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 	smith_waterman_2 (no_res_1, no_res_2, similarity,
 			  residue_map_i2j, residue_map_j2i, &aln_score);
     } else {
+	
 	out_of_order_alignment (descr1, descr2, map, element_1_begin, element_1_end,
 				element_2_begin, element_2_end, longest_element_length,
 				similarity, sim_in_element,
@@ -213,7 +213,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     
     quat_to_R (q, R);
     current_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
-
 
     /*********************************************************/
     /* fiddle iteratively with the transformation            */
@@ -276,9 +275,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 	quat_to_R ( current_q, R);
 	current_score = alignment_score (protein1, protein2, residue_map_i2j, R, current_T, d_mc);
 
-
-	//printf (" step %3d:  total: %8.3lf   aln: %8.3lf   aln fixed: %8.3lf  \n",
-	//	no_steps+1,  total_score, aln_score, current_score);
 	
 	if ( current_score >  max_score )  {
 	    max_score = current_score;
@@ -307,7 +303,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
    
 
 
-   
     /************************************************************/
     /************************************************************/
     /* ALIGNMENT, round 2                                       */
@@ -338,7 +333,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     map2rotation (protein1, protein2, residue_map_i2j, x, y, q, T, &rmsd);
     
     quat_to_R (q, R);
- 
     
     //aln_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
     map_size  = alignment_size  (residue_map_i2j, protein1->length);		
@@ -411,8 +405,6 @@ double alignment_score (Protein * protein1, Protein * protein2, int * residue_ma
 	d = two_point_distance (rotated_ca1, ca2);
 	aln_score +=  exp (-d/d0);
 
-	//printf ("\t  %3d --> %3d    %8.2lf   %8.2lf   \n",
-	//	resctr1, resctr2, d,  exp (-d/d0));
 	aln_size++;
     }
     return aln_score;
@@ -460,7 +452,7 @@ int  closeness_score_for_bb_almt (Map *map,  Protein *protein1, Protein *protein
     /* for all mapped blocks calculate similarity as exp (-d/d0) */
     score = 0.0;
     
-
+    
     last_element_1 = 0;
     last_element_2 = 0;
     for (element_ctr_1=0; element_ctr_1 <  no_of_elements_1; element_ctr_1++) {
@@ -749,59 +741,59 @@ int  closeness_score_for_sse_almt (Descr *descr1,
   
     /* for all mapped blocks calculate similarity as exp (-d/d0) */
     score = 0.0;
-    
+     
     for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
 	
-	 element_ctr_2 = map->x2y[element_ctr_1];
-	 if (element_ctr_2 < 0) continue;
+	element_ctr_2 = map->x2y[element_ctr_1];
+	if (element_ctr_2 < 0) continue;
 
-	 if ( rep1 ) { /* "exploding" from the origin */
-	     for (i=0; i<3; i++) {
-		 T[i] = 0.0;
-		 for (j=0; j<3; j++) T[i] += R[i][j]*rep1->translation[element_ctr_1][j];
-	     }
-	 }
+	if ( rep1 ) { /* "exploding" from the origin */
+	    for (i=0; i<3; i++) {
+		T[i] = 0.0;
+		for (j=0; j<3; j++) T[i] += R[i][j]*rep1->translation[element_ctr_1][j];
+	    }
+	}
 
-	 
-	 for (resctr1=element_1_begin[element_ctr_1]; 
-	      resctr1<= element_1_end[element_ctr_1]; resctr1++) {
+	
+	for (resctr1=element_1_begin[element_ctr_1]; 
+	     resctr1<= element_1_end[element_ctr_1]; resctr1++) {
 	    
-	      /* find the representative atom (CA) for residue resctr1*/
-	      find_Calpha ( protein1, resctr1, ca1 );
+	    /* find the representative atom (CA) for residue resctr1*/
+	    find_Calpha ( protein1, resctr1, ca1 );
 	    
 
-              if ( rep1) {/* translate to the origin */
-		  for (i=0; i<3; i++) ca1[i] -= rep1->origin[i];
-	      }
+	    if ( rep1) {/* translate to the origin */
+		for (i=0; i<3; i++) ca1[i] -= rep1->origin[i];
+	    }
 	      
-	      /* rotate and  translate out*/
-	      point_rot_tr (ca1, R, T, rotated_ca1);
+	    /* rotate and  translate out*/
+	    point_rot_tr (ca1, R, T, rotated_ca1);
 	    
-	      for (resctr2=element_2_begin[element_ctr_2]; 
-		   resctr2<= element_2_end[element_ctr_2]; resctr2++) {
+	    for (resctr2=element_2_begin[element_ctr_2]; 
+		 resctr2<= element_2_end[element_ctr_2]; resctr2++) {
 		  
-		   /* find the representative atom (CA) for residue resctr2*/
-		   find_Calpha (protein2, resctr2,  ca2);
+		/* find the representative atom (CA) for residue resctr2*/
+		find_Calpha (protein2, resctr2,  ca2);
 		   
-                   /* translate to cm & out */
-		   if ( rep2 ) {
-		       for (i=0; i<3; i++) ca2[i] += -rep2->origin[i] + rep2->translation[element_ctr_2][i];
-		   }
-		   /* finally, find the distance & assign the "similarity" score */
-		   d = two_point_distance (rotated_ca1, ca2);		   
-		   if ( d<options.max_almt_dist) { 
-		       aux = d/d0;
-		       if (  aux <  MAX_EXP_VALUE ) {
-			   //similarity[resctr1][resctr2] = exp_table[(int)(aux*step)];
-			   similarity[resctr1][resctr2] = exp (-aux);
-		       } else {
-			   similarity[resctr1][resctr2] = 0.0;
-		       }
-		   }
+		/* translate to cm & out */
+		if ( rep2 ) {
+		    for (i=0; i<3; i++) ca2[i] += -rep2->origin[i] + rep2->translation[element_ctr_2][i];
+		}
+		/* finally, find the distance & assign the "similarity" score */
+		d = two_point_distance (rotated_ca1, ca2);		   
+		if ( d<options.max_almt_dist) { 
+		    aux = d/d0;
+		    if (  aux <  MAX_EXP_VALUE ) {
+			//similarity[resctr1][resctr2] = exp_table[(int)(aux*step)];
+			similarity[resctr1][resctr2] = exp (-aux);
+		    } else {
+			similarity[resctr1][resctr2] = 0.0;
+		    }
+		}
 
-		   score += similarity[resctr1][resctr2];
-	      }
-	 }
+		score += similarity[resctr1][resctr2];
+	    }
+	}
 
     }
     
@@ -886,7 +878,7 @@ int smith_waterman_2 (int max_i, int max_j, double **similarity,
     int F_max_i, F_max_j;
     int i,j;
 
-     /* allocate F */
+    /* allocate F */
     if ( ! (F = dmatrix( max_i+1, max_j+1)) ) return 1;
     if ( ! (direction = chmatrix ( max_i+1, max_j+1)) ) return 1;
 

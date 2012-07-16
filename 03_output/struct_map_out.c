@@ -259,7 +259,7 @@ int print_map (FILE *fptr, Map * map, Descr * descr1, Descr * descr2,
     fprintf ( fptr, "%%\n");
     fprintf ( fptr, "%%");
     if (tab) fprintf ( fptr, "\t");
-    fprintf ( fptr, "total assigned score %8.4lf \n", map->assigned_score);
+    fprintf ( fptr, "total assigned score %12.6lf \n", map->assigned_score);
 
      
     return 0;

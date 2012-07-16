@@ -228,7 +228,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
- 
 	quat_to_R (best_quat[top_ctr], R);
 	rotate (x_rotated, NX, R, x);
 
@@ -254,15 +253,19 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	}
 	if ( map_unstable) continue;
 
+
 	/* do the mapped SSEs match in length? */
 	if (options.use_length &&
 	   current_map->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
+	
+	//printf ("passed length\n");
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
 		      Y_rep, best_triple_y[top_ctr],  3,  current_map, cutoff_rmsd );
 	
-
+	// why am I not dropping the thing if the rmsd id above cutoff?
+	
 	/* monte that optimizes the aligned vectors only */
 	for (i=0; i<NX; i++) {
 	     x_type_fudg[i] = JACKFRUIT;
@@ -292,7 +295,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	if (retval) return retval;
 
-
 	quat_to_R (q, R);
 	/* store_sse_pair_score() is waste of time, but perhaps not critical */
 	store_sse_pair_score (X_rep, Y_rep, R,  alpha, current_map);
@@ -306,14 +308,13 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	current_map->avg_sq  = avg_sq;
 	current_map->z_score = z_scr;
 	memcpy ( current_map->q, q, 4*sizeof(double) );
-		
-
+	
 	/************************/
 	/* store sorted         */
 	/************************/
 	/* find the place for the new score and the new map */
     	store_sorted (list, list_of_best_scores, &current_map_id);
-
+	
     }
 
     /**********************/
@@ -374,18 +375,20 @@ int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id) {
 
 	/* what is the next available place in the map list? */
 	if ( list->no_maps_used<map_max-1) {/* add to the first available place */
-	    *new_map_id = list->no_maps_used;
+	    
 	    list->no_maps_used++;
             list->best_array_used++;
+	    *new_map_id = list->no_maps_used;
 	    
 	} else { /* add to the first available place */
 	    int worst_map = map_best[map_max-1];
 	    /* replace the worst map wiht the new  one */
 	    *new_map_id = worst_map;
 	}
+
     }
 
-# if 1
+# if 0
     for ( sorted_position=0; sorted_position< list->no_maps_used; sorted_position++) {
 	printf ( "  %3d   %8.3lf    0x%x    %8.3lf  %3d     0x%x     0x%x   \n",
 		 sorted_position,  best_score[sorted_position],
@@ -470,13 +473,14 @@ int hand (Representation * X_rep,  int *set_of_directions_x) {
     ray_b = set_of_directions_x[b];
     ray_c = set_of_directions_x[c];
     /* I better not use the cross prod here: a small diff
-       int he angle makeing them pointing toward each other or
+       int he angle making them pointing toward each other or
        away from each other changes the direction of cross prod;
        rather, use one vector, and distance between the cm's as the other */
     for (i=0; i<3; i++ ) {
 	cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
     }
-    normalized_cross (x[ray_a], x[ray_b], cross, &aux); 
+    normalized_cross (x[ray_a], cm_vector, cross, &aux);
+    
     /* note I am making another cm vector here */
     for (i=0; i<3; i++ ) {
 	avg_cm[i] = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
@@ -864,7 +868,8 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
  * @param best_triple_x
  * @param best_triple_y
  * @param best_quat
- * @return 
+ * @return
+ *
  */
 
 # define MAX_TRIPS  5000
@@ -967,6 +972,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	    if (x_type[i_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE1;
 	    if (x_type[j_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE2;
 	    if (x_type[k_x] == HELIX) x_triple[xtrip_ct].fingerprint |= TYPE3;
+	    
 
 	    x_triple[xtrip_ct].member[0] = i_x;
 	    x_triple[xtrip_ct].member[1] = j_x;
@@ -980,6 +986,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	    
 	} /* end filling the x trips list */
 
+
+	
 	no_xtrips = xtrip_ct;
 
 	 
@@ -1015,16 +1023,17 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 			}			
 		    }
 		}
-		printf ( " %8.3f  %8.3f  %8.3f     %8.3f \n", two_point_distance(cmy[i_y],cmy[j_y]),
-			 two_point_distance(cmy[i_y],cmy[k_y]), two_point_distance(cmy[j_y],cmy[k_y]), threshold_dist);
+		
 		if (two_point_distance(cmy[i_y],cmy[j_y]) > threshold_dist) continue;
 		if (two_point_distance(cmy[i_y],cmy[k_y]) > threshold_dist) continue;  
-		if (two_point_distance(cmy[j_y],cmy[k_y]) > threshold_dist) continue;  
-	    		
+		if (two_point_distance(cmy[j_y],cmy[k_y]) > threshold_dist) continue;
+		
 		y_triple[ytrip_ct].fingerprint = 0;
 		if (y_type[i_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE1;
 		if (y_type[j_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE2;
 		if (y_type[k_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE3;
+		
+	    
 		
 		y_triple[ytrip_ct].member[0] = i_y;
 		y_triple[ytrip_ct].member[1] = j_y;
@@ -1051,24 +1060,15 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		for (ytrip_ct=0; ytrip_ct<no_ytrips; ytrip_ct++) {
 
 		    no_trip_pairs_to_compare ++;
-		    /* filters :*/
-
-		    printf (" **  %d  %d\n",  x_triple[xtrip_ct].fingerprint, y_triple[ytrip_ct].fingerprint);
-
 		    
+		    /* filters :*/
 		    if ( x_triple[xtrip_ct].fingerprint ^ y_triple[ytrip_ct].fingerprint) continue;
-
-		    printf ("passed 1\n");
 
 		    if (distance_of_nearest_approach(X_rep, x_triple[xtrip_ct].member,
 						     Y_rep, y_triple[ytrip_ct].member, 3, &rmsd)) continue;
-		    printf ("passed 2\n");
 		    if ( rmsd > cutoff_rmsd) continue;
-		    printf ("passed 3\n");
 	    
 		    if (opt_quat(x, NX, x_triple[xtrip_ct].member, y, NY, y_triple[ytrip_ct].member, 3, q_init, &rmsd)) continue;
-		    printf ("passed 4\n");
-
 
 		    same = 0;
 		    for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
@@ -1122,7 +1122,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     } /* x enumeration loop  */
     
 
-# if 1
+# if 0
     printf ("no trips in x: %d\n",  no_xtrips);
     printf ("no trips in y: %d\n",  no_ytrips);
     printf ("no trips to compare : %d\n",  no_trip_pairs_to_compare);
@@ -1135,7 +1135,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		best_triple_y[top_ctr][0], best_triple_y[top_ctr][1], best_triple_y[top_ctr][2]);
    }
 
-    exit (1);
+   // exit (1);
 # endif
     
 
@@ -1143,7 +1143,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     free (x_triple);
     free (y_triple);
     
-     return 0;
+    return 0;
 
 }
 

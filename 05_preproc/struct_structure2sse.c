@@ -370,10 +370,11 @@ int structure2sse (Protein *protein) {
 	    id = -protein->sequence[i].belongs_to_strand; /*strand and helix numbers can be the same */
 	} else if ( protein->sequence[i].belongs_to_helix) {
 	    id =  protein->sequence[i].belongs_to_helix;
+	} else {
+	    id = 0;
 	}
-
 	if ( id != old_id) {
-	    if (element_ctr >=0) protein->element_end[element_ctr]   = i;
+	    if (element_ctr >=0 && old_id) protein->element_end[element_ctr]   = i-1;
 	    if (id)     {
 		element_ctr++;
 		protein->element_begin[element_ctr] = i;
@@ -383,8 +384,8 @@ int structure2sse (Protein *protein) {
 	old_id = id;
     }
     if (old_id) protein->element_end[element_ctr]   = protein->length-1;
-   
 
-    
+
+     
     return 0;
 }
