@@ -358,6 +358,7 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 	Y_rep->origin[k] /= map_size;
     }
 
+
     
     /*******************************************/
     /* find translation vectors                */

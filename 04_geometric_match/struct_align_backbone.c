@@ -51,6 +51,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
      double *bb_score_array;
      Map *current_map;
 
+
      if ( !(bb_score_array = emalloc(list->best_array_used*sizeof(double))))  return 1;    
      if ( !(new_best = emalloc(list->best_array_used*sizeof(int))))  return 1;    
  
@@ -191,7 +192,6 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 
     closeness_score_for_sse_almt (descr1, rep1, rep2, map, protein1, protein2,
 		     R, NULL, d0, similarity, &total_score);
-
     /* run Smith-Waterman and use the mapped CA to find the transformation        */
     /* I have another copy of SW here (the first one is in struct_map.c)          */
     /* so I wouldn't fumble with parameters - the two should be joined eventually */
@@ -213,7 +213,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     
     quat_to_R (q, R);
     current_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
-
+    
     /*********************************************************/
     /* fiddle iteratively with the transformation            */
     if ( ! (current_q = emalloc (4*sizeof(double)) )) return 1;
@@ -741,7 +741,7 @@ int  closeness_score_for_sse_almt (Descr *descr1,
   
     /* for all mapped blocks calculate similarity as exp (-d/d0) */
     score = 0.0;
-     
+    
     for (element_ctr_1=0; element_ctr_1 < descr1->no_of_elements; element_ctr_1++) {
 	
 	element_ctr_2 = map->x2y[element_ctr_1];
@@ -750,7 +750,7 @@ int  closeness_score_for_sse_almt (Descr *descr1,
 	if ( rep1 ) { /* "exploding" from the origin */
 	    for (i=0; i<3; i++) {
 		T[i] = 0.0;
-		for (j=0; j<3; j++) T[i] += R[i][j]*rep1->translation[element_ctr_1][j];
+		for (j=0; j<3; j++)  T[i] += R[i][j]*rep1->translation[element_ctr_1][j];
 	    }
 	}
 
@@ -796,7 +796,6 @@ int  closeness_score_for_sse_almt (Descr *descr1,
 	}
 
     }
-    
     *score_ptr = score;
     
     return 0;

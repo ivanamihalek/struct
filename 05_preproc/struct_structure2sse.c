@@ -367,7 +367,8 @@ int structure2sse (Protein *protein) {
     for (i=0; i<protein->length; i++) {
 	
 	if ( protein->sequence[i].belongs_to_strand) {
-	    id = -protein->sequence[i].belongs_to_strand; /*strand and helix numbers can be the same */
+	    id = -protein->sequence[i].belongs_to_strand; /*strand and helix numbers can be the same
+							    (apparently, not, but that was the original idea)*/
 	} else if ( protein->sequence[i].belongs_to_helix) {
 	    id =  protein->sequence[i].belongs_to_helix;
 	} else {

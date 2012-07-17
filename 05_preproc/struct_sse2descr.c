@@ -140,9 +140,11 @@ int sse2descriptor (Protein *protein, Descr* descr) {
     }
 
     descr->no_of_elements   = descr->no_of_helices + descr->no_of_strands;
+    descr->no_of_residues = protein->length;
     
     protein->no_helices  = descr->no_of_helices;
     protein->no_strands  = descr->no_of_strands;
+    protein->no_of_elements = descr->no_of_elements;
 
     free_dmatrix(point);
     

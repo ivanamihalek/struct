@@ -87,3 +87,4 @@ typedef struct {
 
 
 int protein_shutdown (Protein * protein);
+int protein_spit_out (Protein * protein);

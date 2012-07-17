@@ -56,37 +56,45 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     int retval = fill_protein_info (fptr, chain, protein);
     if (retval) return retval;
 
+    /***********************************************************/
     if ( descr->db_file) { /* we read in the positions of SSEs */
 	FILE *fptr  = NULL;
 	int find_element_bounds (Protein *protein, Descr *descr) ;
 
-	printf (" reading db from %s\n", descr->db_file);
+	printf ("\nreading db from %s\n", descr->db_file);
 	
 	if ( ! (fptr = efopen(descr->db_file, "r")) ) return 1;
 	retval = db_input (fptr, descr);
 	if ( retval) return retval;
 
 	find_element_bounds(protein, descr);
+	protein->no_helices  = descr->no_of_helices;
+	protein->no_strands  = descr->no_of_strands;
+	protein->no_of_elements = descr->no_of_elements;
 	
-    }  else { /* we calculate the ourselves */
+    /***********************************************************/
+    }  else { /* we calculate the SSEs ourselves */
     
-	/* find positions of SSEs on the sequence           */
+	/* find positions of SSEs on the sequence              */
 	if ( structure2sse (protein)) {
 	    fprintf ( stderr, "%s:%d: Error  finding SSEs.\n",
 		      __FILE__, __LINE__);
 	    exit (1);
 	}
 
-	/* replace each SSE with a (directed) line:         */
+	/* replace each SSE with a (directed) line:             */
 	if ( sse2descriptor (protein, descr)) {
 	    fprintf ( stderr, "%s:%d: Error  fitting lines to sse.\n",
 		      __FILE__, __LINE__ );
 	    exit (1);
 	}
     }
-    /* fill in the remaining fields in the descriptor   */
-    descr->no_of_residues = protein->length;
 
+
+    //protein_spit_out (protein);
+    //infox (1);
+
+    
     return 0;
 }
 
@@ -197,7 +205,7 @@ int db_input (FILE * fptr, Descr * descr) {
 /*************************************************/
 int find_element_bounds (Protein *protein, Descr *descr) {
     
-    int no_res_ = protein->length;
+    int no_res = protein->length;
     int *element_begin, *element_end; /* "element" here means SSE */
     int *element_begin_pdb, *element_end_pdb;
     int resctr, element_ctr, num_pdb_id;
@@ -205,10 +213,12 @@ int find_element_bounds (Protein *protein, Descr *descr) {
     SSElement * element;
    
    
-    if ( ! (element_begin     = emalloc (no_res_*sizeof(int))) ) return 1;
-    if ( ! (element_end       = emalloc (no_res_*sizeof(int))) ) return 1;
-    if ( ! (element_begin_pdb = emalloc (no_res_*sizeof(int))) ) return 1;
-    if ( ! (element_end_pdb   = emalloc (no_res_*sizeof(int))) ) return 1;
+    if ( ! (element_begin     = emalloc (no_res*sizeof(int))) ) return 1;
+    if ( ! (element_end       = emalloc (no_res*sizeof(int))) ) return 1;
+    if ( ! (protein->sse_sequence = emalloc (protein->length*sizeof(int))) ) return 1;
+    
+    if ( ! (element_begin_pdb = emalloc (no_res*sizeof(int))) ) return 1;
+    if ( ! (element_end_pdb   = emalloc (no_res*sizeof(int))) ) return 1;
   
     for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
 	element = descr->element+element_ctr;
@@ -224,7 +234,7 @@ int find_element_bounds (Protein *protein, Descr *descr) {
 
     /* translate the beginning and the end of SSEs from pdb_tag to the position on the sequence*/
     element_ctr = 0;
-    for (resctr=0; resctr<no_res_; resctr++) {
+    for (resctr=0; resctr<no_res; resctr++) {
 	
 	memcpy (tmp, protein->sequence[resctr].pdb_id, PDB_ATOM_RES_NO_LEN*sizeof(char) );
 	num_pdb_id = atoi (tmp);
@@ -247,10 +257,35 @@ int find_element_bounds (Protein *protein, Descr *descr) {
 	if ( ! resctr && num_pdb_id >= element_begin_pdb[element_ctr] ) {
 	    element_begin [element_ctr] = resctr;
 	}
-    }	    
+    }	      
 
+    
+    for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
+	
+	for (resctr = element_begin [element_ctr];
+	     resctr < element_end [element_ctr]; resctr++ ) {
+
+	    
+	    protein->sequence[resctr].belongs_to_helix  = 0;
+	    protein->sequence[resctr].belongs_to_strand = 0;
+	    if  ( descr->element[element_ctr].type == 'H' ) {
+		protein->sequence[resctr].belongs_to_helix = element_ctr + 1;
+		protein->sse_sequence[resctr] = HELIX;
+		
+	    } else if   (descr->element[element_ctr].type == 'S') {
+		protein->sequence[resctr].belongs_to_strand = element_ctr + 1;
+		protein->sse_sequence[resctr] = STRAND;
+	    }
+	}
+    }
+    
+    
     protein->element_begin     = element_begin;
     protein->element_end       = element_end;
+ 	
+    free (element_begin_pdb);
+    free (element_end_pdb);
+    
 
     return 0;
 
