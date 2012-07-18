@@ -77,22 +77,26 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     
 	/* find positions of SSEs on the sequence              */
 	if ( structure2sse (protein)) {
-	    fprintf ( stderr, "%s:%d: Error  finding SSEs.\n",
+	    fprintf ( stderr, "%s:%d: Error finding SSEs.\n",
 		      __FILE__, __LINE__);
 	    exit (1);
 	}
 
 	/* replace each SSE with a (directed) line:             */
 	if ( sse2descriptor (protein, descr)) {
-	    fprintf ( stderr, "%s:%d: Error  fitting lines to sse.\n",
+	    fprintf ( stderr, "%s:%d: Error fitting lines to sse.\n",
 		      __FILE__, __LINE__ );
 	    exit (1);
 	}
     }
 
-
-    //protein_spit_out (protein);
-    //infox (1);
+    if (0) {
+	protein_spit_out (protein);
+	printf ("\n**************************\n");
+	descr_out   (stdout, descr);
+	printf ("\n**************************\n");
+	infox (1);
+    }
 
     
     return 0;
@@ -117,6 +121,7 @@ int db_input (FILE * fptr, Descr * descr) {
     memset (line,  0, BUFFLEN);
     
     while(fgets(line, BUFFLEN, fptr)!=NULL){
+
 	if ( line[0] == '#' ) break; /* the end of record */ 
 	if ( ! strncmp(line, "name", 4) ) {
 
@@ -160,7 +165,7 @@ int db_input (FILE * fptr, Descr * descr) {
 		return 1;
 	    }
 	    element = descr->element + element_ctr;
-	    /* the third field is an unused field (used to be sheet id, which was abandoned*/
+	    
 	    sscanf ( line, "%*s %d  %d  %s %s %lf %lf %lf %lf %lf %lf \n",
 		     &(descr->element[element_ctr].type),
 		     &(element->length), element->begin_id, element->end_id,
@@ -263,16 +268,16 @@ int find_element_bounds (Protein *protein, Descr *descr) {
     for (element_ctr=0; element_ctr < descr->no_of_elements; element_ctr++) {
 	
 	for (resctr = element_begin [element_ctr];
-	     resctr < element_end [element_ctr]; resctr++ ) {
+	     resctr <= element_end [element_ctr]; resctr++ ) {
 
 	    
 	    protein->sequence[resctr].belongs_to_helix  = 0;
 	    protein->sequence[resctr].belongs_to_strand = 0;
-	    if  ( descr->element[element_ctr].type == 'H' ) {
+	    if  ( descr->element[element_ctr].type == HELIX ) {
 		protein->sequence[resctr].belongs_to_helix = element_ctr + 1;
 		protein->sse_sequence[resctr] = HELIX;
 		
-	    } else if   (descr->element[element_ctr].type == 'S') {
+	    } else if   (descr->element[element_ctr].type == STRAND) {
 		protein->sequence[resctr].belongs_to_strand = element_ctr + 1;
 		protein->sse_sequence[resctr] = STRAND;
 	    }
