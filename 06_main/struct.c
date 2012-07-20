@@ -163,8 +163,9 @@ int main ( int argc, char * argv[]) {
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
 		    
-		    if (options.verbose) printf ("\n\n---------------\ncomparing   db:%s  query:%s \n",
-						 tgt_descr.name, qry_descr.name);
+		    if (options.verbose)
+			printf ("\n\n---------------\ncomparing   db:%s  query:%s \n",
+				tgt_descr.name, qry_descr.name);
 		    CPU_comparison_start = clock();
 		    rep_initialize (&tgt_rep, &tgt_descr);
 		    rep_initialize (&qry_rep, &qry_descr);
@@ -173,7 +174,7 @@ int main ( int argc, char * argv[]) {
 		    /*************************************************************/
 		    /*  here is the core: comparison of reduced representations  */
                     int retval1 = 0, retval2 = 0;
-                    
+
                     switch (options.search_algorithm){
 			
 		    case SEQUENTIAL:
@@ -199,6 +200,7 @@ int main ( int argc, char * argv[]) {
 					list_out_of_order.no_maps_used > 0);
 			list1   = &list_sequential;  list2 = &list_out_of_order;
                     }
+		    
                     
 		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
 						 bcs perl has a problem intercepting stderr */
@@ -208,8 +210,9 @@ int main ( int argc, char * argv[]) {
 		    }
 		    db_effective_ctr ++;
 		    
-		    printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
-		    	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
+		    if (options.verbose)
+			printf ("reduced rep comparison CPU time:  %10.3lf s\n",
+				(double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC);
 
 		    if  (match_found) {
 

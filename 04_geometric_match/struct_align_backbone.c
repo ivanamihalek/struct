@@ -79,7 +79,7 @@ int align_backbone (Descr *descr1, Protein * protein1, Representation *rep1,
      array_qsort ( new_best, bb_score_array, list->best_array_used);
 
      memcpy (list->map_best, new_best, list->best_array_used*sizeof(int));
-     
+
      free (bb_score_array);
      free (new_best);
      
@@ -167,7 +167,8 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     if ( ! (x = dmatrix (3, no_res_1+no_res_2)))  exit(1);
     if ( ! (y = dmatrix (3, no_res_1+no_res_2)))  exit(1);
 
-    
+
+  
     /*********************************************************************/
     /*********************************************************************/
     /* aliases */
@@ -213,7 +214,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     
     quat_to_R (q, R);
     current_score = alignment_score (protein1, protein2, residue_map_i2j, R, T, d0);
-    
+
     /*********************************************************/
     /* fiddle iteratively with the transformation            */
     if ( ! (current_q = emalloc (4*sizeof(double)) )) return 1;
@@ -288,12 +289,9 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
     
     }
 
-    
     memcpy (q, best_q, 4*sizeof(double));
     memcpy (T, best_T, 3*sizeof(double));
 	 
-    
-
     free (current_q);
     free (old_q);
     free (best_q);
@@ -313,8 +311,7 @@ int single_map_align_backbone (Descr *descr1, Protein * protein1, Representation
 
     closeness_score_for_bb_almt (map, protein1, protein2, R, T, d0,
 				 similarity, &total_score);
-
-    /************************************************************/
+     /************************************************************/
 
     
     memset (residue_map_i2j, 0, no_res_1*sizeof(int)); 
@@ -1141,4 +1138,19 @@ int element_check (Protein *protein, Descr *descr) {
 	    printf ("  %3d    %6d    -->   %6d \n", j, residue_map_j2i[j],  residue_map_j2i_2[j]);
 	}
 	exit(1);
+    if (1) {
+	printf ("in %s:%d\n", __FILE__, __LINE__);
+	printf ("\n**************************\n");
+	protein_spit_out (protein1);
+	printf ("\n**************************\n");
+	descr_out   (stdout, descr1);
+	printf ("number of elements: %4d \n", descr1->no_of_elements);
+	printf ("\n**************************\n");
+	printf ("\n**************************\n");
+	protein_spit_out (protein2);
+	printf ("\n**************************\n");
+	descr_out   (stdout, descr2);
+	printf ("number of elements: %4d \n", descr2->no_of_elements);
+	printf ("\n**************************\n");
+   }
 # endif

@@ -51,6 +51,14 @@ FILE * efopen(char * name, char * mode) {
 
 
 /**********************************************************************/  
+int infox ( char * errmsg, int exitval) {
+    fprintf (stderr, "%s\nExiting at %s:%d.\n",		
+	     errmsg, __FILE__, __LINE__ );		
+    exit (exitval);
+}
+
+
+/**********************************************************************/  
 /* allocate a char matrix with subscript range m[nrl..nrh][ncl..nch]  */
 char **chmatrix(int rows, int columns){
     char **m;

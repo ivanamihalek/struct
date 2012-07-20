@@ -55,6 +55,7 @@ void     free_cmatrix(char **m);
 void     free_imatrix(int **m);
 void     free_dmatrix(double **m);
 void     free_d3matrix(double  ***m);
+int infox ( char * errmsg, int exitval); /* exit with erval, after printing errmsg, file and line */
 int    **intmatrix(int rows, int columns);
 int intmatrix_init(int **matrix, int rows, int columns, int val);
 int improvize_name ( char *filename,  char chain, char *outstring);

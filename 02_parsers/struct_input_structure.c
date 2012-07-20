@@ -63,7 +63,7 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
 
 	printf ("\nreading db from %s\n", descr->db_file);
 	
-	if ( ! (fptr = efopen(descr->db_file, "r")) ) return 1;
+	if ( ! (fptr = efopen(descr->db_file, "r")) ) infox ("",1);
 	retval = db_input (fptr, descr);
 	if ( retval) return retval;
 
@@ -76,29 +76,14 @@ int pdb_input (FILE * fptr, char chain, Protein * protein, Descr * descr) {
     }  else { /* we calculate the SSEs ourselves */
     
 	/* find positions of SSEs on the sequence              */
-	if ( structure2sse (protein)) {
-	    fprintf ( stderr, "%s:%d: Error finding SSEs.\n",
-		      __FILE__, __LINE__);
-	    exit (1);
-	}
+	if (structure2sse (protein)) infox("Error finding SSEs.", 1);
 
 	/* replace each SSE with a (directed) line:             */
-	if ( sse2descriptor (protein, descr)) {
-	    fprintf ( stderr, "%s:%d: Error fitting lines to sse.\n",
-		      __FILE__, __LINE__ );
-	    exit (1);
-	}
+	if (sse2descriptor (protein, descr))  infox("Error fitting lines to sse.",1);
+
     }
 
-    if (0) {
-	protein_spit_out (protein);
-	printf ("\n**************************\n");
-	descr_out   (stdout, descr);
-	printf ("\n**************************\n");
-	infox (1);
-    }
-
-    
+  
     return 0;
 }
 

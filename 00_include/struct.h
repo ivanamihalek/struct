@@ -424,13 +424,4 @@ int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3
 
 
 
-/******************************/
-/* macros :    */
-/******************************/
-#define infox(exitval)                                           \
-    fprintf (stderr, "Exiting at %s:%d.\n", __FILE__, __LINE__); \
-    exit (exitval)
-
-
-
 # endif

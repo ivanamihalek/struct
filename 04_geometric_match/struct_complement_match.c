@@ -197,9 +197,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    find_best_triples_exhaustive_parallel (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 						   best_triple_x, best_triple_y, best_quat);
 # else
-	    fprintf (stderr, "from %s:%d: to use omp, please recompile with -DOMP flag.\n",
-		     __FILE__, __LINE__);
-	    exit (1);
+	    infox ("To use omp, please recompile with -DOMP flag.\n",1);
 # endif
 	} else {
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
@@ -258,7 +256,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	if (options.use_length &&
 	   current_map->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
 	
-	//printf ("passed length\n");
+	//printf (">> passed length\n");
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
@@ -368,7 +366,7 @@ int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id) {
 	chunk = best_ctr - sorted_position;
 	if ( chunk ) {
 	    memmove (best_score+sorted_position+1, best_score+sorted_position, chunk*sizeof(double)); 
-	    memmove (map_best+sorted_position+1, map_best+sorted_position, chunk*sizeof(int)); 
+	    memmove (  map_best+sorted_position+1,   map_best+sorted_position, chunk*sizeof(int)); 
 	}
 	best_score[sorted_position]   = new_score;
 	map_best  [sorted_position]   = *new_map_id;
@@ -397,6 +395,7 @@ int store_sorted (List_of_maps * list,  double * best_score, int * new_map_id) {
 		 (list->map+ map_best[sorted_position])->cosine[0] );
     }
     printf ("*****\n");
+    infox ( "", 1);
 # endif
 
     
