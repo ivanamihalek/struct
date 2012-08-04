@@ -1,5 +1,5 @@
 CCOMPL =  gcc 
-CFLAGS =  -Wall  -g
+CFLAGS =  -Wall  -O
 #CFLAGS += -fopenmp
 
 

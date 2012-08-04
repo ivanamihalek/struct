@@ -226,6 +226,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
+	//printf (">> rmsd ok\n");
+	
 	quat_to_R (best_quat[top_ctr], R);
 	rotate (x_rotated, NX, R, x);
 
@@ -251,12 +253,13 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	}
 	if ( map_unstable) continue;
 
+	//printf (">> map stable\n");
 
 	/* do the mapped SSEs match in length? */
 	if (options.use_length &&
 	   current_map->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
 	
-	//printf (">> passed length\n");
+	//printf (">> passed length test\n");
 	
 	/* dna here is not DNA but "distance of nearest approach" */
 	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
