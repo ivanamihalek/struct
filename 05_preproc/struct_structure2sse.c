@@ -21,6 +21,7 @@ Contact: ivana.mihalek@gmail.com.
 */
 
 # include "struct.h"
+# include "struct_curve_tors.h"
 
 
 /**
@@ -78,6 +79,8 @@ int is_regular_struct(Neighbors * neighbors, Ideal_struct * ideal_struct){
     if (weight < ideal_struct->weight_thr) return 1; 
     return 0;
 }
+
+
 
 
 /**
@@ -176,6 +179,7 @@ int clean_short_structures(Ideal_struct * ideal_helix, Ideal_struct * ideal_stra
                     trace_back(count, ideal_helix->count_min, i -1, protein );
                 } 
                 else if (state_old == 'E') {
+                  //  printf("%d %d\n", i +70, count );
                     trace_back(count, ideal_strand->count_min, i -1, protein );
                 }
                 // in the case of 'C' or 'S' it is not necessary to do traceback
@@ -208,7 +212,9 @@ int clean_short_structures(Ideal_struct * ideal_helix, Ideal_struct * ideal_stra
                 }
                 state_old = 'E';               
         }
+        
     }
+    
     return 0;
     
 }
@@ -235,7 +241,7 @@ char struct_type(Residue * res) {
  * @return protein structure by pointer
  */
 
-int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
+int determine_sec_structure(Neighbors *neighbors, Protein *protein, int beta_curvature) {
     int length = protein->length;
     int is_struct;
     int i;
@@ -258,6 +264,14 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
         .weight_thr = 2
     };
     
+    // cleaning secondary structures 
+    
+    for (i=0; i< length; ++i) {
+        protein->sequence[i].belongs_to_helix = 0;
+        protein->sequence[i].belongs_to_strand = 0;
+    }
+    
+    
     
     for (i=0; i < length; ++i) {
         if (neighbors[i].dist2 == MISSING_DATA ) continue;
@@ -272,14 +286,26 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
             continue;
         }
         
-        is_struct = is_regular_struct(neighbors +i, &ideal_strand);
-        if (is_struct) {
-            protein->sequence[i].belongs_to_strand = 1;
-            continue;
+        // calculation of strands using distances between neighboring C alpha atoms
+        if (beta_curvature == 0) {
+            is_struct = is_regular_struct(neighbors +i, &ideal_strand);
+            if (is_struct) {
+                protein->sequence[i].belongs_to_strand = 1;
+                continue;
+            }
         }
     }
     
+/* calculation of beta strands using curvature information */
+    if (beta_curvature == 1) find_beta_curvature(protein);
     clean_short_structures(&ideal_helix, &ideal_strand, protein);
+    
+/*
+    for (i = 0; i < length; ++i){
+        printf("%d %c\n", i +8, struct_type(&protein->sequence[i]));
+    }
+    
+*/
     
     return 0;
 }
@@ -290,30 +316,30 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein) {
  * @return 
  */
 
-int enumerate_structures(Protein *protein){
+int enumerate_structures(Protein *protein, int *counter){
     char state_old = 'S', state;
     int length = protein->length;
     int i;
-    int counter = 1;
+    *counter = 1;
     for (i = 0; i < length; ++i) {
         state = struct_type(&protein->sequence[i]);
         switch (state) {
             case 'C':
                 if (state_old == 'H' || state_old == 'E') {
-                    counter++;
+                    (*counter)++;
                 }
                 break;
             case 'H':
                 if (state_old == 'E') {
-                    counter++;
+                    (*counter)++;
                 } 
-                protein->sequence[i].belongs_to_helix = counter;
+                protein->sequence[i].belongs_to_helix = *counter;
                 break;
             case 'E':
                 if (state_old == 'H') {
-                    counter++;
+                    (*counter)++;
                 } 
-                protein->sequence[i].belongs_to_strand = counter;
+                protein->sequence[i].belongs_to_strand = *counter;
         }
         state_old = state;
     }
@@ -339,9 +365,26 @@ int structure2sse (Protein *protein) {
 
     /* fill protein->sequence[resctr].belongs_to_helix or
        protein->sequence[resctr].belongs_to_strand */
-    determine_sec_structure(neighbors, protein);
+    
+    int counter;
+    int beta_curvature = 1; // calculate beta strands using a curvature measure
+    
+    determine_sec_structure(neighbors, protein, beta_curvature);
+    enumerate_structures(protein, &counter);
+    
+    
+    if (counter < 3) {
+        
+        
+        counter = 0;
+        beta_curvature = 0;
+        determine_sec_structure(neighbors, protein, beta_curvature);
+        enumerate_structures(protein, &counter);
+    }
+    
     free(neighbors);
-    enumerate_structures(protein);
+    
+    
         
     /* fill protein->sse_sequence */
     if ( ! (protein->sse_sequence = emalloc (protein->length*sizeof(int))) ) exit (1);
