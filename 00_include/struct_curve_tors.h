@@ -23,7 +23,7 @@ Contact: ivana.mihalek@gmail.com.
 #ifndef STRUCT_CURVE_TORS_H
 #define	STRUCT_CURVE_TORS_H
 
-# define MAX_CURVE 0.11
+# define MAX_CURVE 0.12
 # define NO_OF_POINTS 5 // number of input points. Have to be >= 4
 
 double der1(double *x, double t);
@@ -52,6 +52,8 @@ typedef struct {
 
 void residuals( const double *par, int m_dat, const void *data,
                        double *fvec, int *info );
+
+//void residuals( double *par, double *fvec, int m_dat, int n_dat, void *data);
 
 double fit_curve(double *x, double *y, double *z);
 

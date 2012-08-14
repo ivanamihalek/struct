@@ -208,17 +208,30 @@ void torsion(double *a, double *b, double *c, double *t, int size, double *tors)
 void set_init_param(double *x, double *y, double *z, double *p0) {
     p0[0] = x[0];
     p0[1] = x[4] - x[0];
-    p0[2] = 10*(rand()/(RAND_MAX + 1.0) - 0.5);
-    p0[3] = 10*(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[4] = y[0];
     p0[5] = y[4] - y[0];
-    p0[6] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
-    p0[7] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[8] = z[0];
     p0[9] = z[4] - z[0];
+    
+    
+    p0[2] = 10*(rand()/(RAND_MAX + 1.0) - 0.5);
+    p0[3] = 10*(rand()/(RAND_MAX + 1.0) - 0.5);
+    p0[6] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
+    p0[7] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[10] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[11] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
+    
+/*
+    
+    p0[2] = 0;
+    p0[3] = 0;
+    p0[6] = 0;
+    p0[7] = 0;
+    p0[10] = 0;
+    p0[11] = 0;
+*/
 }
+
 
 /**
  * function that we use for estimation of a curve that pass through five consecutive C alpha atoms
@@ -241,8 +254,11 @@ double f( double t, const double *p )
  * @param fvec
  * @param info
  */
+
 void residuals( const double *par, int m_dat, const void *data,
                        double *fvec, int *info )
+
+//void residuals( double *par, double *fvec, int m_dat, int n_dat, void *data)
 {
     /* for readability, perform explicit type conversion */
     data_struct *mydata;
@@ -299,7 +315,7 @@ double fit_curve(double *x, double *y, double *z){
     //control.printflags = 3; // monitor status (+1) and parameters (+2)
     
     //control.maxcall = 10;
-    //control.ftol = 0.001;
+    //control.ftol = 0.00001;
     
     int i;
     
@@ -312,9 +328,9 @@ double fit_curve(double *x, double *y, double *z){
     }
     
     srand((unsigned int)time(NULL));
-/*
 
     
+/*
     for (i = 0; i < 5; ++i) {
         printf("%lf ", x[i]);
     }
@@ -343,6 +359,8 @@ double fit_curve(double *x, double *y, double *z){
     //printf( "Fitting:\n" );
     
     
+    
+   
     lmmin( n_par, par, m_dat, (const void*) &data,
            residuals, &control, &status, lm_printout_std );
 
@@ -353,19 +371,19 @@ double fit_curve(double *x, double *y, double *z){
         b[i] = par[i+4];
         c[i] = par[i+8];
     }
-/*
     
+     
+     if (status.fnorm > 2) {
+         return 1;
+     }
+  
+/*
     for (i = 0; i < 12; ++i) {
         printf("%lf ", par[i]);
     }
     
     printf("\n");
 */
-    
-    // double tors[NO_OF_POINTS];
-   
-    //torsion(a, b, c, t, size, tors);
-    //printf("%lf %lf\n", curv[2], tors[2]);
     
     double curv[NO_OF_POINTS];
     curvature(a, b, c, t, NO_OF_POINTS, curv);
