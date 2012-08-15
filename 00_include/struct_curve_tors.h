@@ -56,6 +56,7 @@ void residuals( const double *par, int m_dat, const void *data,
 //void residuals( double *par, double *fvec, int m_dat, int n_dat, void *data);
 
 double fit_curve(double *x, double *y, double *z);
+int find_beta_curvature(Protein * protein);
 
 #endif	/* STRUCT_CURVE_TORS_H */
 

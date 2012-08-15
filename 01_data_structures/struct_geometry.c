@@ -54,7 +54,7 @@ int protein_spit_out (Protein * protein) {
     }
     printf ("\n");
 
-    printf ("\nhelices:  0x%x \n", protein->helix);
+    //printf ("\nhelices:  0x%x \n", (unsigned int)(protein->helix));
     if ( protein->helix ) {
 	for (ectr=0; ectr<protein->no_helices; ectr++) {
 	    SSElement * helix = protein->helix+ectr;
@@ -68,7 +68,7 @@ int protein_spit_out (Protein * protein) {
 	    printf ("\n");
 	}
     }
-    printf ("\nstrands:  0x%x \n", protein->strand);
+    //printf ("\nstrands:  0x%x \n",(unsigned int)(protein->strand));
     if ( protein->strand ) {
 	for (ectr=0; ectr<protein->no_strands; ectr++) {
 	    SSElement * strand = protein->strand+ectr;

@@ -1,0 +1,21 @@
+% columns: 
+% query, target: structure names
+% geom_z:  z score for the orientational match 
+% <dL>:    average length mismatch for matched SSEs 
+% T:       total score assigned to matched SSEs 
+% frac:    T divided by the number of matched SSEs 
+% gc_rmsd: RMSD btw geometric centers of matched SSEs (before backbone alignment) 
+% Ca_rmsd:(after backbone alignment) rmsd for matched C-alpha 
+% A:       (after backbone alignment) the alignment score 
+% aln_L:   (after backbone alignment) the alignment length 
+
+% query target  geom_z   <dL>  T    frac gc_rmsd res_rmsd      A    aln_L    mapped_pdb 
+ 2d8bA  2kvkA    0.000  1.900   4.85   0.40  0.000  0.000    0.000    0   
+ 2d8bA  3ffkA    0.000  1.857   4.04   0.34  0.000  0.000    0.000    0   
+ 2d8bA  2hd7A    0.000  0.500   7.48   0.62  0.000  0.000    0.000    0   
+ 2d8bA  2fgeA    0.000  4.000   2.67   0.22  0.000  0.000    0.000    0   
+ 2d8bA  1d0nA    0.000  1.333   3.38   0.28  0.000  0.000    0.000    0   
+ 2d8bA  2d8bA    0.000  0.000  11.94   1.00  0.000  0.000    0.000    0   
+ 2d8bA  2rrfA    0.000  1.333   2.17   0.22  0.000  0.000    0.000    0   
+ 2d8bA  3dawB    0.000  0.545   8.41   0.76  0.000  0.000    0.000    0   
+done   CPU:       0.370 s

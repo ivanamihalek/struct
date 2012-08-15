@@ -35,7 +35,7 @@
 /*  set numeric constants                                                    */
 /*****************************************************************************/
 
-/*
+
 /* machine-dependent constants from float.h */
 
 /*

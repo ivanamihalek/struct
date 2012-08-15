@@ -21,7 +21,6 @@ Contact: ivana.mihalek@gmail.com.
 */
 
 #include "struct_lmmin.h"
-#include "struct_curve_tors.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

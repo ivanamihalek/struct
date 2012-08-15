@@ -54,6 +54,12 @@ int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *
 	}
 	list->NX_allocated = NX;
 	list->NY_allocated = NY;
+	
+    } else { /* I should perhaps clean up anyway */
+	for ( map_ctr= 0; map_ctr< list->no_maps_used; map_ctr++) {
+	    clear_map (list->map+map_ctr);
+	}
+	list->no_maps_used = 0;
     }
 
     for ( map_ctr= 0; map_ctr<list->no_maps_allocated; map_ctr++) {

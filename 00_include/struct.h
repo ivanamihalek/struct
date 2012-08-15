@@ -35,6 +35,7 @@ Contact: ivana.mihalek@gmail.com.
 # include "struct_pdb.h"
 # include "struct_geometry.h"
 # include "struct_structure2sse.h"
+# include "struct_curve_tors.h"
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif

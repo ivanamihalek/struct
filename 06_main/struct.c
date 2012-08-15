@@ -119,6 +119,8 @@ int main ( int argc, char * argv[]) {
 	retval = -1;
 	db_effective_ctr = 0;
 	CPU_time_begin = clock();
+	/*******************************/
+	/* loop over qry  database:    */
 	while ( ! qry_done) {
             
 	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
@@ -131,7 +133,7 @@ int main ( int argc, char * argv[]) {
 	    }
 
 	    /*******************************/
-	    /* loop over target  database :*/
+	    /* loop over target database:  */
 	    rewind (tgt_fptr);
 	    tgt_done = 0;
 	    db_ctr   = 0;
