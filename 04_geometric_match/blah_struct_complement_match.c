@@ -36,14 +36,15 @@ Contact: ivana.mihalek@gmail.com.
 # define MAX_TRIPS  5000
 
 typedef struct {
-    int   member[3];
-    char fingerprint; /* types of the three vectors and their hand */
+    int  member[3];
+    int fingerprint; /* types of the three vectors and their hand */
 } Triple;
 
-# define TYPE1 1<<3
-# define TYPE2 1<<2
-# define TYPE3 1<<1
-# define HAND  1
+# define TYPE1 1<<4
+# define TYPE2 1<<3
+# define TYPE3 1<<2
+# define HAND  1<<1
+# define UNDEF_HAND  1
 
 int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
 				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
@@ -512,7 +513,7 @@ int hand (Representation * X_rep,  int *set_of_directions_x) {
     } else {
 	/* the cross product cannot be calculated,
 	   presumably bcs the vectors are (anti) parallel */
-	return HAND;
+	return UNDEF_HAND;
     }
     
 }
@@ -631,56 +632,19 @@ int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
 }
 
 /**********************************************************/
-double distance_difference ( Representation * X_rep, int x_a, int x_b,
-			  Representation * Y_rep, int y_a, int y_b) {
-    /* x_a and x_b, y_a and y_b  are indices in X_rep and Y_rep stuctures */
 
+int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directions_x,
+				   Representation * Y_rep, int *set_of_directions_y,
+				   int set_size,  double * rmsd_ptr) {
+    
     double **x    = X_rep->full;
     double **x_cm = X_rep->cm;
     double **y    = Y_rep->full;
     double **y_cm = Y_rep->cm;
-    double cm_vector_x[3], cm_vector_y[3], cross[3],  distance_x, distance_y;
-    int i;
-
-    /* distance of nearest approach of ray b
-       to the cm of a, in the set of directions x */
-    for (i=0; i<3; i++ ) {
-	cm_vector_x[i] = x_cm[x_b][i] - x_cm[x_a][i];
-	cm_vector_y[i] = y_cm[y_b][i] - y_cm[y_a][i];
-    }
-	    
-    if ( normalized_cross (x[x_a], cm_vector_x, cross, &distance_x) ) {
-		
-	/* x[ray_a], cm_vector  are (anti) parallel, cross_product undefined */
-	/* we then expect the same kind of behavior fromt he triple in the
-		   other strcuture*/
-	distance_x = norm (cm_vector_x,3);
-	distance_y = norm (cm_vector_y,3);
-		
-    } else {
-
-	    
-	if ( normalized_cross (cm_vector_y, y[y_a], cross, &distance_y) ) {
-	    /* one triplet the vectors are parallel, in the other one they are not ...*/
-	    /* but that's numerical ...*/
-	    /* I'll just add some penalty here: */
-	    distance_x = norm (cm_vector_x,3);
-	    distance_y = norm (cm_vector_y,3);
-	}
-    }
-  
-    return distance_y-distance_x;
-}
-
-/**********************************************************/
-
-int distance_of_nearest_approach ( Representation * X_rep, int *set_of_directions_x,
-				   Representation * Y_rep, int *set_of_directions_y,
-				   int set_size,  double * rmsd_ptr) {
-    
+    double cm_vector[3], cross[3],  distance_x, distance_y;
     double aux, rmsd;
-    int  a, b, prev_next, norm;
-    int x_a, x_b, y_a, y_b;
+    int i, ray_a, ray_b, a, b, prev_next, norm;
+    
     if (set_size <=1 ) return 1;
 
     rmsd = 0.0;
@@ -691,16 +655,71 @@ int distance_of_nearest_approach ( Representation * X_rep, int *set_of_direction
 
 	for ( prev_next = -1;  prev_next <= +1; prev_next +=2 ) {
 	    b = (set_size+a+prev_next)%set_size;
+	
+	    ray_a = set_of_directions_x[a];
+	    ray_b = set_of_directions_x[b];
+	    /* distance of nearest approach of ray b
+	       to the cm of a, in the set of directions x */
+	    for (i=0; i<3; i++ ) {
+		cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
+	    }
 	    
-	    x_a = set_of_directions_x[a];
-	    x_b = set_of_directions_x[b];
-	    y_a = set_of_directions_y[a];
-	    y_b = set_of_directions_y[b];
+	    if ( normalized_cross (x[ray_a], cm_vector, cross, &distance_x) ) {
+		
+		/* x[ray_a], cm_vector  are (anti) parallel, corss_product undefined */
+		/* we then expect the same kind of behavior fromt he triple in the
+		   other strcuture*/
+		distance_x = 0;
+		for (i=0; i<3; i++ ) {
+		    distance_x += cm_vector[i]*cm_vector[i];
+		}
+		distance_x = sqrt(distance_x);
+		
+		ray_a = set_of_directions_y[a];
+		ray_b = set_of_directions_y[b];
 	    
-	    aux   = distance_difference (X_rep, x_a, x_b,
-					 Y_rep, y_a, y_b);
+		/* distance of nearest approach of ray b
+		   to the cm of a, in the set of directions y */
+		for (i=0; i<3; i++ ) {
+		    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
+		}
+	    
+		distance_y = 0;
+		for (i=0; i<3; i++ ) {
+		    distance_y += cm_vector[i]*cm_vector[i];
+		}
+		distance_y = sqrt(distance_y);
+
+	    } else {
+
+		ray_a = set_of_directions_y[a];
+		ray_b = set_of_directions_y[b];
+	    
+		/* distance of nearest approach of ray b
+		   to the cm of a, in the set of directions y */
+		for (i=0; i<3; i++ ) {
+		    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
+		}
+	    
+		if ( normalized_cross (cm_vector, y[ray_a], cross, &distance_y) ) {
+		    /* one triplet the vectors are parallel, in the other one they are not ...*/
+		    /* but that's numerical ...*/
+		    /* I'll just add some penalty here: */
+		    distance_y = distance_x + CUTOFF_DNA*1.1;
+		}
+	    }
+		
+	    /* distance_x and distance_y shold be about the same, if these are two equivalent triples */
+	    aux   = distance_x-distance_y;
 	    rmsd += aux*aux;
 	    norm ++;
+# if 0
+	    printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
+		    set_of_directions_x[a], set_of_directions_x[b], 
+		    set_of_directions_y[a], set_of_directions_y[b]); 
+	    printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
+		    distance_x,  distance_y, fabs (distance_x-distance_y));
+# endif
 	}
 	
     }
@@ -718,9 +737,14 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 		 Representation * Y_rep, int *set_of_directions_y,
 		 int set_size, Map *map, double cutoff_rmsd) {
     
+    double **x    = X_rep->full;
+    double **x_cm = X_rep->cm;
+    double **y    = Y_rep->full;
+    double **y_cm = Y_rep->cm;
+    double cm_vector[3], cross[3],  distance_x, distance_y;
     double aux, rmsd;
     int NX=X_rep->N_full;
-    int i, j, a,  x_a, x_b, y_a, y_b;
+    int i, j, ray_a, ray_b, a, b, prev_next;
     int in_triple, norm;
     
     if (set_size < 1 ) return 1;
@@ -740,40 +764,92 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 	}
 	if (in_triple) continue;
 
+
+
 	rmsd = 0.0;
 	norm = 0;
-	/* the rmsd for the dna of this element to the triple */
+    
+	/* the rmsd for the remaining vectors is ... */
 	for (a=0; a<set_size; a++) {
 
-	    /**************************************/
-	    x_a = set_of_directions_x[a];
-	    x_b = i;
-	    y_a = set_of_directions_y[a];
-	    y_b = j;
+	    for ( prev_next = -1;  prev_next <= +1; prev_next +=2 ) {
+		b = (set_size+a+prev_next)%set_size;
+	
+		ray_a = set_of_directions_x[a];
+		ray_b = set_of_directions_x[b];
+		/* distance of nearest approach of ray b
+		   to the cm of a, in the set of directions x */
+		for (i=0; i<3; i++ ) {
+		    cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
+		}
 	    
-	    aux   = distance_difference (X_rep, x_a, x_b,
-					 Y_rep, y_a, y_b);
+		if ( normalized_cross (x[ray_a], cm_vector, cross, &distance_x) ) {
+		
+		    /* x[ray_a], cm_vector  are (anti) parallel, corss_product undefined */
+		    /* we then expect the same kind of behavior fromt he triple in the
+		       other strcuture*/
+		    distance_x = 0;
+		    for (i=0; i<3; i++ ) {
+			distance_x += cm_vector[i]*cm_vector[i];
+		    }
+		    distance_x = sqrt(distance_x);
+		
+		    ray_a = set_of_directions_y[a];
+		    ray_b = set_of_directions_y[b];
 	    
-	    rmsd += aux*aux;
-	    norm ++;
-
-	    /**************************************/
-	    x_b = set_of_directions_x[a];
-	    x_a = i;
-	    y_b = set_of_directions_y[a];
-	    y_a = j;
-
-	    aux   = distance_difference (X_rep, x_a, x_b,
-					 Y_rep, y_a, y_b);
+		    /* distance of nearest approach of ray b
+		       to the cm of a, in the set of directions y */
+		    for (i=0; i<3; i++ ) {
+			cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
+		    }
 	    
-	    rmsd += aux*aux;
-	    norm ++;
+		    distance_y = 0;
+		    for (i=0; i<3; i++ ) {
+			distance_y += cm_vector[i]*cm_vector[i];
+		    }
+		    distance_y = sqrt(distance_y);
 
+		} else {
+
+		    ray_a = set_of_directions_y[a];
+		    ray_b = set_of_directions_y[b];
+	    
+		    /* distance of nearest approach of ray b
+		       to the cm of a, in the set of directions y */
+		    for (i=0; i<3; i++ ) {
+			cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
+		    }
+	    
+		    if ( normalized_cross (cm_vector, y[ray_a], cross, &distance_y) ) {
+			/* one triplet the vectors are parallel, in the other one they are not ...*/
+			/* but that's numerical ...*/
+			/* I'll just add some penalty here: */
+			distance_y = distance_x + CUTOFF_DNA*1.1;
+		    }
+		}
+		
+		/* distance_x and distance_y shold be about the same, if these are two equivalent triples */
+		aux   = distance_x-distance_y;
+		rmsd += aux*aux;
+		norm ++;
+# if 0
+		printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
+			set_of_directions_x[a], set_of_directions_x[b], 
+			set_of_directions_y[a], set_of_directions_y[b]); 
+		printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
+			distance_x,  distance_y, fabs (distance_x-distance_y));
+# endif
+	    }
+	
 	}
 
 	rmsd /= norm;
-	rmsd = sqrt(rmsd);
-	
+	rmsd  = sqrt(rmsd);
+
+
+
+
+        /* if rmsd is bigger than the cutoff, lose this from the mapping */
 	if ( rmsd > cutoff_rmsd) {
 	    map->x2y[i] = -1;
 	    map->y2x[j] = -1;
@@ -1016,7 +1092,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	    x_triple[xtrip_ct].member[1] = j_x;
 	    x_triple[xtrip_ct].member[2] = k_x;
 
-	    if ( hand(X_rep, x_triple[xtrip_ct].member ) ) x_triple[xtrip_ct].fingerprint |= HAND;
+	    x_triple[xtrip_ct].fingerprint |=  hand(X_rep, x_triple[xtrip_ct].member);
+		
 	    xtrip_ct++;
 	    x_list_full = ( xtrip_ct == MAX_TRIPS);
 

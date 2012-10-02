@@ -22,17 +22,21 @@ Contact: ivana.mihalek@gmail.com.
 
 # include "struct.h"
 
+
+
 /************************************/
 /************************************/
 /************************************/
 /************************************/
+int sum_to_zero (double *a, double *b); /* defined below */
+int parallel    (double *a, double *b); /* defined below */
+
 /************************************/
 int  unnorm_cross (double *x, double *y, double * v) {
 
     /* v is the output */
-    int sum_to_zero (double *a, double *b);
 
-    if (sum_to_zero (x, y) ) return 1;
+    if (parallel (x, y) ) return 1;
     
     v[0] = x[1]*y[2] -  x[2]*y[1];
     v[1] = x[2]*y[0] -  x[0]*y[2]; 
@@ -47,9 +51,8 @@ int  normalized_cross (double *x, double *y, double * v, double *norm_ptr) {
     /* v is the output */
     double norm = 0;
     int i;
-    int sum_to_zero (double *a, double *b);
 
-    if (sum_to_zero (x, y) ) return 1;
+    if (parallel (x, y) ) return 1;
     
     v[0] = x[1]*y[2] -  x[2]*y[1];
     norm += v[0]*v[0];
@@ -113,6 +116,18 @@ int rotate(double **Ynew, int NY, double **R, double ** Y) {
 /***************************************/
 /***************************************/
 /*****************************************/
+double norm (double *vec, int dim) {
+    int i;
+    double norm = 0;
+    for (i=0; i<dim; i++) {
+	norm +=  vec[i]* vec[i];
+    }
+    norm = sqrt(norm);
+    return norm;
+
+}
+
+/*****************************************/
 int vec_out (double *vec, int dim,  char * name ) {
     int i;
     double norm = 0;
@@ -139,4 +154,21 @@ int  sum_to_zero (double *a, double *b ) {
 	sum += aux*aux;
     }
     return (sum < 0.001);
+}
+
+/************************************/
+int  parallel (double *a, double *b ) {
+    int i;
+    double sum, diff, aux;
+
+    sum  = 0;
+    diff = 0;
+    for (i=0; i<3; i++ ) {
+	aux = a[i] + b[i];
+	sum += aux*aux;
+	
+	aux = a[i] - b[i];
+	diff += aux*aux;
+    }
+    return (sum < 0.001 || diff < 0.001);
 }

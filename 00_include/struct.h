@@ -373,6 +373,7 @@ int multiply (double *quat1, double *quat2_in,
 	      int conjugate,  double *product);
 int needleman_wunsch (int max_i, int max_j, double **distance,
 		      int *map_i2j, int * map_j2i, double *aln_score);
+double norm (double *vec, int dim);
 int normalized_cross (double *x, double *y, double * v, double *norm_ptr);
 int optimize_backbone_alignment (Descr *descr1, Protein * protein1, Representation *rep1, 
 				 Descr *descr2, Protein * protein2, Representation *rep2, 
