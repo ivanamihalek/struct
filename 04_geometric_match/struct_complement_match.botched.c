@@ -25,26 +25,25 @@ Contact: ivana.mihalek@gmail.com.
 #   include "omp.h"
 # endif
 
-	 //# include "gperftools/profiler.h"
+//# include "gperftools/profiler.h"
 
-# define  TOP_RMSD 200
-# define  BAD_RMSD 10.0
-# define JACKFRUIT 8
+# define TOP_RMSD  200
+# define BAD_RMSD   10.0
+# define JACKFRUIT   8
 # define NUM_THREADS 8
-# define CUTOFF_DNA 3.0
+# define CUTOFF_DNA  3.0
 
 # define MAX_TRIPS  5000
 
 typedef struct {
     int  member[3];
-    int fingerprint; /* types of the three vectors and their hand */
+    char fingerprint; /* types of the three vectors and their hand */
 } Triple;
 
-# define TYPE1 1<<4
-# define TYPE2 1<<3
-# define TYPE3 1<<2
-# define HAND  1<<1
-# define UNDEF_HAND  1
+# define TYPE1 1<<3
+# define TYPE2 1<<2
+# define TYPE3 1<<1
+# define HAND  1
 
 int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
 				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
@@ -82,7 +81,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     double F_effective = 0.0;
     double F_current;
     double q[4] = {0.0};
-    double **x_rotated = NULL;
+    double **x_rotated    = NULL;
     double **tr_x_rotated = NULL;
     double **R;
     double z_scr = 0.0, *list_of_best_scores;
@@ -109,7 +108,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     int current_map_id;
     //time_t  time_now, time_start;
     Map *current_map;
-   
     int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 		 Representation * Y_rep, int *set_of_directions_y,
 		     int set_size, Map *map, double cutoff_rmsd);
@@ -154,7 +152,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     if ( ! (best_rmsd    = emalloc (no_top_rmsd*sizeof(double))) ) return 1;
     if ( ! (best_triple_x    = intmatrix (no_top_rmsd,3)) ) return 1;
     if ( ! (best_triple_y    = intmatrix (no_top_rmsd,3)) ) return 1;
-    if ( ! (list_of_best_scores = emalloc(list->no_maps_allocated*sizeof(double) )) ) return 1;
+    if ( ! (list_of_best_scores = emalloc(NX*NY*sizeof(double) )) ) return 1;
     if ( ! (x_type_fudg = emalloc(NX*sizeof(int) )) ) return 1;
     if ( ! (y_type_fudg = emalloc(NY*sizeof(int) )) ) return 1;
     if ( ! (anchor_x = emalloc(NX*sizeof(int) )) ) return 1;
@@ -216,7 +214,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 	    				  best_triple_x, best_triple_y, best_quat);
 	    //find_best_triples_exhaustive (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-	    //best_triple_x, best_triple_y, best_quat);
+	    //				  best_triple_x, best_triple_y, best_quat);
 	}
     } else {
     
@@ -275,8 +273,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	//printf (">> passed length test\n");
 	
 	/* dna here is not DNA but "distance of nearest approach" */
-	cull_by_dna ( X_rep, best_triple_x[top_ctr], 
-		      Y_rep, best_triple_y[top_ctr],  3,  current_map, cutoff_rmsd );
+	//cull_by_dna ( X_rep, best_triple_x[top_ctr], 
+	//	      Y_rep, best_triple_y[top_ctr],  3,  current_map, cutoff_rmsd );
 	
 	// why am I not dropping the thing if the rmsd id above cutoff?
 	
@@ -513,7 +511,7 @@ int hand (Representation * X_rep,  int *set_of_directions_x) {
     } else {
 	/* the cross product cannot be calculated,
 	   presumably bcs the vectors are (anti) parallel */
-	return UNDEF_HAND;
+	return HAND;
     }
     
 }
@@ -632,19 +630,56 @@ int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
 }
 
 /**********************************************************/
+double distance_difference ( Representation * X_rep, int x_a, int x_b,
+			  Representation * Y_rep, int y_a, int y_b) {
+    /* x_a and x_b, y_a and y_b  are indices in X_rep and Y_rep stuctures */
 
-int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directions_x,
-				   Representation * Y_rep, int *set_of_directions_y,
-				   int set_size,  double * rmsd_ptr) {
-    
     double **x    = X_rep->full;
     double **x_cm = X_rep->cm;
     double **y    = Y_rep->full;
     double **y_cm = Y_rep->cm;
-    double cm_vector[3], cross[3],  distance_x, distance_y;
-    double aux, rmsd;
-    int i, ray_a, ray_b, a, b, prev_next, norm;
+    double cm_vector_x[3], cm_vector_y[3], cross[3],  distance_x, distance_y;
+    int i;
+
+    /* distance of nearest approach of ray b
+       to the cm of a, in the set of directions x */
+    for (i=0; i<3; i++ ) {
+	cm_vector_x[i] = x_cm[x_b][i] - x_cm[x_a][i];
+	cm_vector_y[i] = y_cm[y_b][i] - y_cm[y_a][i];
+    }
+	    
+    if ( normalized_cross (x[x_a], cm_vector_x, cross, &distance_x) ) {
+		
+	/* x[ray_a], cm_vector  are (anti) parallel, cross_product undefined */
+	/* we then expect the same kind of behavior fromt he triple in the
+		   other strcuture*/
+	distance_x = norm (cm_vector_x,3);
+	distance_y = norm (cm_vector_y,3);
+		
+    } else {
+
+	    
+	if ( normalized_cross (cm_vector_y, y[y_a], cross, &distance_y) ) {
+	    /* one triplet the vectors are parallel, in the other one they are not ...*/
+	    /* but that's numerical ...*/
+	    /* I'll just add some penalty here: */
+	    distance_x = norm (cm_vector_x,3);
+	    distance_y = norm (cm_vector_y,3);
+	}
+    }
+  
+    return distance_y-distance_x;
+}
+
+/**********************************************************/
+
+int distance_of_nearest_approach ( Representation * X_rep, int *set_of_directions_x,
+				   Representation * Y_rep, int *set_of_directions_y,
+				   int set_size,  double * rmsd_ptr) {
     
+    double aux, rmsd;
+    int  a, b, prev_next, norm;
+    int x_a, x_b, y_a, y_b;
     if (set_size <=1 ) return 1;
 
     rmsd = 0.0;
@@ -655,71 +690,16 @@ int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directio
 
 	for ( prev_next = -1;  prev_next <= +1; prev_next +=2 ) {
 	    b = (set_size+a+prev_next)%set_size;
-	
-	    ray_a = set_of_directions_x[a];
-	    ray_b = set_of_directions_x[b];
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions x */
-	    for (i=0; i<3; i++ ) {
-		cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
-	    }
 	    
-	    if ( normalized_cross (x[ray_a], cm_vector, cross, &distance_x) ) {
-		
-		/* x[ray_a], cm_vector  are (anti) parallel, corss_product undefined */
-		/* we then expect the same kind of behavior fromt he triple in the
-		   other strcuture*/
-		distance_x = 0;
-		for (i=0; i<3; i++ ) {
-		    distance_x += cm_vector[i]*cm_vector[i];
-		}
-		distance_x = sqrt(distance_x);
-		
-		ray_a = set_of_directions_y[a];
-		ray_b = set_of_directions_y[b];
+	    x_a = set_of_directions_x[a];
+	    x_b = set_of_directions_x[b];
+	    y_a = set_of_directions_y[a];
+	    y_b = set_of_directions_y[b];
 	    
-		/* distance of nearest approach of ray b
-		   to the cm of a, in the set of directions y */
-		for (i=0; i<3; i++ ) {
-		    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-		}
-	    
-		distance_y = 0;
-		for (i=0; i<3; i++ ) {
-		    distance_y += cm_vector[i]*cm_vector[i];
-		}
-		distance_y = sqrt(distance_y);
-
-	    } else {
-
-		ray_a = set_of_directions_y[a];
-		ray_b = set_of_directions_y[b];
-	    
-		/* distance of nearest approach of ray b
-		   to the cm of a, in the set of directions y */
-		for (i=0; i<3; i++ ) {
-		    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-		}
-	    
-		if ( normalized_cross (cm_vector, y[ray_a], cross, &distance_y) ) {
-		    /* one triplet the vectors are parallel, in the other one they are not ...*/
-		    /* but that's numerical ...*/
-		    /* I'll just add some penalty here: */
-		    distance_y = distance_x + CUTOFF_DNA*1.1;
-		}
-	    }
-		
-	    /* distance_x and distance_y shold be about the same, if these are two equivalent triples */
-	    aux   = distance_x-distance_y;
+	    aux   = distance_difference (X_rep, x_a, x_b,
+					 Y_rep, y_a, y_b);
 	    rmsd += aux*aux;
 	    norm ++;
-# if 0
-	    printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-		    set_of_directions_x[a], set_of_directions_x[b], 
-		    set_of_directions_y[a], set_of_directions_y[b]); 
-	    printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-		    distance_x,  distance_y, fabs (distance_x-distance_y));
-# endif
 	}
 	
     }
@@ -737,14 +717,9 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 		 Representation * Y_rep, int *set_of_directions_y,
 		 int set_size, Map *map, double cutoff_rmsd) {
     
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double **y    = Y_rep->full;
-    double **y_cm = Y_rep->cm;
-    double cm_vector[3], cross[3],  distance_x, distance_y;
     double aux, rmsd;
     int NX=X_rep->N_full;
-    int i, j, ray_a, ray_b, a, b, prev_next;
+    int i, j, a,  x_a, x_b, y_a, y_b;
     int in_triple, norm;
     
     if (set_size < 1 ) return 1;
@@ -764,92 +739,40 @@ int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
 	}
 	if (in_triple) continue;
 
-
-
 	rmsd = 0.0;
 	norm = 0;
-    
-	/* the rmsd for the remaining vectors is ... */
+	/* the rmsd for the dna of this element to the triple */
 	for (a=0; a<set_size; a++) {
 
-	    for ( prev_next = -1;  prev_next <= +1; prev_next +=2 ) {
-		b = (set_size+a+prev_next)%set_size;
-	
-		ray_a = set_of_directions_x[a];
-		ray_b = set_of_directions_x[b];
-		/* distance of nearest approach of ray b
-		   to the cm of a, in the set of directions x */
-		for (i=0; i<3; i++ ) {
-		    cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
-		}
+	    /**************************************/
+	    x_a = set_of_directions_x[a];
+	    x_b = i;
+	    y_a = set_of_directions_y[a];
+	    y_b = j;
 	    
-		if ( normalized_cross (x[ray_a], cm_vector, cross, &distance_x) ) {
-		
-		    /* x[ray_a], cm_vector  are (anti) parallel, corss_product undefined */
-		    /* we then expect the same kind of behavior fromt he triple in the
-		       other strcuture*/
-		    distance_x = 0;
-		    for (i=0; i<3; i++ ) {
-			distance_x += cm_vector[i]*cm_vector[i];
-		    }
-		    distance_x = sqrt(distance_x);
-		
-		    ray_a = set_of_directions_y[a];
-		    ray_b = set_of_directions_y[b];
+	    aux   = distance_difference (X_rep, x_a, x_b,
+					 Y_rep, y_a, y_b);
 	    
-		    /* distance of nearest approach of ray b
-		       to the cm of a, in the set of directions y */
-		    for (i=0; i<3; i++ ) {
-			cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-		    }
-	    
-		    distance_y = 0;
-		    for (i=0; i<3; i++ ) {
-			distance_y += cm_vector[i]*cm_vector[i];
-		    }
-		    distance_y = sqrt(distance_y);
+	    rmsd += aux*aux;
+	    norm ++;
 
-		} else {
+	    /**************************************/
+	    x_b = set_of_directions_x[a];
+	    x_a = i;
+	    y_b = set_of_directions_y[a];
+	    y_a = j;
 
-		    ray_a = set_of_directions_y[a];
-		    ray_b = set_of_directions_y[b];
+	    aux   = distance_difference (X_rep, x_a, x_b,
+					 Y_rep, y_a, y_b);
 	    
-		    /* distance of nearest approach of ray b
-		       to the cm of a, in the set of directions y */
-		    for (i=0; i<3; i++ ) {
-			cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-		    }
-	    
-		    if ( normalized_cross (cm_vector, y[ray_a], cross, &distance_y) ) {
-			/* one triplet the vectors are parallel, in the other one they are not ...*/
-			/* but that's numerical ...*/
-			/* I'll just add some penalty here: */
-			distance_y = distance_x + CUTOFF_DNA*1.1;
-		    }
-		}
-		
-		/* distance_x and distance_y shold be about the same, if these are two equivalent triples */
-		aux   = distance_x-distance_y;
-		rmsd += aux*aux;
-		norm ++;
-# if 0
-		printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-			set_of_directions_x[a], set_of_directions_x[b], 
-			set_of_directions_y[a], set_of_directions_y[b]); 
-		printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-			distance_x,  distance_y, fabs (distance_x-distance_y));
-# endif
-	    }
-	
+	    rmsd += aux*aux;
+	    norm ++;
+
 	}
 
 	rmsd /= norm;
-	rmsd  = sqrt(rmsd);
-
-
-
-
-        /* if rmsd is bigger than the cutoff, lose this from the mapping */
+	rmsd = sqrt(rmsd);
+	
 	if ( rmsd > cutoff_rmsd) {
 	    map->x2y[i] = -1;
 	    map->y2x[j] = -1;
@@ -927,7 +850,12 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
 	    ATA_sum[i][j] /= set_size;
 	}
     }
-    /* diagonalize ATA_sum - the eigenvector corresponsing to the
+
+
+    /**************************************************************************/
+    /**************************************************************************/
+    /*************   DIAGONALIZATION USING LAPACK            ******************/
+    /* diagonalize ATA_sum - the eigenvector corresponding to the
        smallest lambda is the quaternion we are looking for; the
        eigenvalue is the rmsd*/
     /* use the nomenclature from dsyev*/
@@ -952,7 +880,7 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
 	for (i=0; i<4; i++ ) q[i] = A[0][i];
 	if (0) {
 	    /* w contains the eigenvalues */
-	    printf ("\n");
+	    printf ("\n from dsyev");
 	    for (i=0; i<4; i++ ) printf ("%8.3lf ", w[i]);
 	    printf ("\nrmsd: %8.3lf \n", *rmsd);
 	    printf ("quat:\n");
@@ -964,18 +892,121 @@ int opt_quat ( double ** x, int NX, int *set_of_directions_x,
 	fprintf (stderr, "Error in dsyev().\n");
 	exit (1);
     }
+
+# if 0
+    /**************************************************************************/
+    /**************************************************************************/
+    /*************   DIRECT DIAGONALIZATION                  ******************/
+
+    double a,b,c,d,  e,f,g,h,  i,j,k,l,  m,n,o,p; /* synomyms*/
+    a =  ATA_sum[0][0]; b =  ATA_sum[0][1]; c =  ATA_sum[0][2]; d =  ATA_sum[0][3]; 
+    e =  ATA_sum[1][0]; f =  ATA_sum[1][1]; g =  ATA_sum[1][2]; h =  ATA_sum[1][3]; 
+    i =  ATA_sum[2][0]; j =  ATA_sum[2][1]; k =  ATA_sum[2][2]; l =  ATA_sum[2][3]; 
+    m =  ATA_sum[3][0]; n =  ATA_sum[3][1]; o =  ATA_sum[3][2]; p =  ATA_sum[3][3]; 
+
+    double A, B, C, D, E; /* coefficients id the characteristic polynomial - according to sympy */
+    A = 1.0;/* will not be used below */
+    B = (-a - f - k - p);
+    C = (a*f + a*k + a*p - b*e - c*i - d*m + f*k + f*p - g*j - h*n + k*p - l*o);
+    D = (-a*f*k - a*f*p + a*g*j + a*h*n - a*k*p + a*l*o + b*e*k + b*e*p - b*g*i
+	 - b*h*m - c*e*j + c*f*i + c*i*p - c*l*m - d*e*n + d*f*m - d*i*o + d*k*m
+	 - f*k*p + f*l*o + g*j*p - g*l*n - h*j*o + h*k*n) ;
+    E =  a*f*k*p - a*f*l*o - a*g*j*p + a*g*l*n + a*h*j*o - a*h*k*n - b*e*k*p
+	+ b*e*l*o + b*g*i*p - b*g*l*m - b*h*i*o + b*h*k*m + c*e*j*p - c*e*l*n
+	- c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m - d*e*j*o + d*e*k*n + d*f*i*o
+	- d*f*k*m - d*g*i*n + d*g*j*m;
+
+    double alpha, beta, gamma; /* substitutions */
+    alpha = -3*B*B/8 + C;
+    beta  = B*B*B/8  - B*C/2 + D;
+    gamma = -3*B*B*B*B/256 + C*B*B/16 - B*D/4 + E;
+	
+    if ( fabs(beta) < 1.e-4) {
+	double blah = alpha*alpha-4*gamma;
+	if ( blah < 0) {
+	    /* what should I do in this case? bail out*/
+	    *rmsd = -1;
+	    return 1;
+	}
+	double sblah = sqrt(blah);
+	double blah2;
+	blah2 = (-alpha+sblah)/2;
+	if ( blah2 < 0) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	w[0] = -B/4+sqrt(blah2);
+	w[1] = -B/4-sqrt(blah2);
+	    
+	blah2 = (-alpha-sblah)/2;
+	if ( blah2 < 0) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	w[2] = -B/4+sqrt(blah2);
+	w[3] = -B/4-sqrt(blah2);
+	/* we'll have to find the smallest lambda below */
+	    
+    } else { /* beta is significantly bigger than 0 */
+
+	double P, Q, R, U, V, W;
+	double blah;
+	/* more substitutions */
+	P = - alpha*alpha/12-gamma;
+	Q = - alpha*alpha*alpha/108 - alpha*gamma/3 - beta*beta/8.0;
+	blah = Q*Q/4+P*P*P/27;
+	if ( blah< 0) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	R = -Q/2+sqrt(blah);
+	if ( fabs(R) <= 1.e-4 ){
+	    V = -5*alpha/6 - pow (Q, 0.333);
+	} else {
+	    U = pow(R, 0.3333);
+	    V =  -5*alpha/6 + U -P/3/U;
+	}
+
+	if ( alpha + 2*V < 0 ){
+	    *rmsd = -1;
+	    return 1;
+	}
+	W = sqrt (alpha + 2*V);
+	if ( fabs(W) < 1.e-10) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	
+	blah = -(3*alpha+2*V+2*beta/W);
+	if ( blah < 0) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	blah = sqrt(blah)/2;
+	w[0] = -B/4 + W/2 - blah;
+	w[1] = -B/4 + W/2 + blah;
+
+	
+	blah = -(3*alpha+2*V-2*beta/W);
+	if ( blah < 0) {
+	    *rmsd = -1;
+	    return 1;
+	}
+	blah = sqrt(blah)/2;
+	w[2] = -B/4 - W/2 - blah;
+	w[3] = -B/4 - W/2 + blah;
+
+
+    }
+
     
-   
-    
+    exit (1);
+# endif    
     free_dmatrix(A);
 
     return 0;
     
 }
-
-/************************************/
-
-/************************************/
 
 
 /***************************************/
@@ -1092,8 +1123,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	    x_triple[xtrip_ct].member[1] = j_x;
 	    x_triple[xtrip_ct].member[2] = k_x;
 
-	    x_triple[xtrip_ct].fingerprint |=  hand(X_rep, x_triple[xtrip_ct].member);
-		
+	    if ( hand(X_rep, x_triple[xtrip_ct].member ) ) x_triple[xtrip_ct].fingerprint |= HAND;
 	    xtrip_ct++;
 	    x_list_full = ( xtrip_ct == MAX_TRIPS);
 
@@ -1178,8 +1208,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		    /* filters :*/
 		    if ( x_triple[xtrip_ct].fingerprint ^ y_triple[ytrip_ct].fingerprint) continue;
 
-		    if (distance_of_nearest_approach(X_rep, x_triple[xtrip_ct].member,
-						     Y_rep, y_triple[ytrip_ct].member, 3, &rmsd)) continue;
+		    //if (distance_of_nearest_approach(X_rep, x_triple[xtrip_ct].member,
+		    //				     Y_rep, y_triple[ytrip_ct].member, 3, &rmsd)) continue;
 		    if ( rmsd > cutoff_rmsd) continue;
 	    
 		    if (opt_quat(x, NX, x_triple[xtrip_ct].member, y, NY, y_triple[ytrip_ct].member, 3, q_init, &rmsd)) continue;

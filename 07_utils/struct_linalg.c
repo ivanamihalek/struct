@@ -170,5 +170,5 @@ int  parallel (double *a, double *b ) {
 	aux = a[i] - b[i];
 	diff += aux*aux;
     }
-    return (sum < 0.001 || diff < 0.001);
+    return (sum < 0.00001 || diff < 0.00001);
 }
