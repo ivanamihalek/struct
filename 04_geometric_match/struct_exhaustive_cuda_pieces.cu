@@ -6,27 +6,21 @@
 #include <thrust/sort.h>
 #include <thrust/system_error.h>
 
-#include "binheap.h"
 
 
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "utils.h"
-
-#include <time.h>
 #include <cuda.h>   
-//#include <cuda_runtime_api.h>
-    
+#include "struct.h"
+
 #define TILE_WIDTH 16
 #define PITCH 64
-//#define MEM_SIZE_MAX 268435456L
 #define MEM_SIZE_MAX 134217728L
+#define CLOCK_PRECISION  1E9
     
- struct greater_rmsd{
+struct greater_rmsd{
     
     __host__ __device__
     bool operator()(Triple x, Triple y) 
@@ -155,21 +149,12 @@ __device__ int distance_of_nearest_approach_gpu(float *x_d, float *x_cm_d, float
             aux = distance_x - distance_y;
             rmsd += aux*aux;
             norm++;
-#if 0
-            printf("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-                    set_of_directions_x[a], set_of_directions_x[b],
-                    set_of_directions_y[a], set_of_directions_y[b]);
-            printf(" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-                    distance_x, distance_y, fabs(distance_x - distance_y));
-#endif
         }
 
     }
 
     rmsd /= norm;
     rmsd = sqrt(rmsd);
-
-    //printf ("***** rmsd:  %8.3lf  \n\n", rmsd);
 
     *rmsd_ptr = rmsd;
 
@@ -322,7 +307,9 @@ __global__ void find_triplets_gpu(float *x_d, float *x_cm_d, float *y_d, float *
     
 }
 
-extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_rep, int ** x_triple_array, int ** y_triple_array, int x_triple_cnt, int y_triple_cnt, PriorityQueue * heap) {
+extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_rep,
+				     int ** x_triple_array, int ** y_triple_array, int x_triple_cnt,
+				     int y_triple_cnt, PriorityQueue * heap) {
     
 
     double **x_db = X_rep->full;
@@ -366,7 +353,6 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
     int cnt_y = y_triple_cnt;
     
     struct timespec requestStart, requestEnd;
-    double accum;
     clock_gettime(CLOCK_REALTIME, &requestStart);
         
     
@@ -393,9 +379,6 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
   
     
     clock_gettime(CLOCK_REALTIME, &requestEnd);
-    // Calculate time it took
-    accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec) / CLOCK_PRECISION;
-    // printf("1 %lf\n", accum);
     
     // call gpu and find triplets
     
@@ -430,17 +413,11 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
         clock_gettime(CLOCK_REALTIME, &requestStart);
         cudaMemGetInfo(&free_mem, &total_mem);
         
-        
-        //double ratio = ((double) size_curr)/((long) free_mem);
-        
         if (size_curr > MEM_SIZE_MAX){
         
-     //   if(ratio > 0.1) {
-      //      cnt_y = free_mem * 0.1/(cnt_x * sizeof(Triple));
             cnt_y = MEM_SIZE_MAX/(cnt_x * sizeof(Triple));
             cnt_y_rest -= cnt_y;
             
-            // size = cnt_x * cnt_y * sizeof(Triple);
             size = MEM_SIZE_MAX;
             size_curr = cnt_x * cnt_y_rest * sizeof(Triple); 
         } else {
@@ -448,16 +425,6 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
             size = size_curr;
             not_enough_memory = 0;
         }
-        
-/*
-        if (cudaSuccess != cudaMalloc((void **)&triple_array_d, size)) printf("CUDA allocation error!\n");
-        
-        
-        if (cudaSuccess != cudaMalloc(&y_triple_array_d, cnt_y * 3 * PITCH * sizeof(int))) printf("CUDA allocation error!\n");
-        cudaMemcpy2D(y_triple_array_d,PITCH,y_triple_array[y_triple_array_pos],sizeof(int)*3,sizeof(int)*3,cnt_y,cudaMemcpyHostToDevice);  
-        
-        if (cudaSuccess != cudaMalloc((void**)&rmsd_array_d, cnt_x * cnt_y * sizeof(float)));
-*/
         
         int n_blocks_x = cnt_x/TILE_WIDTH + (cnt_x%TILE_WIDTH == 0 ? 0:1);
         int n_blocks_y = cnt_y/TILE_WIDTH + (cnt_y%TILE_WIDTH == 0 ? 0:1);
@@ -472,15 +439,7 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
         cudaThreadSynchronize();
        
         
-    
-        clock_gettime(CLOCK_REALTIME, &requestEnd);
-        // Calculate time it took
-        accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec) / CLOCK_PRECISION;
-        // printf("2 %lf\n", accum);
- 
-        clock_gettime(CLOCK_REALTIME, &requestStart);
- 
-        Triple * triple_array_output_d;
+	Triple * triple_array_output_d;
     
         size_t no_of_out_pairs = TOP_RMSD < (cnt_x * cnt_y)? TOP_RMSD : cnt_x * cnt_y; 
         if (cudaSuccess != cudaMalloc((void **)&triple_array_output_d, no_of_out_pairs*sizeof(Triple))) printf("CUDA allocation error!\n");    
@@ -510,9 +469,6 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
         cudaFree(y_triple_array_d);
         cudaFree(rmsd_array_d);
 */
-        clock_gettime(CLOCK_REALTIME, &requestEnd);
-        // Calculate time it took
-        accum = (requestEnd.tv_sec - requestStart.tv_sec) + (requestEnd.tv_nsec - requestStart.tv_nsec) / CLOCK_PRECISION;
  
         
         int m;

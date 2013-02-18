@@ -370,7 +370,11 @@ int set_default_options () {
     options.H_length_mismatch_tol   = 10.0;
     options.S_length_mismatch_tol   =  5.0;
     options.avg_length_mismatch_tol =  5.0;
+
     
+    options.omp = 0;              /* use omp parallelization of the exhaustive search */
+    options.gpu = 1;              /* use gpu parallelization of the exhaustive search */
+   
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);
 

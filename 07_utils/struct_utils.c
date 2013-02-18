@@ -100,6 +100,26 @@ int **intmatrix(int rows, int columns){
     return m; 
 }
 
+float **fmatrix(int rows, int columns){
+    float **m;
+    int i;
+        /* allocate pointers to rows */
+    m=(float **) malloc(rows*sizeof(float*));
+    if (!m)  {
+	fprintf (stderr,"row allocation failure  in chmatrix().\n");
+	return NULL;
+    } 
+    /* allocate rows and set pointers to them */
+    m[0]=(float *) calloc( rows*columns, sizeof(float));
+    if (!m[0]) {
+	fprintf (stderr,"column allocation failure in chmatrix().\n");
+ 	return NULL;
+    }
+    for( i=1; i < rows; i++)  m[i] = m[i-1] + columns;
+    /* return pointer to array of pointers to rows */ 
+    return m; 
+}
+
 double **dmatrix(int rows, int columns){
     double **m;
     int i;
@@ -165,6 +185,11 @@ void free_cmatrix(char **m)
     free(m);
 }
 void free_imatrix(int **m)
+{
+    free(m[0]);
+    free(m);
+}
+void free_fmatrix(float **m)
 {
     free(m[0]);
     free(m);

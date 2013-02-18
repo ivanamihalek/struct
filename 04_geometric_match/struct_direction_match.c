@@ -20,30 +20,6 @@ along with this program. If not, see<http://www.gnu.org/licenses/>.
 Contact: ivana.mihalek@gmail.com.
 */
 # include "struct.h"
-# include "sys/time.h"
-# ifdef OMP
-#   include "omp.h"
-# endif
-
-//# include "gperftools/profiler.h"
-
-# define  TOP_RMSD 200
-# define  BAD_RMSD 10.0
-# define JACKFRUIT 8
-# define NUM_THREADS 8
-# define CUTOFF_DNA  3.0
-
-# define MAX_TRIPS  5000
-
-typedef struct {
-    int  member[3];
-    char fingerprint; /* types of the three vectors and their hand */
-} Triple;
-
-# define TYPE1 1<<3
-# define TYPE2 1<<2
-# define TYPE3 1<<1
-# define HAND  1
 
 
 int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
@@ -58,20 +34,22 @@ int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation*
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat);
 
+int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
+        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+        double **best_quat);
+
 int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+					double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
 					double **best_quat);
 
+int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
+					      double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
+					      double **best_quat);
 
 
-int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
-		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd);
-
-
-
-
-/****************************************/
-int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps *list){
+/**************************************************************************/
+/**************************************************************************/
+int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps *list){
 	
     Penalty_parametrization penalty_params; /* for SW */
     double **x    = X_rep->full;
@@ -144,8 +122,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 		      double * z_best, int best_ctr,
 		      double z_scr, int  my_map_ctr, int *stored);
   
-  
-
     smaller = (NX <= NY) ? NX : NY;
     no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
 
@@ -153,34 +129,31 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /* memory allocation   */
     /***********************/
     if ( ! (R=dmatrix(3,3) ) ) return 1; /* compiler is bugging me otherwise */
-    if ( ! (x_rotated    = dmatrix (NX,3)) ) return 1;
-    if ( ! (tr_x_rotated = dmatrix (NX,3)) ) return 1;
-    if ( ! (best_quat    = dmatrix (no_top_rmsd,4)) ) return 1;
-    if ( ! (best_rmsd    = emalloc (no_top_rmsd*sizeof(double))) ) return 1;
-    if ( ! (best_triple_x    = intmatrix (no_top_rmsd,3)) ) return 1;
-    if ( ! (best_triple_y    = intmatrix (no_top_rmsd,3)) ) return 1;
-    if ( ! (z_best = emalloc(NX*NY*sizeof(double) )) ) return 1;
-    if ( ! (x_type_fudg = emalloc(NX*sizeof(int) )) ) return 1;
-    if ( ! (y_type_fudg = emalloc(NY*sizeof(int) )) ) return 1;
-    if ( ! (anchor_x = emalloc(NX*sizeof(int) )) ) return 1;
-    if ( ! (anchor_y = emalloc(NY*sizeof(int) )) ) return 1;
-
+    if ( ! (x_rotated     = dmatrix (NX,3)) ) return 1;
+    if ( ! (tr_x_rotated  = dmatrix (NX,3)) ) return 1;
+    if ( ! (best_quat     = dmatrix (no_top_rmsd,4)) ) return 1;
+    if ( ! (best_rmsd     = emalloc (no_top_rmsd*sizeof(double))) ) return 1;
+    if ( ! (best_triple_x = intmatrix (no_top_rmsd,3)) ) return 1;
+    if ( ! (best_triple_y = intmatrix (no_top_rmsd,3)) ) return 1;
     /***********************/
+    find_best_triples_exhaustive_parallel_gpu (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+					       best_triple_x, best_triple_y, best_quat);
     
-    /***********************/
-    /* expected quantities */
-    /***********************/
-    avg = avg_sq = stdev = 0.0;
-    if (0) {
-	if ( ! options.path[0] ) {
-	    fprintf (stderr, "path to integral table must be given "
-		     "in the cmd file (kwd \"path\") to calculate z-score for F.\n");
-	    exit (1);
+    for (top_ctr=0; top_ctr<no_top_rmsd; top_ctr++) {
+	printf (" %4d  %8.2lf \n", top_ctr, best_rmsd[top_ctr]);
+	for (i=0; i<3; i++) {
+	    printf ("\t %d  x: %4d  y: %4d \n",
+		    i, best_triple_x[top_ctr][i], best_triple_y[top_ctr][i]);
 	}
-	if (F_moments (x, x_type, NX, y, y_type, NY, alpha, &avg, &avg_sq, &stdev)) return 1;
     }
+    exit(1);
     /***********************/
-    
+    if ( ! (z_best        = emalloc(NX*NY*sizeof(double) )) ) return 1;
+    if ( ! (x_type_fudg   = emalloc(NX*sizeof(int) )) ) return 1;
+    if ( ! (y_type_fudg   = emalloc(NY*sizeof(int) )) ) return 1;
+    if ( ! (anchor_x      = emalloc(NX*sizeof(int) )) ) return 1;
+    if ( ! (anchor_y      = emalloc(NY*sizeof(int) )) ) return 1;
+   
 
     /***********************/
     /* initialization      */
@@ -209,7 +182,18 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	/*
 	 * Exhaustive search for all triplets
 	 */
-	if (options.omp) {
+	
+      if (options.gpu) {
+# ifdef GPU
+	    find_best_triples_exhaustive_parallel_gpu (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
+						   best_triple_x, best_triple_y, best_quat);
+# else
+	    fprintf (stderr, "from %s:%d: to use GPU pll, please recompile with -DGPU flag.\n",
+		     __FILE__, __LINE__);
+	    exit (1);
+# endif
+	  
+      } else if (options.omp) {
 # ifdef OMP
 	    find_best_triples_exhaustive_parallel (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 						   best_triple_x, best_triple_y, best_quat);
@@ -222,6 +206,8 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
 	    				  best_triple_x, best_triple_y, best_quat);
 	}
+
+	
     } else {
     
 	/*
@@ -237,6 +223,7 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
     /*   main loop                               */
     /*********************************************/
     map_ctr = 0;
+    
     for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
@@ -377,7 +364,6 @@ int complement_match (Representation* X_rep, Representation* Y_rep, List_of_maps
 
 /***************************************/
 /***************************************/
-
 int store_sorted (Map * map, int NX, int NY, int *map_best,
 		  int map_max,  double * z_best, int best_ctr,
 		  double z_scr, int  map_ctr, int *stored) {
@@ -438,9 +424,9 @@ int store_sorted (Map * map, int NX, int NY, int *map_best,
 
     return 0;
 }
-/****************************************************************/
-/****************************************************************/
 
+/****************************************************************/
+/****************************************************************/
 int find_next_triple (double **X, double **Y, 
 		    int *x_type, int *y_type,
 		    int NX, int NY, int *x_triple, int *y_triple){
@@ -486,337 +472,6 @@ int find_next_triple (double **X, double **Y,
 
 
 
-
-/**********************************************************/
-/**********************************************************/
-/* check that the two are not mirror images - count on it being  a triple*/
-int hand (Representation * X_rep,  int *set_of_directions_x) {
-      
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double cm_vector[3], avg_cm[3], cross[3], d, aux;
-    int i, ray_a, ray_b,  ray_c, a, b, c;
-    
- 
- 
-    a = 0;
-    b = 1;
-    c = 2;
-    
-    /*****************************/
-    /*****************************/
-    ray_a = set_of_directions_x[a];
-    ray_b = set_of_directions_x[b];
-    ray_c = set_of_directions_x[c];
-    /* I better not use the cross prod here: a small diff
-       int he angle makeing them pointing toward each other or
-       away from each other changes the direction of cross prod;
-       rather, use one vector, and distance between the cm's as the other */
-    for (i=0; i<3; i++ ) {
-	cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
-    }
-    normalized_cross (x[ray_a], x[ray_b], cross, &aux); 
-    /* note I am making another cm vector here */
-    for (i=0; i<3; i++ ) {
-	avg_cm[i] = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
-	cm_vector[i] = x_cm[ray_c][i] - avg_cm[i];
-    }
-    unnorm_dot (cm_vector, cross, &d);
-
-     
-    if ( d > 0 ) {
-	return 0;
-    } else {
-	return 1;
-    }
-
-}
-
-/**********************************************************/
-/**********************************************************/
-/* check that the two are not mirror images - count on it being  a triple*/
-int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
-	       Representation * Y_rep, int *set_of_directions_y, int set_size) {
-    
-    
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double **y    = Y_rep->full;
-    double **y_cm = Y_rep->cm;
-    double cm_vector[3], avg_cm[3], cross[3],  dx, dy, aux;
-    int i, ray_a, ray_b,  ray_c, a, b, c;
-    
-    if (set_size !=3 ) return 0;
-
- 
-    a = 0;
-    b = 1;
-    c = 2;
-    
-    /*****************************/
-    /*****************************/
-    ray_a = set_of_directions_x[a];
-    ray_b = set_of_directions_x[b];
-    ray_c = set_of_directions_x[c];
-    
-    /* I better not use the cross prod here: a small diff
-       int he angle makeing them pointing toward each other or
-       away from each other changes the direction of cross prod;
-       rather, use one vector, and distance between the cm's as the other */
-    for (i=0; i<3; i++ ) {
-	cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
-    }
-
-
-    /* note that the cross product here is between the direction
-       vector of SSE labeled a, and the vector spanning the geeometric
-       centers of a and b - this cross prod can be undefined only if
-       the two are stacked */
-    if ( ! normalized_cross (x[ray_a], cm_vector, cross, &aux)) {
-	/* the function returns 0 on success, i.e. retval==0 means
-	   the cross product can be calculated ok. */ 
-	
-	/* note I am making another cm vector here */
-	for (i=0; i<3; i++ ) {
-	    avg_cm[i] = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
-	    cm_vector[i] = x_cm[ray_c][i] - avg_cm[i];
-	}
-	unnorm_dot (cm_vector, cross, &dx);
-
-	/*****************************/
-	/*****************************/
-	ray_a = set_of_directions_y[a];
-	ray_b = set_of_directions_y[b];
-	ray_c = set_of_directions_y[c];
-	for (i=0; i<3; i++ ) {
-	    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-	}
-	if ( !normalized_cross (y[ray_a], cm_vector, cross, &aux)) {
-
-	    /* if  I can calculate the cross product for one triplet
-	       but not for the other, I declare it a different hand (this will
-	       be dropped from further consideration) */
-	    return 0;
-
-	}
-	/* note I am makning another cm vector here */
-	for (i=0; i<3; i++ ) {
-	    avg_cm[i] = (y_cm[ray_b][i] + y_cm[ray_a][i])/2;
-	    cm_vector[i] = y_cm[ray_c][i] - avg_cm[i];
-	}
-	/*note: unnorm_dot thinks it is getting unit vectors,
-	  and evrything that is >1 will be "rounded" to 1
-	  (similarly for -1) - it doesn't do the normalization itself*/
-	unnorm_dot (cm_vector, cross, &dy);
-
-     
-	if ( dx*dy < 0 ) {
-	    return 0;
-	} else {
- 	    return 1;   /* this isn't err value - the handedness is the same */
-	}
-
-	
-    } else {
-
-	/* if the vectors linking cms are parallel, the hand is the same */
-	double cm_vector_2[3], dot;
-	
-	ray_a = set_of_directions_y[a];
-	ray_b = set_of_directions_y[b];
-	ray_c = set_of_directions_y[c];
-	for (i=0; i<3; i++ ) {
-	    cm_vector_2[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-	}
-
-	unnorm_dot(cm_vector, cm_vector_2, &dot);
-
-	if ( dot > 0) {
-	    return 1;
-	} else {
-	    return 0;
-	}
-
-	/* (hey, at least I am checking the retvals of my functions) */
-	
-    }
-
-
-
-    return 0; /* better safe than sorry */
-}
-
-/**********************************************************/
-
-int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directions_x,
-	       Representation * Y_rep, int *set_of_directions_y,
-	       int set_size,  double * rmsd_ptr) {
-    
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double **y    = Y_rep->full;
-    double **y_cm = Y_rep->cm;
-    double cm_vector[3], cross[3],  distance_x, distance_y;
-    double aux, rmsd;
-    int i, ray_a, ray_b, a, b, prev_next, norm;
-    
-    if (set_size <=1 ) return 1;
-
-    rmsd = 0.0;
-    norm = 0;
-    /* the rmsd for the remaining vectors is ... */
-    for (a=0; a<set_size; a++) {
-
-	for ( prev_next = -1;  prev_next <= +1; prev_next +=2 ) {
-	    b = (set_size+a+prev_next)%set_size;
-	
-	    ray_a = set_of_directions_x[a];
-	    ray_b = set_of_directions_x[b];
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions x */
-	    for (i=0; i<3; i++ ) {
-		cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
-	    }
-	    normalized_cross (cm_vector, x[ray_a], cross, &distance_x);
-
-	    ray_a = set_of_directions_y[a];
-	    ray_b = set_of_directions_y[b];
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions y */
-	    for (i=0; i<3; i++ ) {
-		cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
-	    }
-	    normalized_cross (cm_vector, y[ray_a], cross, &distance_y);
-
-
-	    aux   = distance_x-distance_y;
-	    rmsd += aux*aux;
-	    norm ++;
-# if 0
-	    printf ("%d, %d   x:  %2d  %2d  y:  %2d  %2d  \n", a, b,
-		    set_of_directions_x[a], set_of_directions_x[b], 
-		    set_of_directions_y[a], set_of_directions_y[b]); 
-	    printf (" distance x:  %8.3lf  distance y:  %8.3lf   difference:   %8.3lf \n",
-		    distance_x,  distance_y, fabs (distance_x-distance_y));
-# endif
-	}
-	
-    }
-
-    rmsd /= norm;
-    rmsd  = sqrt(rmsd);
-    
-    //printf ("***** rmsd:  %8.3lf  \n\n", rmsd);
-
-    *rmsd_ptr = rmsd;
-    
-    return 0;
-}
-
-/**********************************************************/
-/**********************************************************/
-int cull_by_dna (Representation * X_rep, int *set_of_directions_x,
-		 Representation * Y_rep, int *set_of_directions_y,
-		 int set_size, Map *map, double cutoff_rmsd) {
-    
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double **y    = Y_rep->full;
-    double **y_cm = Y_rep->cm;
-    double cm_vector[3], cross[3],  distance_x, distance_y;
-    double aux, rmsd;
-    int NX=X_rep->N_full;
-    int i, j, ray_a, ray_b, a;
-    int in_triple, coord_ctr, norm;
-    
-    if (set_size < 1 ) return 1;
-
-
-    for (i=0; i<NX; i++) {
-	j = map->x2y[i];
-	if ( j<0) continue;
-
-	/* check that i is not in the triple here */
-	in_triple = 0;
-	for (a=0; a<set_size; a++) {
-	    if ( i==set_of_directions_x[a]) {
-		in_triple =1;
-		break;
-	    }
-	}
-	if (in_triple) continue;
-
-	rmsd = 0.0;
-	norm = 0;
-	/* the rmsd for the dna of this element to the triple */
-	for (a=0; a<set_size; a++) {
-
-	    /**************************************/
-	    ray_a = set_of_directions_x[a];
-	    ray_b = i;
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions x */
-	    for (coord_ctr=0; coord_ctr<3; coord_ctr++ ) {
-		cm_vector[coord_ctr] = x_cm[ray_b][coord_ctr] - x_cm[ray_a][coord_ctr];
-	    }
-	    normalized_cross (cm_vector, x[ray_a], cross, &distance_x);
-
-	    ray_a = set_of_directions_y[a];
-	    ray_b = j;
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions y */
-	    for (coord_ctr=0; coord_ctr<3; coord_ctr++ ) {
-		cm_vector[coord_ctr] = y_cm[ray_b][coord_ctr] - y_cm[ray_a][coord_ctr];
-	    }
-	    normalized_cross (cm_vector, y[ray_a], cross, &distance_y);
-
-	    aux   = distance_x-distance_y;
-	    rmsd += aux*aux;
-	    norm ++;
-
-	    /**************************************/
-	    ray_b = set_of_directions_x[a];
-	    ray_a = i;
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions x */
-	    for (coord_ctr=0; coord_ctr<3; coord_ctr++ ) {
-		cm_vector[coord_ctr] = x_cm[ray_b][coord_ctr] - x_cm[ray_a][coord_ctr];
-	    }
-	    normalized_cross (cm_vector, x[ray_a], cross, &distance_x);
-
-	    ray_b = set_of_directions_y[a];
-	    ray_a = j;
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions y */
-	    for (coord_ctr=0; coord_ctr<3; coord_ctr++ ) {
-		cm_vector[coord_ctr] = y_cm[ray_b][coord_ctr] - y_cm[ray_a][coord_ctr];
-	    }
-	    normalized_cross (cm_vector, y[ray_a], cross, &distance_y);
-
-	    aux   = distance_x-distance_y;
-	    rmsd += aux*aux;
-	    norm ++;
-
-	}
-
-	rmsd /= norm;
-	rmsd = sqrt(rmsd);
-
-# if 0
-	printf ("%2d  %2d : rmsd %8.3lf\n", i+1, j+1, rmsd);
-# endif
-	
-
-	/* if rmsd is bigger than the cutoff, lose this from the mapping */
-	if ( rmsd > cutoff_rmsd) {
-	    map->x2y[i] = -1;
-	    map->y2x[j] = -1;
-	}
-    }
-    
-     
-    return 0;
-}
 
 /**********************************************************/
 /**********************************************************/
@@ -970,7 +625,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     int NY = Y_rep->N_full;
     int * x_type = X_rep->full_type;
     int * y_type = Y_rep->full_type;
-    Triple *x_triple, *y_triple;
+    TripleID *x_triple, *y_triple;
  
     double **x = X_rep->full;    
     double **y = Y_rep->full;
@@ -995,8 +650,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
         best_triple_x[top_ctr][0] = -1;
     }
 
-    if ( ! (x_triple = emalloc (MAX_TRIPS*sizeof(Triple) ) ) )  return 1;
-    if ( ! (y_triple = emalloc (MAX_TRIPS*sizeof(Triple) ) ) )  return 1;
+    if ( ! (x_triple = emalloc (MAX_TRIPS*sizeof(TripleID) ) ) )  return 1;
+    if ( ! (y_triple = emalloc (MAX_TRIPS*sizeof(TripleID) ) ) )  return 1;
     
 
     no_trip_pairs_to_compare = 0;
@@ -1320,243 +975,7 @@ int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, 
 }
 
 
-/**
- * A parallel algorithm for exhaustive search of all triplets combinations using OpenMP
- * @param X_rep
- * @param Y_rep
- * @param no_top_rmsd
- * @param best_rmsd
- * @param best_triple_x
- * @param best_triple_y
- * @param best_quat
- * @return 
- */
 
-
-int find_best_triples_exhaustive_parallel(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-        double **best_quat) {
-# ifdef OMP
-    // initialization of global array of values
-    double ** best_quat_array = dmatrix(no_top_rmsd * NUM_THREADS, 4);
-    int ** best_triple_x_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
-    int ** best_triple_y_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
-    double * best_rmsd_array = (double *) malloc(no_top_rmsd * NUM_THREADS * sizeof (double));
-    
-    int cnt;
-    
-    for (cnt = 0; cnt < NUM_THREADS*no_top_rmsd; ++cnt) {
-        best_rmsd_array[cnt] = BAD_RMSD + 1;
-        best_triple_x_array[cnt][0] = -1;
-    }
-        
-
-
-   omp_set_num_threads(NUM_THREADS);
-
-#pragma omp parallel 
-    {
-
-        int top_ctr, i, j, k, l, n;
-        int myid = omp_get_thread_num();
-
-        double ** best_quat_local = dmatrix(no_top_rmsd, 4);
-        int ** best_triple_x_local = intmatrix(no_top_rmsd, 3);
-        int ** best_triple_y_local = intmatrix(no_top_rmsd, 3);
-        double * best_rmsd_local = (double *) malloc(no_top_rmsd * sizeof (double));
-        double **x = X_rep->full; // no change
-        int * x_type = X_rep->full_type; // no change
-        int NX = X_rep->N_full; // no change
-        double **y = Y_rep->full;
-        int * y_type = Y_rep->full_type;
-        int NY = Y_rep->N_full;
-        int x_triple[3], y_triple[3];
-        int chunk;
-        double cutoff_rmsd = 3.0; /* <<<<<<<<<<<<<<<<< hardcoded */
-        double rmsd; // 
-        double q_init[4] = {0.0}; // no change
-        double ** cmx = X_rep->cm; // no change
-        double ** cmy = Y_rep->cm; // no change
-        double threshold_dist = options.threshold_distance;
-
-        /***************************************/
-        /* find reasonable triples of SSEs      */
-        /* that correspond in type             */
-        /*  and can be mapped onto each other  */
-        /***************************************/
-        for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-            best_rmsd_local[top_ctr] = BAD_RMSD + 1;
-            best_triple_x_local[top_ctr][0] = -1;
-        }
-
-        /*
-         * Exhaustive search through a 6D space - ugly code
-         * Parallelization 
-         */
-
-#pragma omp for       
-        for (i = 0; i < NX - 2; ++i) {
-            int m;         
-            
-            x_triple[0] = i;
-            for (j = 0; j < NY - 2; ++j) {
-                if (x_type[i] != y_type[j]) continue;
-                y_triple[0] = j;
-                for (k = i + 1; k < NX - 1; ++k) {
-                   if (two_point_distance(cmx[i], cmx[k]) > threshold_dist) continue;
-                    x_triple[1] = k;
-                    for (l = j + 1; l < NY - 1; ++l) {
-                        if (x_type[k] != y_type[l]) continue;
-                        if (two_point_distance(cmy[j], cmy[l]) > threshold_dist) continue;
-                        y_triple[1] = l;
-                        for (m = k + 1; m < NX; ++m) {
-                            if (two_point_distance(cmx[i], cmx[m]) > threshold_dist) continue;
-                            if (two_point_distance(cmx[k], cmx[m]) > threshold_dist) continue;
-                            x_triple[2] = m;
-                            for (n = l + 1; n < NY; ++n) {
-                                if (two_point_distance(cmy[j], cmy[n]) > threshold_dist) continue;
-                                if (two_point_distance(cmy[l], cmy[n]) > threshold_dist) continue;
-                                if (x_type[m] != y_type[n]) continue;
-                                y_triple[2] = n;
-
-                                if (!same_hand_triple(X_rep, x_triple, Y_rep, y_triple, 3)) continue;
-
-                                if (distance_of_nearest_approach(X_rep, x_triple,
-                                        Y_rep, y_triple, 3, &rmsd)) continue;
-
-                                if (rmsd > cutoff_rmsd) continue;
-                                
-
-                                if (opt_quat(x, NX, x_triple, y, NY, y_triple, 3, q_init, &rmsd)) continue;
-                                for (top_ctr = 0; top_ctr < no_top_rmsd; top_ctr++) {
-                                    // insertion of a new values in arrays keeping arrays sorted
-                                    
-                                    if (rmsd <= best_rmsd_local[top_ctr]) {
-                                        chunk = no_top_rmsd - top_ctr - 1;
-
-                                        if (chunk) {
-                                            memmove(best_rmsd_local + top_ctr + 1,
-						    best_rmsd_local + top_ctr, chunk * sizeof (double));
-                                            memmove(best_quat_local[top_ctr + 1],
-						    best_quat_local[top_ctr], chunk * 4 * sizeof (double));
-                                            memmove(best_triple_x_local[top_ctr + 1],
-                                                    best_triple_x_local[top_ctr], chunk * 3 * sizeof (int));
-                                            memmove(best_triple_y_local[top_ctr + 1],
-                                                    best_triple_y_local[top_ctr], chunk * 3 * sizeof (int));
-                                        }
-                                        best_rmsd_local[top_ctr] = rmsd;
-                                        memcpy(best_quat_local[top_ctr], q_init, 4 * sizeof (double));
-                                        memcpy(best_triple_x_local[top_ctr], x_triple, 3 * sizeof (int));
-                                        memcpy(best_triple_y_local[top_ctr], y_triple, 3 * sizeof (int));
-
-                                        break;
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // each thread copies values to global arrays in accordance with its thread id
-            memcpy(*(best_quat_array + myid*no_top_rmsd), *(best_quat_local), no_top_rmsd * 4 * sizeof(double));
-            memcpy(*(best_triple_y_array + myid*no_top_rmsd), *(best_triple_y_local), no_top_rmsd * 3 * sizeof(int));
-            memcpy(*(best_triple_x_array + myid*no_top_rmsd), *(best_triple_x_local), no_top_rmsd * 3 * sizeof(int));
-            memcpy(best_rmsd_array + myid*no_top_rmsd, best_rmsd_local, no_top_rmsd * sizeof(double));
-            
-            
-        }
-        
-
-        free_dmatrix(best_quat_local);
-        free_imatrix(best_triple_x_local);
-        free_imatrix(best_triple_y_local);
-        free(best_rmsd_local);  
-        
-        // parallel sort of elements of arrays 
-        sortTriplets(best_triple_x_array, best_triple_y_array, best_rmsd_array, best_quat_array, no_top_rmsd);
-    }
-     
-   // 
-    memcpy(*best_quat, *best_quat_array, no_top_rmsd * 4 * sizeof(double));
-    memcpy(*best_triple_y, *best_triple_y_array, no_top_rmsd * 3 * sizeof(int));
-    memcpy(*best_triple_x, *best_triple_x_array, no_top_rmsd * 3 * sizeof(int));
-    memcpy(best_rmsd, best_rmsd_array, no_top_rmsd * sizeof(double));
-    
-
-    free_dmatrix(best_quat_array);
-    free_imatrix(best_triple_x_array);
-    free_imatrix(best_triple_y_array);
-    free(best_rmsd_array);
-
-# endif
-    
-    return 0;
-
-}
-
-
-/**
- * A parallel algorithm for sorting triplets using OpenMP
- * @param best_triple_x_array
- * @param best_triple_y_array
- * @param best_rmsd_array
- * @param best_quat_array
- * @return 
- */
- 
-int  sortTriplets(int ** best_triple_x_array, int ** best_triple_y_array,
-		  double * best_rmsd_array, double ** best_quat_array, int top_rmsd){
-
-# ifdef OMP
-    
-     int stride, j, k, chunk;
-     int myid = omp_get_thread_num();
- 
-     for (stride = NUM_THREADS/2; stride > 0; stride /= 2) {
-         #pragma omp barrier
-         j = 0;
-         if (myid < stride){
-             for (k = 0; k < top_rmsd; ++k){                
-                 while (j < top_rmsd) {
-                     if (best_rmsd_array[myid*top_rmsd + stride*top_rmsd  + k]
-			 < best_rmsd_array[myid*top_rmsd + j]) {
-                         
-                         chunk = top_rmsd - j - 1;
-
-                         if (chunk) {
-                             memmove(best_rmsd_array + myid*top_rmsd + j + 1,
-				     best_rmsd_array + myid*top_rmsd +j, chunk * sizeof (double));
-                             memmove(best_triple_x_array[myid*top_rmsd + j + 1],
-				     best_triple_x_array[myid*top_rmsd + j], chunk * 3 * sizeof (int));
-                             memmove(best_triple_y_array[myid*top_rmsd + j + 1],
-				     best_triple_y_array[myid*top_rmsd + j], chunk * 3 * sizeof (int));
-                             memmove(best_quat_array[myid*top_rmsd + j + 1],
-				     best_quat_array[myid*top_rmsd + j], chunk * 4 * sizeof (double));
-                         }
-                         best_rmsd_array[myid*top_rmsd + j] = best_rmsd_array[myid*top_rmsd +
-									      stride *top_rmsd  + k];
-                         memcpy(best_triple_x_array[myid*top_rmsd + j],
-				best_triple_x_array[myid*top_rmsd + stride * top_rmsd + k], 3 * sizeof (int));
-                         memcpy(best_triple_y_array[myid*top_rmsd + j],
-				best_triple_y_array[myid*top_rmsd + stride * top_rmsd + k], 3 * sizeof (int));
-                         memcpy(best_quat_array[myid*top_rmsd + j], best_quat_array[myid*top_rmsd + stride * top_rmsd + k], 4 * sizeof (double));
-                         j++;
-                         break; 
-                     }
-                     j++;
-                 }
-                 if (j == top_rmsd -1) break; // there is not any lower value
-                 
-             }
-         }
-     }
-     
-# endif     
-     return 0;
-
- }
 
 
 

@@ -30,6 +30,10 @@ Contact: ivana.mihalek@gmail.com.
 # include <time.h>
 # include <assert.h>
 # include <sys/stat.h>
+# include <sys/time.h>
+# ifdef OMP
+#  include <omp.h>
+# endif
 # include "struct_hungarian.h"
 # include "struct_utils.h"
 # include "struct_pdb.h"
@@ -39,7 +43,6 @@ Contact: ivana.mihalek@gmail.com.
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif
-
 
 # define  BUFFLEN 150
 
@@ -123,6 +126,7 @@ typedef struct {
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
     int omp;              /* use omp parallelization of the exhaustive search */
+    int gpu;              /* use gpu parallelization of the exhaustive search */
 
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */
@@ -191,7 +195,6 @@ typedef struct{
     int * is_rep_by;
     
 } Representation;
-
 
 # define MAX_MULT_MATCH 100
 
@@ -325,12 +328,12 @@ int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *diges
 int closeness_score_for_bb_almt (Map *map,  Protein *protein1, Protein *protein2,
 				  double **R, double *T, double d0, double **similarity, double *score_ptr);
 int compare_descr     (Descr *descr1, Descr *descr2, List_of_maps *list, Score *score);
-int complement_match  (Representation* X_rep, Representation* Y_rep, List_of_maps * list);
 int copy_map          (Map* to, Map* from);
 int construct_translation_vecs (Representation *X_rep,  Representation *Y_rep, Map *map);
 int descr_init ( Descr * description);
 int descr_out (FILE * fptr, Descr * descr);
 int descr_shutdown ( Descr * description );
+int direction_match  (Representation* X_rep, Representation* Y_rep, List_of_maps * list);
 
 double F (double **X, int * x_type,  int NX,
 	  double **Y, int * y_type, int NY, double alpha);
@@ -364,7 +367,7 @@ int map_consistence (int NX, int NY, Map *combined_map, Map *map1, Map *map2,
 		     double *total_ptr, double * gap_score);
 int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);
 int mat_out  (double A[4][4], char *name);
-int mat_mult (double new [4][4], double  A[4][4], double  B[4][4]);
+int mat_mult (double new_mat [4][4], double  A[4][4], double  B[4][4]);
 int mat_sum  (double sum[4][4], double  new_term[4][4]);
 int mat_diag (double B[4][4], double eval[4], double evect[4][4] );
 int mat_exp (double expB[4][4], double B[4][4]);
@@ -394,6 +397,9 @@ int rep_shutdown (Representation * rep);
 int results_out  (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
 		  Descr *qry_descr, Protein *qry_structure, Representation * qry_rep,
 		  List_of_maps *list, FILE * digest);
+int rep_read (Representation *rep, char * filename);
+int rep_save (Representation *rep, char * filename);
+
 int rotate(double **Ynew, int NY, double **R, double ** Y);
 int set_match_algebra ();
 int set_up_exp_table ();
@@ -423,6 +429,10 @@ int find_Calpha (Protein *protein, int  resctr, double ca[3] );
 double two_point_distance (double point1[3], double point2[3]);
 int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3]);
 
+
+
+#include "struct_binheap.h"
+#include "struct_triplets.h"
 
 
 

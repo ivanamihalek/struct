@@ -354,3 +354,93 @@ int construct_compact (Representation *rep) {
  }
 
 
+// serialize Representation and save to a binary file
+
+int rep_save (Representation *rep, char * filename) {
+    FILE * fp = fopen(filename, "wb");
+    int i,j;
+    if (fp == NULL) {
+        perror("Failed to open file");
+        return EXIT_FAILURE;
+    }
+    
+    int N = rep->N_full;
+    fwrite(&rep->N_full, sizeof(int), 1, fp);
+    fwrite(&rep->full_no_of_strands, sizeof(int), 1, fp);
+    for (i = 0 ; i < N; ++i){
+        for (j = 0 ; j < 3; ++j){
+        fwrite(&rep->full[i][j], sizeof(double), 1, fp);
+        }
+    }
+
+    for (i = 0 ; i < N; ++i){
+        fwrite(*(rep->cm) + 3*i, sizeof(double), 3, fp);
+    }
+    
+    fwrite(rep->full_type, sizeof(int), N, fp);
+    fwrite(rep->length, sizeof(int), N, fp);
+    
+    fclose(fp);
+    return 0;
+    
+}
+
+// read Representation from a serialized binary file
+
+int rep_read(Representation *rep, char * filename) {
+    
+    int i, j;
+    int N;
+    int retv;
+    
+    FILE * fp = fopen(filename, "rb");
+    if (fp == NULL) {
+        perror("Failed to open file");
+        return EXIT_FAILURE;
+    }
+    
+    
+    retv = fread(&N, sizeof(int), 1, fp);
+    rep->N_full = N;
+    
+    retv = fread(&rep->full_no_of_strands, sizeof(int), 1, fp);
+    
+    if ( ! (rep->full  = dmatrix(N, 3) )) return 1;
+    for (i=0; i<N; i++ ) {	
+	for (j=0; j<3; j++) {
+            retv = fread(&rep->full[i][j], sizeof(double), 1, fp); 
+        }
+    }
+    
+    
+    if ( ! (rep->cm    = dmatrix(N, 3) )) return 1;
+    for (i=0; i<N; i++ ) {
+	for (j=0; j<3; j++) {
+            retv = fread(&rep->cm[i][j], sizeof(double), 1, fp);
+        }
+    }
+   
+    if ( ! (rep->translation  = dmatrix(N,3)) ) return 1;
+    if ( ! (rep->transl_norm  = emalloc(N*sizeof(double)))) return 1;
+
+    if ( ! (rep->full_type = emalloc(N*sizeof(int)))) return 1;
+    if ( ! (rep->length    = emalloc(N*sizeof(int)))) return 1;
+   
+    retv = fread(rep->full_type, sizeof(int), N, fp);
+    retv = fread(rep->length, sizeof(int), N, fp);
+
+    if ( ! (rep->compact  = dmatrix (N,3) )) return 1;
+    if ( ! (rep->compact_type  = emalloc (N*sizeof (int)) )) return 1;
+    
+	 
+    if ( ! (rep->is_rep_by   = emalloc ( N*sizeof (int))) ) return 1;
+    /* 1 for the counter, 1 to represent itself: */
+    if ( ! (rep->represents  = intmatrix (N, N )) )return 1;
+    if ( construct_compact (rep) ) return 1;
+
+    fclose(fp);
+    return 0;
+    
+    
+}
+

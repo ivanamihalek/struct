@@ -24,7 +24,7 @@ Contact: ivana.mihalek@gmail.com.
 
 /* how many vars of each type need to be read in: */
 # define DOUBLES 18
-# define INTS    6
+# define INTS    8
 # define STRINGS 3
 # define CHARACTERS 2
     
@@ -67,7 +67,7 @@ int read_cmd_file (char *filename) {
 	&(options.min_no_SSEs)};
     char * names_of_ints[INTS] = {
 	"grid_size", "number_maps_cpl", "number_maps_out",
-	"grad_max_step", "exp_table_size", "min_no_SSEs"};
+	"grad_max_step", "exp_table_size", "min_no_SSEs", "omp", "gpu"};
     
     char * strings[STRINGS] = { options.outdir, options.outname, options.path};
     char * names_of_strings[STRINGS] = {"outdir", "outname", "path"};
@@ -153,6 +153,10 @@ int read_cmd_file (char *filename) {
 	}
 
 	/* some hacking for switches */ 
+	if ( ! token_assigned  &&  !strcmp (token[0], "gpu")  ) {
+	    options.gpu = 1;
+	    token_assigned = 1;
+	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "length")  ) {
 	    options.use_length = 1;
 	    token_assigned = 1;
@@ -260,6 +264,21 @@ int read_cmd_file (char *filename) {
     fclose (fptr);
 
 
+# ifndef OMP
+    if (options.omp) {
+	fprintf (stderr, "omp option not available  - recompile the code with -DOMP option.");
+	return 1;
+    }
+# endif
+# ifndef GPU
+    if (options.gpu) {
+	fprintf (stderr, "gpu option not available  - recompile the code with -DGPU option.");
+	return 1;
+    }
+# endif
+
+    
+    
     if ( options.outdir[0] ) {
 	/* chcek whther this directory exists */
 	struct stat st;
