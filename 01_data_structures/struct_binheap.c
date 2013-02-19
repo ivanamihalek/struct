@@ -94,7 +94,7 @@ ElementType DeleteMax(PriorityQueue H) {
 ElementType FindMax(PriorityQueue H) {
     if (!IsEmpty(H))
         return H->Elements[ 1 ];
-    printf("Priority Queue is Empty");
+    //printf("Priority Queue is Empty");
     return H->Elements[ 0 ];
 }
 

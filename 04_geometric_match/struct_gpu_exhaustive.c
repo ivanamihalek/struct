@@ -7,8 +7,6 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat) {
     // initialization of global array of values
-    no_top_rmsd = TOP_RMSD;
-
     double ** best_quat_array  = dmatrix(no_top_rmsd * NUM_THREADS, 4);
     int ** best_triple_x_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
     int ** best_triple_y_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
@@ -43,7 +41,7 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
     Triples_array x_triple_array = {0}, y_triple_array = {0};
     if (!init_triples_array(&x_triple_array, NX * NX * NX)) exit(1);
     if (!init_triples_array(&y_triple_array, NY * NY * NY)) exit(1);
-
+    
     for (i = 0; i < NX; ++i) {
         for (j = 0; j < NX; ++j) {
             if (i == j) continue;
@@ -76,8 +74,6 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
         }
     }
 
-    printf ("\n entering gpu stuff\n");
-
 
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.hhh_array, y_triple_array.hhh_array,
 			      x_triple_array.hhh_cnt, y_triple_array.hhh_cnt, &heap);
@@ -95,7 +91,8 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
 			      x_triple_array.shs_cnt, y_triple_array.shs_cnt, &heap);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.sss_array, y_triple_array.sss_array,
 			      x_triple_array.sss_cnt, y_triple_array.sss_cnt, &heap);
-
+    
+    
     free_triples_array(&x_triple_array);
     free_triples_array(&y_triple_array);
 
@@ -111,37 +108,20 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
         counter++;
     }
 
-    printf ("\nalive\n");
     
     // parallel sort of elements of arrays
     sortTriplets(best_triple_x_array, best_triple_y_array, best_rmsd_array, best_quat_array, no_top_rmsd);
 
-    printf ("\nalive 2\n");
     memcpy(*best_triple_y, *best_triple_y_array, no_top_rmsd * 3 * sizeof (int));
     memcpy(*best_triple_x, *best_triple_x_array, no_top_rmsd * 3 * sizeof (int));
     memcpy(best_rmsd, best_rmsd_array, no_top_rmsd * sizeof (double));
-    printf ("\nalive 3\n");
 
-# if 0
-    for (i = 0; i < TOP_RMSD; ++i) {
-        printf("%lf\t", best_rmsd[i]);
-        for (j = 0; j < 3; ++j) {
-            printf("%d\t", best_triple_x_array[i][j]);
-        }
-        for (j = 0; j < 3; ++j) {
-            printf("%d\t", best_triple_y_array[i][j]);
-        }
-        printf("\n");
-    }
-# endif
-    
+
     free_dmatrix(best_quat_array);
     free_imatrix(best_triple_x_array);
     free_imatrix(best_triple_y_array);
     free(best_rmsd_array);
     
-    printf ("\nalive 4\n");
-
     return 0;
 
 }

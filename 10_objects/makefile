@@ -1,5 +1,5 @@
 CCOMPL =  gcc 
-CFLAGS =  -Wall  -g
+CFLAGS =  -Wall  -O
 #CFLAGS += -fopenmp
 NVCC = nvcc
 
@@ -16,14 +16,14 @@ LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
 
 
-DEFINES =   -DGPU # -DOMP  -DDEBUG  -DDMALLOC 
+DEFINES =   #  -DGPU # -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_binheap.c                 \
 	     struct_map_reduced_reps.c  struct_align_backbone.c  struct_hungarian.c              \
 	     struct_direction_match.c  struct_descr_out.c struct_digest.c  struct_geometry.c    \
 	     struct_gpu_exhaustive.c \
 	     struct_input_structure.c struct_linalg.c  struct_map.c struct_map2rotation.c        \
-	     struct_optimize_bb_almt.c                                                           \
+	     struct_optimize_bb_almt.c  struct_opt_quat.c                                        \
 	     struct_pdb_out.c  struct_process_input.c  struct_quaternion.c struct_read_pdb.c     \
 	     struct_read_cmd_file.c struct_representation.c struct_results_out.c                 \
 	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                            \

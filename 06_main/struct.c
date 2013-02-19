@@ -268,7 +268,7 @@ int main ( int argc, char * argv[]) {
 	
 	list_shutdown (&list_sequential,   (fake=0));   /* defined in struct_map */
 	list_shutdown (&list_out_of_order, (fake=0)); /* defined in struct_map */
-	list_shutdown (&list_uniq, (fake=1)); /* defined in struct_map */
+	list_shutdown (&list_uniq,         (fake=1)); /* defined in struct_map */
     }
 
     descr_shutdown (&qry_descr);
@@ -284,9 +284,8 @@ int main ( int argc, char * argv[]) {
     
 }
 
-/**************************************************************************************/
 /**************************************************************************/
-
+/**************************************************************************/
 int set_default_options () {
     /* set the default options */
     memset (&options, 0, sizeof(Options) );
@@ -373,7 +372,7 @@ int set_default_options () {
 
     
     options.omp = 0;              /* use omp parallelization of the exhaustive search */
-    options.gpu = 1;              /* use gpu parallelization of the exhaustive search */
+    options.gpu = 0;              /* use gpu parallelization of the exhaustive search */
    
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);

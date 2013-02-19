@@ -44,7 +44,7 @@ int hand (Representation * X_rep,  int *set_of_directions_x) {
 /**********************************************************/
 /* check that the two are not mirror images - count on it being  a triple*/
 int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
-	       Representation * Y_rep, int *set_of_directions_y, int set_size) {
+		      Representation * Y_rep, int *set_of_directions_y, int set_size) {
     
     
     double **x    = X_rep->full;
@@ -85,8 +85,8 @@ int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
 	
 	/* note I am making another cm vector here */
 	for (i=0; i<3; i++ ) {
-	    avg_cm[i] = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
-	    cm_vector[i] = x_cm[ray_c][i] - avg_cm[i];
+	    avg_cm[i]    = (x_cm[ray_b][i] + x_cm[ray_a][i])/2;
+	    cm_vector[i] =  x_cm[ray_c][i] - avg_cm[i];
 	}
 	unnorm_dot (cm_vector, cross, &dx);
 
@@ -98,35 +98,31 @@ int same_hand_triple (Representation * X_rep,  int *set_of_directions_x,
 	for (i=0; i<3; i++ ) {
 	    cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
 	}
-	if ( !normalized_cross (y[ray_a], cm_vector, cross, &aux)) {
-
+	if (normalized_cross (y[ray_a], cm_vector, cross, &aux)) {
 	    /* if  I can calculate the cross product for one triplet
 	       but not for the other, I declare it a different hand (this will
 	       be dropped from further consideration) */
 	    return 0;
-
 	}
-	/* note I am makning another cm vector here */
+	/* note I am making another cm vector here */
 	for (i=0; i<3; i++ ) {
-	    avg_cm[i] = (y_cm[ray_b][i] + y_cm[ray_a][i])/2;
-	    cm_vector[i] = y_cm[ray_c][i] - avg_cm[i];
+	    avg_cm[i]    = (y_cm[ray_b][i] + y_cm[ray_a][i])/2;
+	    cm_vector[i] =  y_cm[ray_c][i] - avg_cm[i];
 	}
 	/*note: unnorm_dot thinks it is getting unit vectors,
 	  and evrything that is >1 will be "rounded" to 1
 	  (similarly for -1) - it doesn't do the normalization itself*/
 	unnorm_dot (cm_vector, cross, &dy);
 
-     
 	if ( dx*dy < 0 ) {
 	    return 0;
 	} else {
  	    return 1;   /* this isn't err value - the handedness is the same */
 	}
 
-	
     } else {
 
-	/* if the vectors linking cms are parallel, the hand is the same */
+	/* if the vectors linking cms are parallel, the hand is the same (my defintion) */
 	double cm_vector_2[3], dot;
 	
 	ray_a = set_of_directions_y[a];
