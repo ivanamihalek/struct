@@ -16,7 +16,7 @@ LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
 
 
-DEFINES =    -DGPU # -DOMP  -DDEBUG  -DDMALLOC 
+DEFINES =   # -DGPU  -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_binheap.c                 \
 	     struct_map_reduced_reps.c  struct_align_backbone.c  struct_hungarian.c              \

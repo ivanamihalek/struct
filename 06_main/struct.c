@@ -369,7 +369,7 @@ int set_default_options () {
     options.avg_length_mismatch_tol =  5.0;
 
     options.omp = 0;
-    options.gpu = 1;
+    options.gpu = 0;
     
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);
