@@ -16,7 +16,7 @@ LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
 
 
-DEFINES =   #  -DGPU # -DOMP  -DDEBUG  -DDMALLOC 
+DEFINES =    -DGPU # -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_binheap.c                 \
 	     struct_map_reduced_reps.c  struct_align_backbone.c  struct_hungarian.c              \
@@ -27,7 +27,7 @@ SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_binheap.c
 	     struct_pdb_out.c  struct_process_input.c  struct_quaternion.c struct_read_pdb.c     \
 	     struct_read_cmd_file.c struct_representation.c struct_results_out.c                 \
 	     struct_map_out.c struct_scoring_fn.c  struct_sse2descr.c                            \
-	     struct_structure2sse.c struct_table.c   struct_triplets.c                           \
+	     struct_structure2sse.c struct_table.c    struct_triplets.c                          \
 	     struct_table_input.c  struct_utils.c struct_lmmin.c struct_curve_tors.c		 
 
 SOURCES.cu = struct_exhaustive_cuda_pieces.cu

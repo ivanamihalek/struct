@@ -51,7 +51,6 @@ int main ( int argc, char * argv[]) {
 				    int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FILE ** tgt_fptr_ptr,
 				    int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
     int set_default_options ();
-
     
     if ( argc < 2 ) {
 	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
@@ -119,8 +118,6 @@ int main ( int argc, char * argv[]) {
 	retval = -1;
 	db_effective_ctr = 0;
 	CPU_time_begin = clock();
-	/*******************************/
-	/* loop over qry  database:    */
 	while ( ! qry_done) {
             
 	    retval = get_next_descr (qry_input_type, qry_fptr, qry_chain, &qry_structure, &qry_descr);
@@ -133,7 +130,7 @@ int main ( int argc, char * argv[]) {
 	    }
 
 	    /*******************************/
-	    /* loop over target database:  */
+	    /* loop over target  database :*/
 	    rewind (tgt_fptr);
 	    tgt_done = 0;
 	    db_ctr   = 0;
@@ -165,9 +162,8 @@ int main ( int argc, char * argv[]) {
 		if ( helix_overlap + strand_overlap >= options.min_no_SSEs) {
 
 		    
-		    if (options.verbose)
-			printf ("\n\n---------------\ncomparing   db:%s  query:%s \n",
-				tgt_descr.name, qry_descr.name);
+		    if (options.verbose) printf ("\n\n---------------\ncomparing   db:%s  query:%s \n",
+						 tgt_descr.name, qry_descr.name);
 		    CPU_comparison_start = clock();
 		    rep_initialize (&tgt_rep, &tgt_descr);
 		    rep_initialize (&qry_rep, &qry_descr);
@@ -176,7 +172,7 @@ int main ( int argc, char * argv[]) {
 		    /*************************************************************/
 		    /*  here is the core: comparison of reduced representations  */
                     int retval1 = 0, retval2 = 0;
-
+                    
                     switch (options.search_algorithm){
 			
 		    case SEQUENTIAL:
@@ -202,7 +198,6 @@ int main ( int argc, char * argv[]) {
 					list_out_of_order.no_maps_used > 0);
 			list1   = &list_sequential;  list2 = &list_out_of_order;
                     }
-		    
                     
 		    if (retval1 || retval2) { /* this might be printf (rather than fprintf)
 						 bcs perl has a problem intercepting stderr */
@@ -212,14 +207,13 @@ int main ( int argc, char * argv[]) {
 		    }
 		    db_effective_ctr ++;
 		    
-		    if (options.verbose)
-			printf ("reduced rep comparison CPU time:  %10.3lf s\n",
-				(double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC);
+		    printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
+		    	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
 
 		    if  (match_found) {
 
 			find_uniq_maps (list1, list2, &list_uniq);
-
+			
 			if (options.postprocess) {
 			    align_backbone (&tgt_descr, &tgt_structure, &tgt_rep,
 					    &qry_descr, &qry_structure, &qry_rep, &list_uniq);
@@ -268,7 +262,7 @@ int main ( int argc, char * argv[]) {
 	
 	list_shutdown (&list_sequential,   (fake=0));   /* defined in struct_map */
 	list_shutdown (&list_out_of_order, (fake=0)); /* defined in struct_map */
-	list_shutdown (&list_uniq,         (fake=1)); /* defined in struct_map */
+	list_shutdown (&list_uniq, (fake=1)); /* defined in struct_map */
     }
 
     descr_shutdown (&qry_descr);
@@ -284,8 +278,9 @@ int main ( int argc, char * argv[]) {
     
 }
 
+/**************************************************************************************/
 /**************************************************************************/
-/**************************************************************************/
+
 int set_default_options () {
     /* set the default options */
     memset (&options, 0, sizeof(Options) );
@@ -331,11 +326,14 @@ int set_default_options () {
     options.endgap
 	= 0.0;
     options.threshold_distance /* for the "seed" triples in direction search */
-	=  30.0;
+	= 30.0;
     options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
 	= 10.0;
     options.max_almt_dist           /* max distance for which we want to call something "aligned" */
         = 10.0; 
+
+
+    
     options.far_away_cosine /* minimum cosine for F_effective estimate*/
         = 0.8;
     options.grid_size     /* minimal number of points for the sphere grid */
@@ -370,10 +368,9 @@ int set_default_options () {
     options.S_length_mismatch_tol   =  5.0;
     options.avg_length_mismatch_tol =  5.0;
 
+    options.omp = 0;
+    options.gpu = 1;
     
-    options.omp = 0;              /* use omp parallelization of the exhaustive search */
-    options.gpu = 0;              /* use gpu parallelization of the exhaustive search */
-   
     /* path to the integral table */
     memset (options.path, 0, BUFFLEN);
 

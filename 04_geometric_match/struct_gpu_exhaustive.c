@@ -2,6 +2,7 @@
 
 
 // GPU version of the function
+# ifdef GPU
 
 int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
@@ -126,3 +127,4 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
 
 }
 
+# endif

@@ -88,8 +88,7 @@ int  quadraticSolve(float *B, float *C,
 
     return 0;
 }
-/******************************************************/
-/* returns root multiplicity, rather than errcode */
+/**********************************************/
 int  cubicSolve(float p, float q, float r, 
 	       float * root1, float * root2, float * root3) {
     
@@ -223,6 +222,8 @@ int  cubicSolve(float p, float q, float r,
 	    *root1 = pow(0.5*(w-v), 1.0/3.0) - (uo3) * pow(2.0 / (w-v), 1.0/3.0) - p / 3.0;
 	else
 	    *root1 = uo3 * pow(2.0 / (w+v), 1.0/3.0) - pow(0.5*(w+v), 1.0/3.0) - p / 3.0;
+
+
 	return 1;
     }
   
@@ -260,15 +261,19 @@ int  cubicSolve(float p, float q, float r,
     *root2 = s * (-cosk + rt3sink) - p / 3.0;
     *root3 = s * (-cosk - rt3sink) - p / 3.0;
 
+ 
     return 3;
 }
+
+
+
 
 /**********************************************/
 int quadSolve(float C, float B, float A, float* root1, float* root2) {
     // Contingency: if A = 0, not a quadratic = linear
     if(A == 0) {
 	//If B is zero then we have a NaN
-	if(B == 0) return 1;
+	if(B == 0) return 0;
       
 	*root1 = -1.0 * C / B;
 	*root2 = *root1;
@@ -277,14 +282,14 @@ int quadSolve(float C, float B, float A, float* root1, float* root2) {
     float discriminant = (B * B) - (4 * A * C);
       
     //Cannot do imaginary numbers, yet
-    if (discriminant < 0) return 1;
+    if (discriminant < 0) return 0;
       
     float t = -0.5 * ( B + ((B < 0) ? -1 : 1) * sqrt(discriminant));
       
     *root1 = t / A;
     *root2 = C / t;
 
-    return 0;
+    return 1;
 }
 /**************************************************/
 float quarticError(float a, float b, float c, float d,
@@ -330,8 +335,7 @@ int ferrariQuarticSolve(float a, float b, float c, float d,
 
     if (d == 0.0) {
 	*root1 = 0.0;
-	cubicSolve(a,b,c,root2,root3,root4);
-	return 0;
+	return cubicSolve(a,b,c,root2,root3,root4) + 1;
     }
 
     int   j;
@@ -464,8 +468,10 @@ int ferrariQuarticSolve(float a, float b, float c, float d,
     *root3 = qrts[2][j3];
     *root4 = qrts[3][j3];
 
-    return 0;
+    return (n4[j3]);
 }
+
+
 /**********************************************************/
 /**********************************************************/
 int opt_quat_sine_lapack ( double ** x, int NX, int *set_of_directions_x,
@@ -540,13 +546,12 @@ int opt_quat_sine_lapack ( double ** x, int NX, int *set_of_directions_x,
 	    - c*f*i*p + c*f*l*m + c*h*i*n - c*h*j*m - d*e*j*o + d*e*k*n + d*f*i*o
 	    - d*f*k*m - d*g*i*n + d*g*j*m;
 
-	if (ferrariQuarticSolve(B, C, D, E, &w[0], &w[1], &w[2], &w[3])) {
-	    return 1;
-	}
+	ferrariQuarticSolve(B, C, D, E, &w[0], &w[1], &w[2], &w[3]);
+
     }
-    double min_w = 800000;
-    int    min_i = -1;
-    for (i=0; i<4; i++) {
+    double min_w = w[0];
+    int    min_i = 0;
+    for (i=1; i<4; i++) {
 	if (w[i] > min_w) continue;
 	min_w = w[i];
 	min_i = i;
@@ -561,7 +566,6 @@ int opt_quat_sine_lapack ( double ** x, int NX, int *set_of_directions_x,
     /* rmsd is the lowest eignevalue */
     *rmsd = sqrt(min_w);
     /* and the corresponding eigenvector is what we are looking for */
-    //for (i=0; i<4; i++ ) q[i] = A[0][i];
     if (0) {
 	/* w contains the eigenvalues */
 	printf (" eigenvals without lapack:\n");
@@ -571,7 +575,6 @@ int opt_quat_sine_lapack ( double ** x, int NX, int *set_of_directions_x,
 	for (i=0; i<4; i++ ) printf ("%8.3lf ", q[i]);
 	printf ("\n");
 	printf ("**********************************\n");
-	/* printf (" opt lwork: %d\n", (int) work[0]); */
     }
     
     return 0;
@@ -626,7 +629,6 @@ int opt_quat_lapack ( double ** x, int NX, int *set_of_directions_x,
 	    printf ("\t y%1d   %10.4lf  %10.4lf  %10.4lf \n",
 		    ctr, y_sub[ctr][0], y_sub[ctr][1], y_sub[ctr][2]);
 	}
-	exit (1);
     }
 
      
@@ -659,7 +661,7 @@ int opt_quat_lapack ( double ** x, int NX, int *set_of_directions_x,
     double w [4];
     double work[200];
     
-    if ( !( A=dmatrix(4,4) ) ) exit (1);
+    if ( !( A=dmatrix(4,4)) ) exit (1);
     memcpy (A[0], ATA_sum[0], 4*4*sizeof(double));
 
    /* note how we pass the matrix: */
