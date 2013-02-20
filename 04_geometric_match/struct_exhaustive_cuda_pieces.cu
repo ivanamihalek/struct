@@ -7,7 +7,6 @@
 #include <thrust/system_error.h>
 
 
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -534,7 +533,7 @@ __device__ int add_matrices_gpu  (float matrix1[4][4],float matrix2[4][4],
 
 /**********************************************************/
 /**********************************************************/
-__device__ int opt_quat_gpu(float *x_d, float *x_cm_d, float *y_d, float *y_cm_d,
+__device__ int opt_quat_gpu(float *x_d, float *y_d, 
 			    int *set_of_directions_x, int *set_of_directions_y,
 			    float q[4], float * rmsd) {
 
@@ -881,7 +880,7 @@ __global__ void find_triplets_gpu (float *x_d, float *x_cm_d, float *y_d, float 
         row_data = (int*)(((char*)y_triple_array_d) + (col * PITCH));
         
         for (i = 0; i < 3; ++i) {
-            triple_y[i] =  row_data[i];
+            triple_y[i] = row_data[i];
         }  
         
         for (i = 0; i <3; ++i) {
@@ -891,12 +890,12 @@ __global__ void find_triplets_gpu (float *x_d, float *x_cm_d, float *y_d, float 
 
         if (!same_hand_triple_gpu(x_d, x_cm_d, y_d, y_cm_d, triple_x, triple_y, 3) ) return;
 
-        distance_of_nearest_approach_gpu(x_d, x_cm_d, y_d, y_cm_d, triple_x, triple_y, 3, &rmsd);
+        distance_of_nearest_approach_gpu(x_d, x_cm_d,  y_d, y_cm_d, triple_x, triple_y, 3, &rmsd);
         if (rmsd > BAD_RMSD) {
             return; 
         }
 
-	if (opt_quat_gpu (x_d, x_cm_d, y_d, y_cm_d, triple_x, triple_y, q, &rmsd)) return;
+	if (opt_quat_gpu (x_d, y_d, triple_x, triple_y, q, &rmsd)) return;
 	
 	// insert values to array of structs
         triple_array_d[row*cnt_y + col].rmsd = rmsd;

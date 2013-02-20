@@ -10,7 +10,7 @@ VPATH = ../01_data_structures:../02_parsers:../03_output:\
 	../04_geometric_match:../05_preproc:../06_main:\
 	../07_utils
 
-CUDA_FLAGS = -I/opt/cuda-sdk/C/common/inc/ -arch sm_13
+CUDA_FLAGS = -I/opt/cuda-sdk/C/common/inc/   -arch sm_20
 
 LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
@@ -56,7 +56,7 @@ struct_exhaustive_cuda_pieces.o: struct_exhaustive_cuda_pieces.cu
 	$(CCOMPL) $(CFLAGS) $(DEFINES)  -c $<  $(INCLUDE)
 
 clean:
-	rm  $(OBJECTS) 
+	rm  $(OBJECTS)  $(GPUOBJS)
 
 
 

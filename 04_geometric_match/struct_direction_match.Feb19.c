@@ -217,6 +217,10 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
     /*********************************************/
     map_ctr = 0;
     
+    for (top_ctr=0; top_ctr<10 top_ctr++) {
+	printf (" %d  %8.4lf \n", top_ctr,  best_rmsd[top_ctr]);
+    }
+
     for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
 
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
