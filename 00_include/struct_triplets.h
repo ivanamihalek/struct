@@ -14,9 +14,8 @@ extern "C" {
 
 #include "struct.h"
     
-# define  TOP_RMSD 200
-# define  BAD_RMSD 10.0
-# define JACKFRUIT 8
+# define BAD_RMSD   10.0
+# define JACKFRUIT   8
 # define NUM_THREADS 8
 # define CUTOFF_DNA  3.0
 
@@ -71,7 +70,8 @@ int insert_triple_to_array(int * triple_types, int triple1, int triple2, int tri
 int insert_triple_to_heap (Representation* X_rep, Representation* Y_rep, int ** x_triple_array,
 			  int ** y_triple_array, int x_triple_cnt, int y_triple_cnt, PriorityQueue * heap);
 extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_rep, int ** x_triple_array,
-				     int ** y_triple_array, int x_triple_cnt, int y_triple_cnt, PriorityQueue * heap);
+				     int ** y_triple_array, int x_triple_cnt, int y_triple_cnt,
+				     PriorityQueue * heap, int no_top_rmsd);
 
 int init_triples_array (Triples_array * triples_array, int size);
 int free_triples_array (Triples_array * triples_array);    

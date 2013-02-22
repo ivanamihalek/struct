@@ -124,6 +124,10 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	if ( argv[argi][0] != '-' ) {
 	    fprintf (stderr, "An option should be preceded by a flag: %s\n",  argv[argi]);
 	    return 1;
+	} else if ( ! strncmp (argv[argi], "-gpu", 4)) {
+	    options.gpu = 1;
+	    argi += 1;
+
 	} else if ( ! strcmp (argv[argi], "-no_bb")) {
 	    options.postprocess  = 0;
 	    options.print_header = 0;

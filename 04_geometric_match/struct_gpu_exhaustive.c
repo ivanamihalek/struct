@@ -8,10 +8,10 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
         double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
         double **best_quat) {
     // initialization of global array of values
-    double ** best_quat_array  = dmatrix(no_top_rmsd * NUM_THREADS, 4);
-    int ** best_triple_x_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
-    int ** best_triple_y_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
-    double * best_rmsd_array = (double *) malloc(no_top_rmsd * NUM_THREADS * sizeof (double));
+    double ** best_quat_array     = dmatrix  (no_top_rmsd * NUM_THREADS, 4);
+    int    ** best_triple_x_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
+    int    ** best_triple_y_array = intmatrix(no_top_rmsd * NUM_THREADS, 3);
+    double *  best_rmsd_array     = (double *) malloc(no_top_rmsd * NUM_THREADS * sizeof (double));
 
     int cnt;
 
@@ -22,7 +22,7 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
 
     int i, j, k;
     
-    PriorityQueue heap = Initialize(TOP_RMSD);
+    PriorityQueue heap = Initialize(no_top_rmsd);
 
     int * x_type = X_rep->full_type; // no change
     int NX = X_rep->N_full; // no change
@@ -75,24 +75,22 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
         }
     }
 
-
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.hhh_array, y_triple_array.hhh_array,
-			      x_triple_array.hhh_cnt, y_triple_array.hhh_cnt, &heap);
+			      x_triple_array.hhh_cnt, y_triple_array.hhh_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.hhs_array, y_triple_array.hhs_array,
-			      x_triple_array.hhs_cnt, y_triple_array.hhs_cnt, &heap);
+			      x_triple_array.hhs_cnt, y_triple_array.hhs_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.hsh_array, y_triple_array.hsh_array,
-			      x_triple_array.hsh_cnt, y_triple_array.hsh_cnt, &heap);
+			      x_triple_array.hsh_cnt, y_triple_array.hsh_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.hss_array, y_triple_array.hss_array,
-			      x_triple_array.hss_cnt, y_triple_array.hss_cnt, &heap);
+			      x_triple_array.hss_cnt, y_triple_array.hss_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.shh_array, y_triple_array.shh_array,
-			      x_triple_array.shh_cnt, y_triple_array.shh_cnt, &heap);
+			      x_triple_array.shh_cnt, y_triple_array.shh_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.ssh_array, y_triple_array.ssh_array,
-			      x_triple_array.ssh_cnt, y_triple_array.ssh_cnt, &heap);
+			      x_triple_array.ssh_cnt, y_triple_array.ssh_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.shs_array, y_triple_array.shs_array,
-			      x_triple_array.shs_cnt, y_triple_array.shs_cnt, &heap);
+			      x_triple_array.shs_cnt, y_triple_array.shs_cnt, &heap, no_top_rmsd);
     insert_triple_to_heap_gpu(X_rep, Y_rep, x_triple_array.sss_array, y_triple_array.sss_array,
-			      x_triple_array.sss_cnt, y_triple_array.sss_cnt, &heap);
-    
+			      x_triple_array.sss_cnt, y_triple_array.sss_cnt, &heap, no_top_rmsd);
     
     free_triples_array(&x_triple_array);
     free_triples_array(&y_triple_array);
@@ -102,26 +100,24 @@ int find_best_triples_exhaustive_parallel_gpu(Representation* X_rep, Representat
 
     while (!IsEmpty(heap)) {
         rec = DeleteMax(heap);
-        //printf("%lf\n", rec.rmsd);
+        printf(">> %lf\n", rec.rmsd);
         memcpy(*(best_triple_y_array + counter), &rec.triple_x, 3 * sizeof (int));
         memcpy(*(best_triple_x_array + counter), &rec.triple_y, 3 * sizeof (int));
         memcpy(best_rmsd_array  + counter, &rec.rmsd, sizeof (double));
         counter++;
     }
 
-    
-    // parallel sort of elements of arrays
     sortTriplets(best_triple_x_array, best_triple_y_array, best_rmsd_array, best_quat_array, no_top_rmsd);
 
-    memcpy(*best_triple_y, *best_triple_y_array, no_top_rmsd * 3 * sizeof (int));
-    memcpy(*best_triple_x, *best_triple_x_array, no_top_rmsd * 3 * sizeof (int));
-    memcpy(best_rmsd, best_rmsd_array, no_top_rmsd * sizeof (double));
+    memcpy (*best_triple_y, *best_triple_y_array, no_top_rmsd * 3 * sizeof (int));
+    memcpy (*best_triple_x, *best_triple_x_array, no_top_rmsd * 3 * sizeof (int));
+    memcpy (best_rmsd, best_rmsd_array, no_top_rmsd * sizeof (double));
 
 
     free_dmatrix(best_quat_array);
     free_imatrix(best_triple_x_array);
     free_imatrix(best_triple_y_array);
-    free(best_rmsd_array);
+    free        (best_rmsd_array);
     
     return 0;
 

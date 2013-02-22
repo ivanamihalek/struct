@@ -835,9 +835,6 @@ __device__ int  same_hand_triple_gpu(float *x_d, float *x_cm_d, float *y_d, floa
     for (i = 0; i < 3; i++) {
         avg_cm[i]    = (row_data_b[i] - row_data_a[i])/2;
         cm_vector[i] = row_data_c[i]- avg_cm[i];
-        
-        //avg_cm[i] = (y_cm_d[ray_b][i] + y_cm_d[ray_a][i]) / 2;
-        //cm_vector[i] = y_cm_d[ray_c][i] - avg_cm[i];
     }
     /*note: unnorm_dot thinks it is getting unit vectors,
       and evrything that is >1 will be "rounded" to 1
@@ -851,8 +848,9 @@ __device__ int  same_hand_triple_gpu(float *x_d, float *x_cm_d, float *y_d, floa
     return 1; /* this isn't err value - the handedness is the same */
 }
 
-/***************************************************************************/
+    
 
+/***************************************************************************/
 __global__ void find_triplets_gpu (float *x_d, float *x_cm_d, float *y_d, float *y_cm_d,
 				   int NX, int NY, int *x_triple_array_d, int *y_triple_array_d, 
 				   int cnt_x, int cnt_y, Triple *triple_array_d, float * rmsd_array_d){
@@ -864,8 +862,6 @@ __global__ void find_triplets_gpu (float *x_d, float *x_cm_d, float *y_d, float 
     float rmsd = -5; 
     float q[4];
     int triple_x[3], triple_y[3];
-    // double q_init[4] = {0.0}; // no change
-
     
     if (row < cnt_x && col < cnt_y) {
 	
@@ -906,10 +902,11 @@ __global__ void find_triplets_gpu (float *x_d, float *x_cm_d, float *y_d, float 
     
 }
 
+/*****************************************************************************************************/
 extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_rep,
 				     int ** x_triple_array, int ** y_triple_array, int x_triple_cnt,
-				     int y_triple_cnt, PriorityQueue * heap) {
-    
+				     int y_triple_cnt, PriorityQueue * heap, int  no_top_rmsd) {
+
 
     double **x_db = X_rep->full;
     double **x_cm_db = X_rep->cm;
@@ -955,7 +952,7 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
     clock_gettime(CLOCK_REALTIME, &requestStart);
         
     
-    Triple * triple_array = (Triple *) malloc(TOP_RMSD * sizeof(Triple));
+    Triple * triple_array = (Triple *) malloc(no_top_rmsd * sizeof(Triple));
     
     
     if (cudaSuccess != cudaMalloc(&x_d, NX * 3 * PITCH * sizeof(float))) printf("CUDA allocation error!\n");
@@ -1006,6 +1003,7 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
     
     size_t cnt_y_rest = cnt_y;
     
+
     
     while (not_enough_memory) {
     
@@ -1032,43 +1030,29 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
         
         int * y_triple_array_d_curr = (int*)(((char*)y_triple_array_d) + (y_triple_array_pos * PITCH));
         
-        find_triplets_gpu <<<numBlocks, threadsPerBlock>>> (x_d, x_cm_d, y_d, y_cm_d, NX, NY, x_triple_array_d, y_triple_array_d_curr, 
-        cnt_x, cnt_y, triple_array_d, rmsd_array_d);
+ 	find_triplets_gpu <<<numBlocks, threadsPerBlock>>> (x_d, x_cm_d, y_d, y_cm_d, NX, NY, x_triple_array_d, y_triple_array_d_curr, 
+							    cnt_x, cnt_y, triple_array_d, rmsd_array_d);
  
         cudaThreadSynchronize();
        
         
 	Triple * triple_array_output_d;
     
-        size_t no_of_out_pairs = TOP_RMSD < (cnt_x * cnt_y)? TOP_RMSD : cnt_x * cnt_y; 
+        size_t no_of_out_pairs = no_top_rmsd < (cnt_x * cnt_y)? no_top_rmsd : cnt_x * cnt_y; 
         if (cudaSuccess != cudaMalloc((void **)&triple_array_output_d, no_of_out_pairs*sizeof(Triple))) printf("CUDA allocation error!\n");    
         
-        thrust::device_vector<int>  indices(cnt_x * cnt_y); 
+        thrust::device_vector<int> indices(cnt_x * cnt_y); 
         thrust::sequence(indices.begin(),indices.end());
         thrust::device_ptr<Triple> structures(triple_array_d);
         thrust::device_ptr<Triple> structures_out(triple_array_output_d);
-        thrust::device_ptr<float>rmsd(rmsd_array_d);
+        thrust::device_ptr<float>  rmsd(rmsd_array_d);
          
-        //thrust::sort_by_key(rmsd, rmsd + cnt_x * cnt_y, structures);
         thrust::sort_by_key(rmsd, rmsd + cnt_x * cnt_y, indices.begin());
-        
-
         thrust::device_vector<int>::iterator iter = indices.begin() + no_of_out_pairs;
-        
         thrust::gather(indices.begin(), iter, structures, structures_out);
 
-        // thrust::sort(structures, structures+ cnt_x * cnt_y, greater_rmsd());
-        
-        
-        
-        //cudaMemcpy(triple_array, triple_array_d, no_of_out_pairs * sizeof(Triple), cudaMemcpyDeviceToHost);
-        cudaMemcpy(triple_array, triple_array_output_d, no_of_out_pairs * sizeof(Triple), cudaMemcpyDeviceToHost);
-/*
-        cudaFree(triple_array_d);
-        cudaFree(y_triple_array_d);
-        cudaFree(rmsd_array_d);
-*/
- 
+        cudaMemcpy(triple_array, triple_array_output_d, no_of_out_pairs*sizeof(Triple), cudaMemcpyDeviceToHost);
+
         
         int m;
         for(m = 0; m < no_of_out_pairs; ++m) {
@@ -1099,7 +1083,8 @@ extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_re
     free_fmatrix(x_cm);
     free_fmatrix(y);
     free_fmatrix(y_cm);
-   
+
+    
     return 0;
 }
 

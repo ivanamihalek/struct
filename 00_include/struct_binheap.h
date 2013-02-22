@@ -6,7 +6,7 @@ extern "C" {
 #endif
 
 typedef struct {
-    float rmsd;
+    double rmsd;
     int triple_x[3];
     int triple_y[3];
     double quat[4];

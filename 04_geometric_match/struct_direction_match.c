@@ -27,10 +27,10 @@ Contact: ivana.mihalek@gmail.com.
 
 	 //# include "gperftools/profiler.h"
 
-# define  TOP_RMSD 200
-# define  BAD_RMSD 10.0
-# define JACKFRUIT 8
-# define NUM_THREADS 8
+# define  TOP_RMSD   200
+# define  BAD_RMSD    10.0
+# define  JACKFRUIT    8
+# define  NUM_THREADS  8
 
 
 int find_best_triples_exhaustive (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
@@ -41,9 +41,8 @@ int find_best_triples_greedy(Representation* X_rep, Representation* Y_rep, int n
 			     double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
 			     double **best_quat);
 
-int find_best_triples_exhaustive_parallel    (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
-        double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
-        double **best_quat);
+int find_best_triples_exhaustive_parallel (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
+        double * best_rmsd, int ** best_triple_x, int ** best_triple_y, double **best_quat);
 int find_best_triples_exhaustive_redux       (Representation* X_rep, Representation* Y_rep, int no_top_rmsd,
 				  double * best_rmsd, int ** best_triple_x, int ** best_triple_y,
 					double **best_quat);
@@ -207,7 +206,7 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	if (options.gpu) {
 # ifdef GPU
 	    find_best_triples_exhaustive_parallel_gpu (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-						   best_triple_x, best_triple_y, best_quat);
+						       best_triple_x, best_triple_y, best_quat);
 # else
 	    fprintf (stderr, "from %s:%d: to use GPU pll, please recompile with -DGPU flag.\n",
 		     __FILE__, __LINE__);
@@ -225,7 +224,7 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 # endif
 	} else {
 	    find_best_triples_exhaustive_redux (X_rep, Y_rep, no_top_rmsd, best_rmsd, 
-	    				  best_triple_x, best_triple_y, best_quat);
+						best_triple_x, best_triple_y, best_quat);
 	}
     } else {
     
@@ -233,32 +232,30 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	 * Greedy search - old algorithm
 	 */
   	find_best_triples_greedy (X_rep, Y_rep, no_top_rmsd, best_rmsd,  
-			      best_triple_x, best_triple_y, best_quat);
+				  best_triple_x, best_triple_y, best_quat);
     }
     
     //ProfilerStop();
     /*********************************************/
     /*   main loop                               */
     /*********************************************/
-    
     for (top_ctr=0; top_ctr<10; top_ctr++) {
 	printf (" %d  %8.4lf \n", top_ctr,  best_rmsd[top_ctr]);
     }
     map_ctr = 0;
+    
     for (top_ctr=0; top_ctr<no_top_rmsd && done==0; top_ctr++) {
-
 	if ( best_rmsd[top_ctr] > BAD_RMSD ) break;
 
 	quat_to_R (best_quat[top_ctr], R);
 	rotate (x_rotated, NX, R, x);
-
 
 	F_current = F( y, y_type, NY, x_rotated, x_type, NX, alpha);
 
 	/* find map which uses the 2 triples as anchors */
 	no_anchors = 3;
 	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + map_ctr,
-		   best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
+		  best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
 	/* does this map still map the two triples we started with? */
 	x2y = (map + map_ctr) ->x2y;
@@ -269,8 +266,7 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	    }
 	}
 	if ( map_unstable) continue;
-
-	/* do the mapped SSEs match in length? */
+        /* do the mapped SSEs match in length? */
 	if (options.use_length &&
 	    (map+map_ctr)->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
 	
@@ -304,8 +300,6 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	if ( opt_quat (x,  NX, anchor_x, y, NY, anchor_y, no_anchors, q, &rmsd)) continue;
 
 	retval = monte_carlo (alpha, x, x_type_fudg, NX,  y,  y_type_fudg, NY, q, &F_current);
-
-
 	if (retval) return retval;
 
 	if (options.postprocess) {
@@ -349,79 +343,6 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
     list->no_maps_used     = map_ctr;
     list->best_array_used  = best_ctr;
 
-    
-    /******************************************************/
-    /* look for the sub-map of a couple of best hits      */
-    /* if the requested number of complementary maps to   */
-    /* to output is zero, then do not go in here          */
-    /******************************************************/
-    if (0) { 
-	/* initialization:*/
-
-	Map combined_map = {0};
-	if (NX && NY) if ( initialize_map (&combined_map, NX, NY) ) exit (1);
-    
-  
-	map_best[best_ctr] = -1;
-  
-	best_ctr = 0;
-	while (  map_best[best_ctr] >  -1 ) {
-	    best_ctr ++;
-	}
-
-    
-	if ( best_ctr) {
-	    int nr_maps = (best_ctr<options.number_maps_cpl)?
-		best_ctr : options.number_maps_cpl;
-	    int best_i;
-	    int consistent;
-	    double z;
-	    double total_assigned_score, score, best_score = -100;
-	    double gap_score;
-
-	    for (i=0; i<nr_maps; i++) { /* look for the complement */
-		best_i =  map_best[i];
-	    
-		/*intialize the (list of) submatch map(s) */
-		if ( !map[best_i].submatch_best) {
-		    /* for now look for a single map only */
-		    /* TODO - would it be worth any to look at more maps?*/ 
-		    int map_max = 1;
-		    map[best_i].submatch_best = emalloc (map_max*sizeof(int) );
-		    if (! map[best_i].submatch_best) return 1;
-		}
-		map[best_i].submatch_best[0]    = -1;
-		map[best_i].score_with_children =  0;
-		map[best_i].compl_z_score       =  0;
-	    
-		for (j=0; j<best_ctr; j++) {
-
-		    if (i==j) continue;
-		
-		    map_complementarity ( map+best_i, map + map_best[j], &z);
-
-		    map_consistence (NX, NY, &combined_map, map+best_i, map + map_best[j],
-				     &total_assigned_score, &gap_score);
-		    consistent = ( (map+best_i)->assigned_score < total_assigned_score
-				   && (map + map_best[j])->assigned_score
-				   < total_assigned_score);
-		    if ( consistent ) {
-			score = total_assigned_score;
-			if (  score > best_score ) {
-			    best_score = score;
-			    map[best_i].submatch_best[0] = map_best[j];
-			    map[best_i].score_with_children = total_assigned_score;
-			    map[best_i].compl_z_score = z;
-			}
-		    }
-		}
-
-	    }
-	}
-    
-	free_map (&combined_map);
-    }
-    
     /**********************/
     /* garbage collection */
     gradient_descent (1, 0.0,  NULL, NULL, 0,
@@ -443,14 +364,11 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
     if (penalty_params.custom_gap_penalty_y) free (penalty_params.custom_gap_penalty_y);
     /*********************/
 
-
-    
     return 0;
 }
 
 /***************************************/
 /***************************************/
-
 int store_sorted (Map * map, int NX, int NY, int *map_best,
 		  int map_max,  double * z_best, int best_ctr,
 		  double z_scr, int  map_ctr, int *stored) {
