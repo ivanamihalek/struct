@@ -54,6 +54,7 @@ int main ( int argc, char * argv[]) {
     
     if ( argc < 2 ) {
 	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
+		  "[ -v] [ -gpu] "
 		  "[ -in2 <pdb/db qry file>] [ -c2 <qry chain>] [-no_bb] [ -p <parameter file>].\n",
 		  argv[0]);
 	exit (1);
