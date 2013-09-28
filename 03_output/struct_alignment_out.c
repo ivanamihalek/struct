@@ -150,17 +150,24 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list,
 	/***************************************************************************/
 	/* create the name for the output file and output it                       */
 	out_ctr++;
-	if (options.outdir[0] ) {
-	    sprintf (outname, "%s/%s.%d.aln", options.outdir, options.outname,out_ctr );
+
+	if (options.outname[0] ) {
+	    sprintf (outname, "%s", options.outname);
 	} else {
-	    sprintf (outname, "%s.%d.aln", options.outname, out_ctr);
+	    sprintf (outname, "alignment");
+	}
+	
+	if (options.outdir[0] ) {
+	    sprintf (outname, "%s/%s.%d.aln", options.outdir, outname, out_ctr );
+	} else {
+	    sprintf (outname, "%s.%d.aln", outname, out_ctr);
 	}
 	fptr  = efopen (outname, "w");
 	if ( !fptr) exit (1);
 
 	/***************************/
 	/* the plain old alignment */
-	fprintf ( fptr, "%% alignment  bewtween  %s  and  %s :\n%%\n", descr1->name, descr2->name);
+	fprintf ( fptr, "%% alignment  bewtween  %s  and  %s:\n%%\n", descr1->name, descr2->name);
 
 	pos = 0;
 	for ( chunk=0; chunk <= last_pos/chunk_size; chunk++) {
@@ -186,7 +193,6 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list,
 	    fprintf (fptr, "  %8.3lf \n", current_map->T[i]);
 	}
 
-	
 	/* mapped secondary structure */
 	fprintf (fptr, "%%\n");
 	fprintf (fptr, "%% mapped elements of secondary structure \n" );
@@ -196,8 +202,6 @@ int write_alignment (Protein *protein1, Protein *protein2,  List_of_maps * list,
 	fprintf (fptr, "%%\n");
 	fprintf (fptr, "%%\n");
 	
-	
-
 	/* mapped Ca's structure */
 	fprintf (fptr, "%%\n");
 	fprintf (fptr, "%% distances of the aligned Ca's:\n%%\n" );

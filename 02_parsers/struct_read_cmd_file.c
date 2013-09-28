@@ -277,22 +277,7 @@ int read_cmd_file (char *filename) {
     }
 # endif
 
-    
-    
-    if ( options.outdir[0] ) {
-	/* chcek whther this directory exists */
-	struct stat st;
-	if ( stat(options.outdir, &st) )  {
-	    fprintf (stderr, "%s  not found.\n", options.outdir);
-	    return 1;
-	}
-
-    }
-    
-    if (!options.postprocess) {
-         options.number_maps_out = 1;
-	 options.print_header    = 0;
-    }
+ 
     
     return 0;
 }

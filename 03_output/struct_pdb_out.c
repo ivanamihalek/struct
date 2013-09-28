@@ -23,7 +23,7 @@ Contact: ivana.mihalek@gmail.com.
 # include "struct.h"
 
 int pdb_output (char *filename, double  **tfm_matrix, double * transl_vector,
-		Residue * sequence, int no_res);
+	 	Residue * sequence, int no_res);
 
 int transform_pdb (double  **tfm_matrix, double * transl_vector,
 		   Residue * sequence, int no_res, Residue * sequence_new);
@@ -41,7 +41,11 @@ int write_tfmd_pdb (Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr,
     if (!sequence_new) return 1;
     if (!(R=dmatrix(3,3))) return 1; /* compiler is bugging me otherwise */
 
-
+    if (!options.outname || !options.outname[0]) {
+	fprintf (stderr, "Output assumed formatted by this point: %s:%d\n",  __FILE__, __LINE__);
+	exit(1);
+    }
+    
     out_ctr = 0;
 	
     for (rank_ctr=0; rank_ctr<list->best_array_used && rank_ctr < options.number_maps_out; rank_ctr++) {
@@ -56,7 +60,7 @@ int write_tfmd_pdb (Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr,
 	/* transform the coordinates */ 
 	transform_pdb (R, current_map->T, tgt_protein->sequence, tgt_protein->length, sequence_new);
 
-	sprintf (filename, "%s.to_%s.%d.pdb", tgt_descr->name, qry_descr->name, out_ctr);
+	sprintf (filename, "%s.%d.pdb", options.outname, out_ctr);
 	if ( options.outdir[0])  {
 	    char aux[MEDSTRING] = {'\0'};
 	    sprintf (aux, "%s", filename);
@@ -111,8 +115,8 @@ int pdb_output ( char *filename, double  **tfm_matrix, double * transl_vector, R
 	    serial ++;
 	    atomptr = sequence[resctr].atom + atomctr;
 	    fprintf (fptr,  "%-6s%5d  %-3s%1s%-3s %1c%4s%1s   %8.3lf%8.3lf%8.3lf\n", 
-		     "ATOM",  serial ,  atomptr->type,   " ",   sequence[resctr].res_type,
-		     sequence[resctr].chain, sequence[resctr].pdb_id,   " " ,
+		     "ATOM",  serial,  atomptr->type,   " ",   sequence[resctr].res_type,
+		     sequence[resctr].chain, sequence[resctr].pdb_id,   " ",
 		     atomptr->x,  atomptr->y,   atomptr->z);
 	}
     }

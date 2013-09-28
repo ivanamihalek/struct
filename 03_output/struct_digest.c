@@ -35,17 +35,10 @@ int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest_ptr) {
     
     if (!digest) { /*open new one */
 	char outname[LONGSTRING] = {'\0'};
-	if (!options.outname[0] ) {
-	    if ( qry_descr->name[0] &&  tgt_descr->name[0] ) {
-		sprintf (outname, "%s_%s.struct_out", tgt_descr->name, qry_descr->name);
-		sprintf (options.outname, "%s_%s",    tgt_descr->name, qry_descr->name);
-	    } else {
-		sprintf (outname, "digest.struct_out");
-		sprintf (options.outname, "struct_out");
-	    }
-	    
-	} else {
+	if (options.outname[0] ) {
 	    sprintf (outname, "%s.struct_out", options.outname);
+	} else {
+	    sprintf (outname, "digest.struct_out");
 	}
 
 	if ( options.outdir[0])  {

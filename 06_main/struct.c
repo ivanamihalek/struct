@@ -34,17 +34,17 @@ int main ( int argc, char * argv[]) {
     int tgt_input_type = 0, qry_input_type = 0;
     clock_t CPU_time_begin, CPU_time_end, CPU_comparison_start;
     FILE *qry_fptr    = NULL, *tgt_fptr = NULL, *digest = NULL;
-    Protein qry_structure = {0};
-    Protein tgt_structure = {0};
-    Descr qry_descr   = {0};
-    Descr tgt_descr   = {0};
+    Protein qry_structure  = {0};
+    Protein tgt_structure  = {0};
+    Descr qry_descr        = {0};
+    Descr tgt_descr        = {0};
     Representation qry_rep = {0};
     Representation tgt_rep = {0};
     
-    List_of_maps list_sequential = {NULL};
-    List_of_maps list_out_of_order = {NULL};
-    List_of_maps list_uniq = {NULL};
-    List_of_maps *list1=NULL, *list2=NULL;
+    List_of_maps list_sequential    = {NULL};
+    List_of_maps list_out_of_order  = {NULL};
+    List_of_maps list_uniq          = {NULL};
+    List_of_maps *list1=NULL, *list2= NULL;
      
     int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *list);   
     int process_input_instructions (int argc, char *argv[],
@@ -53,9 +53,9 @@ int main ( int argc, char * argv[]) {
     int set_default_options ();
     
     if ( argc < 2 ) {
-	fprintf ( stderr, "Usage: %s -in1 <pdb/db tgt file> [-c1 <tgt chain>] "
-		  "[ -v] [ -gpu] "
-		  "[ -in2 <pdb/db qry file>] [ -c2 <qry chain>] [-no_bb] [ -p <parameter file>].\n",
+	fprintf ( stderr, "Usage: %s -in/-from <pdb/db tgt file> [-c1 <tgt chain>] "
+		  "[ -to <pdb/db qry file>] [ -c2 <qry chain>] [-max_out <# of almts to output>] [ -v] [ -gpu] "
+		  "[-no_bb] [ -p <parameter file>].\n",
 		  argv[0]);
 	exit (1);
     }
@@ -208,8 +208,9 @@ int main ( int argc, char * argv[]) {
 		    }
 		    db_effective_ctr ++;
 		    
-		    printf (" db:%s  query:%s   CPU:  %10.3lf s\n", tgt_descr.name, qry_descr.name,
-		    	    (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
+		    if (options.verbose) printf (" db:%s  query:%s   CPU:  %10.3lf s\n",
+						 tgt_descr.name, qry_descr.name,
+						 (double)(clock()-CPU_comparison_start)/CLOCKS_PER_SEC );
 
 		    if  (match_found) {
 

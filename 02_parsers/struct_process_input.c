@@ -90,7 +90,24 @@ int process_input_instructions (int argc, char *argv[],
 	}
 	
     }
+    if( !options.outname[0]
+	&& tgt_descr->name && tgt_descr->name[0]
+	&& qry_descr->name && qry_descr->name[0]) {
+	sprintf (options.outname, "%s_to_%s",  tgt_descr->name, qry_descr->name);
+    }
+    if ( options.outdir[0] ) {
+	/* checkk whether this directory exists */
+	struct stat st;
+	if ( stat(options.outdir, &st) )  {
+	    fprintf (stderr, "%s  not found.\n", options.outdir);
+	    return 1;
+	}
+    }
 
+    if (!options.postprocess) {
+         options.number_maps_out = 1;
+	 options.print_header    = 0;
+    }
     *tgt_input_type_ptr = tgt_input_type;
     *qry_input_type_ptr = qry_input_type;
 
@@ -140,15 +157,28 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	} else if (  argi+1 >= argc ) {
 	    fprintf (stderr, "Option %s should be followed by an argument\n",  argv[argi]);
 	    return 1;
-	    
-	} else if ( ! strcmp (argv[argi], "-in") ||  ! strncmp (argv[argi], "-in1", 4)) {
+
+
+	} else if ( ! strncmp (argv[argi], "-in", 3)) {
+	    // A single input structure. Assumes we wil just output the reduced representation and exit.
+	    options.tgt_filename = argv[argi+1];
+	    argi += 2;
+	} else if ( ! strncmp (argv[argi], "-from", 5)) {
+	    // A potentially confusing point here:
+	    // we are mapping from target to query, with the following problem in mind:
+	    // We are searching a databse with a query structure. All targets are mapped ontto
+	    // the query, so we can compare them all in the same frame of reference.
 	    options.tgt_filename = argv[argi+1];
 	    argi += 2;
 	    
-	} else if ( ! strncmp (argv[argi], "-in2", 4)) {
+	} else if ( ! strncmp (argv[argi], "-to", 3)) {
 	    options.qry_filename = argv[argi+1];
 	    argi += 2;
 
+	} else if ( ! strcmp (argv[argi], "-max_out")) {
+	    options.number_maps_out = atoi(argv[argi+1]);
+	    argi += 2;
+	    
 	} else if ( ! strncmp (argv[argi], "-c1", 3)) {
 	    *tgt_chain_ptr = argv[argi+1][0];
 	    argi += 2;
@@ -174,8 +204,6 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	    fprintf (stderr, "Unrecognized option: %s\n",  argv[argi]);
 	    return 1;
 	}
-	
-
     }
 
     if  (!options.qry_filename)

@@ -16,7 +16,7 @@ LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
 INCLUDE =  -I ../00_include
 
 
-DEFINES =    -DGPU  # -DOMP  -DDEBUG  -DDMALLOC 
+DEFINES =   # -DGPU  # -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_binheap.c                 \
 	     struct_map_reduced_reps.c  struct_align_backbone.c  struct_hungarian.c              \
@@ -44,8 +44,11 @@ OBJECTS = $(SOURCES.F:.F=.o)  $(SOURCES.f:.f=.o) $(SOURCES.c:.c=.o)
 GPUOBJS = $(SOURCES.cu:.cu=.o)
 
 
-$(NAME): $(OBJECTS) $(GPUOBJS)
-	$(NVCC) -o $@  $(OBJECTS)  $(GPUOBJS) $(LIBS) 
+#$(NAME): $(OBJECTS) $(GPUOBJS)
+#	$(NVCC) -o $@  $(OBJECTS)  $(GPUOBJS) $(LIBS) 
+
+$(NAME): $(OBJECTS) 
+	$(CCOMPL) -o $@  $(OBJECTS)  $(LIBS) 
 
 #.cu.o:  $(SOURCES.cu) doesn't work for some reason
 #	$(NVCC) $(CUDA_FLAGS) -c $<
