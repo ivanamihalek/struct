@@ -42,14 +42,19 @@ the executable called struct should now be in $STRUCT_HOME
 
 USAGE
 -----
-$STRUCT_HOME/struct -in1 <pdb/db tgt file> [-in2 <pdb/db qry file>] \
-        [-c1 <tgt chain>][-c2 <qry chain>][-no_bb][-v][-p <parameter file>]
+$STRUCT_HOME/struct -in/-from <pdb/db tgt file> [-c1 <tgt chain>] \
+		    [ -to <pdb/db qry file>] [ -c2 <qry chain>] \
+		    [-max_out <# of almts to output>] [ -v] [ -gpu] \
+		    [-no_bb] [ -p <parameter file>]
 
-  -in1/2  input files in db or pdb format (to do the alignment 
-          on backbone level, bith files should be pdb
+
+  -from/to  input files in db or pdb format (to do the alignment 
+          on backbone level, both files should be pdb
   -c1/2   chains for the pdb inputs 1 and 2
+  -max_out number of alignments (pdb and allignemnt files) to output
   -no_bb  do not do the alignment on the backbone level
   -v      verbose output
+  -gpu    GPU versiont (placeholder; not available yet)
   -p      parameter file
 
 
@@ -60,7 +65,7 @@ TEST CASES
 a) 1-on-1 comparison
 
 > cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
-> $STRUCT_HOME/struct -in1 2d8bA.pdb  -in2 1d0nA.pdb
+> $STRUCT_HOME/struct -from 2d8bA.pdb  -to 1d0nA.pdb
 
 view the results:
 > cat   2d8bA_1d0nA.struct_out
@@ -76,11 +81,11 @@ b) making a db file
    of structures, such as PDB itself ]]
 
 > cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
-> $STRUCT_HOME/struct -in1 1d0nA.pdb
+> $STRUCT_HOME/struct -in  1d0nA.pdb
 
 [[ note: it is possible to use the full pdb file here,
 provided you have it available in your directory
-> $STRUCT_HOME/struct -in1 1d0n.pdb -c1 A ]]
+> $STRUCT_HOME/struct -in 1d0n.pdb -c1 A ]]
 
 
 view the output:
@@ -90,7 +95,7 @@ view the output:
 c) database search
 
 > cd $STRUCT_HOME/11_tests/02_db_search
-> $STRUCT_HOME/struct -in1 small_test.db -in2 2d8bA.db
+> $STRUCT_HOME/struct -from small_test.db -to ../01_2d8bA_1d0nA/2d8bA.db
 
 view the output
 > cat digest.struct_out
