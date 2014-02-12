@@ -90,22 +90,28 @@ while (<IF>) {
 	print  "Error running $cmd.\n"; 
 	exit(1);
     }
-    `rm *.struct_out*`;
+    my $name_root = "$current_qry\_to_$pdb_code$pdb_chain";
+
 
     for my  $match_no ( 0 .. 5 ) {
-	my $struct_chainfile_orig    = "$current_qry.to_$pdb_code$pdb_chain.$match_no.pdb";
+	my $struct_chainfile_orig    = "$name_root.$match_no.pdb";
 	my $struct_chainfile_renamed = 
 	    "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.$match_no.pdb";
 
 	if (-e $struct_chainfile_orig) {
 	    `mv $struct_chainfile_orig $struct_chainfile_renamed`;
-
+	    
 	} else {
 	    printf "$struct_chainfile_orig not found after\n$cmd\n";
 	    #exit;
 	}
 
     }
+    # cleanup after ourselves
+    `rm $name_root.struct_out`;
+    `rm $name_root.aln`;
+    `rm $name_root.*.pdb`;
+    
 }
 
 close IF;
