@@ -10,23 +10,23 @@ foreach ($top_path, $tfm_table,  $struct) {
     (-e $_) || die "$_ not found.\n";
 }
 
-foreach ("fold", "homologous", "fragment") {
-    (-e $_) || `mkdir $_`;
-}
-
 
 my ($alignment_id, $alig_type, $pdb_code, $pdb_chain, $mat11, $mat12, 
  $mat13, $mat21, $mat22, $mat23, $mat31, $mat32, $mat33, 
  $shift1, $shift2, $shift3) = ();
 
 
-open ( LOG, ">struct.log")  ||
+open (LOG, ">struct.log") ||
     die "Cno struct.log: $!\n";
 
-open ( IF, "<$tfm_table") ||
+open (IF, "<$tfm_table") ||
     die "Cno $tfm_table: $!\n";
 
+(-e "sisyphus_alnmt_types") || die "sisyphus_alnmt_types\n";
 my $home = `pwd`; chomp $home;
+foreach ("fold", "homologous", "fragment") {
+    (-e $_) || die "$_ not found in $home.\n";
+}
 
 my $qryfile = "";
 while (<IF>) {
@@ -102,9 +102,6 @@ while (<IF>) {
 	}
 
     }
-
-
-
 }
 
 close IF;
