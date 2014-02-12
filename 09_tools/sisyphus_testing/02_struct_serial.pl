@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w 
 
-use strict;
+#use strict;
 
 my $top_path  = "/home/ivanam";
 my $tfm_table = "sysphus_tfms.csv";
