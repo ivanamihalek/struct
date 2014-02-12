@@ -58,8 +58,14 @@ while (<IF>) {
 
 
     my $chainfile     = "pdbchains/$current_qry/$pdb_code$pdb_chain.pdb";
-    (-e $chainfile) || die "$chainfile not found in".`pwd`;
-    (-z $chainfile)  && die "$chainfile empty in".`pwd`;
+    if (! -e $chainfile) {
+	print "$chainfile not found in ".`pwd`;
+	next;
+    }
+    if (-z $chainfile) {
+	print  "$chainfile empty in ".`pwd`;
+	next;
+    }
    
     if ($is_query) {
 	$qryfile = $chainfile;
