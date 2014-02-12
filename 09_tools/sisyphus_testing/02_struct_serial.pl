@@ -16,8 +16,6 @@ my ($alignment_id, $alig_type, $pdb_code, $pdb_chain, $mat11, $mat12,
  $shift1, $shift2, $shift3) = ();
 
 
-open (LOG, ">struct.log") ||
-    die "Cno struct.log: $!\n";
 
 open (IF, "<$tfm_table") ||
     die "Cno $tfm_table: $!\n";
@@ -112,7 +110,6 @@ while (<IF>) {
     `rm -f $name_root.*.aln`;
     `rm -f $name_root.*.pdb`;
     `rm -f *.db`;
-    exit;
 }
 
 close IF;
