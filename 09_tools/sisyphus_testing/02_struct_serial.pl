@@ -106,7 +106,7 @@ while (<IF>) {
 	    
 	} else {
 	    printf "$struct_chainfile_orig not found after\n$cmd\n";
-	    #exit;
+	    last;
 	}
 
     }
