@@ -82,6 +82,7 @@ while (<IF>) {
     # apply struct to the same problem
 
     my $cmd = "time $struct  -in1 $qryfile -in2 $chainfile "; #-p ../params";
+    print $cmd, "\n";
     if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
 	print  "Error running $cmd.\n"; 
