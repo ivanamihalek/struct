@@ -108,10 +108,11 @@ while (<IF>) {
 
     }
     # cleanup after ourselves
-    `rm $name_root.struct_out`;
-    `rm $name_root.aln`;
-    `rm $name_root.*.pdb`;
-    
+    `rm -f $name_root.struct_out`;
+    `rm -f $name_root.aln`;
+    `rm -f $name_root.*.pdb`;
+    `rm -f *.db`;
+    exit;
 }
 
 close IF;
