@@ -30,6 +30,8 @@ foreach ("fold", "homologous", "fragment") {
 }
 
 my $qryfile = "";
+my $is_query    = 0;
+my $current_qry = "";
 while (<IF>) {
 
  
@@ -43,21 +45,17 @@ while (<IF>) {
     $pdb_chain =~ s/\"//g;
     $alig_type =~ s/\"//g;
 
-    my $is_query    = 0;
-    my $current_qry = "";
+    $is_query = 0;
     if ( /1 0 0 0 1 0 0 0 1 0 0 0/ )  {
 	$is_query    = 1;
 	$current_qry = "$pdb_code$pdb_chain";
     } 
 
-    print "\n\n\n##############################################\n";
-    print "$pdb_code\n";
 
 
     chdir $home;
     chdir "$home/$alig_type";
     (-e "pdbchains") ||  die "pdbchains dir not found\n";
-    (-e "pdbchains/$current_qry") || die "pdbchains/$current_qry not found\n"; 
     (-e "sys_tfms")  || die "sys_tfms not found\n";
 
 
@@ -68,8 +66,13 @@ while (<IF>) {
     my $qryfile;
     if ($is_query) {
 	$qryfile = $chainfile;
+	print "\n\n\n##############################################\n";
+	print "$pdb_code\n";
+	(-e "pdbchains/$current_qry") || die "pdbchains/$current_qry not found\n"; 
 	next;
     }
+
+    print "$pdb_code\n";
 
     ###########################################################
     # tfm according to sysiphus
