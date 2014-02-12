@@ -63,7 +63,6 @@ while (<IF>) {
     (-e $chainfile) || die "$chainfile not found in".`pwd`;
     (-z $chainfile)  && die "$chainfile empty in".`pwd`;
    
-    my $qryfile;
     if ($is_query) {
 	$qryfile = $chainfile;
 	print "\n\n\n##############################################\n";
@@ -89,7 +88,7 @@ while (<IF>) {
     if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
 	print  "Error running $cmd.\n"; 
-	next;
+	exit(1);
     }
     `rm *.struct_out*`;
 
