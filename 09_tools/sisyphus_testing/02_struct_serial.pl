@@ -6,7 +6,7 @@ my $top_path  = "/home/ivanam";
 my $tfm_table = "sysphus_tfms.csv";
 my $struct    = "$top_path/kode/03_struct/struct"; 
 
-foreach ($top_path, $tfm_table, "params", $struct) {
+foreach ($top_path, $tfm_table,  $struct) {
     (-e $_) || die "$_ not found.\n";
 }
 
@@ -80,7 +80,7 @@ while (<IF>) {
     ###########################################################
     # apply struct to the same problem
 
-    my $cmd = "time $struct  -in1 $qryfile -in2 $chainfile -p ../params";
+    my $cmd = "time $struct  -in1 $qryfile -in2 $chainfile "; #-p ../params";
     if  (system $cmd ) {
 	print LOG "Error running $cmd.\n";
 	print  "Error running $cmd.\n"; 
