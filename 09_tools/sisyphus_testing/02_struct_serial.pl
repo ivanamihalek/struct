@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w 
 
+use Strict;
+
 $top_path  = "/home/ivanam";
 $tfm_table = "sysphus_tfms.csv";
 $pdbdir    = "$top_path/databases/pdbfiles";
@@ -41,8 +43,6 @@ open ( IF, "<$tfm_table") ||
 $home = `pwd`; chomp $home;
 
 $qryfile = "";
-
-
 while (<IF>) {
 
  
@@ -62,8 +62,6 @@ while (<IF>) {
 	$current_qry = "$pdb_code$pdb_chain";
     } else {
 	$is_query    = 0;
-	#$ctr++;
-	#($ctr==11) && exit;
     }
 
     print "\n\n\n##############################################\n";
@@ -71,34 +69,18 @@ while (<IF>) {
 
 
     chdir $home;
-
-    (  -e  "$pdbdir/$pdb_code.pdb") || next;
-
-    
+    (  -e  "$pdbdir/$pdb_code.pdb") ||  die "$pdbdir/$pdb_code.pdb not found\n";
 
     chdir "$home/$alig_type";
-
-    (-e "pdbchains") || `mkdir pdbchains`;
-    (-e "pdbchains/$current_qry") || `mkdir pdbchains/$current_qry`;
-    (-e "sys_tfms")  || `mkdir sys_tfms`;
+    (-e "pdbchains") ||  die "pdbchains dir not found\n";
+    (-e "pdbchains/$current_qry") || die "pdbchains/$current_qry not found\n"; 
+    (-e "sys_tfms")  || die "sys_tfms not found\n";
 
 
     $chainfile     = "pdbchains/$current_qry/$pdb_code$pdb_chain.pdb";
-    
-    if (! -e $chainfile || -z $chainfile) {
-	# extract chain
-
-	$cmd = "$extr $pdbdir/$pdb_code.pdb $pdb_chain >  $chainfile";
-	if (system $cmd) {
-	    print LOG "Error running $cmd.\n";
-	}
-	if (! -e $chainfile || -z $chainfile) {
-	    die " could not create $chainfile.\n";
-	}
-   }
+    (-e $chainfile) || die "$chainfile not found in".`pwd`;
+    (-z $chainfile)  && die "$chainfile empty in".`pwd`;
    
-
-
     if ($is_query) {
 	$qryfile = $chainfile;
 	next;
