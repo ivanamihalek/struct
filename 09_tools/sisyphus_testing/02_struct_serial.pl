@@ -84,9 +84,8 @@ while (<IF>) {
     my $cmd = "time $struct  -from $qryfile -to $chainfile "; #-p ../params";
     print $cmd, "\n";
     if  (system $cmd ) {
-	print LOG "Error running $cmd.\n";
 	print  "Error running $cmd.\n"; 
-	exit(1);
+	next;
     }
     my $name_root = "$current_qry\_to_$pdb_code$pdb_chain";
 
