@@ -3,7 +3,7 @@
 $top_path  = "/home/ivanam";
 $tfm_table = "sysphus_tfms.csv";
 
-$nossa     = "$top_path/kode/09_tools/no_seq_sim_struct_superp_analyzer/nossa";
+$nossa     = "$top_path/kode/03_struct/09_tools/no_seq_sim_struct_superp_analyzer/nossa";
 
 
 foreach ($top_path, $tfm_table,  $nossa) {
