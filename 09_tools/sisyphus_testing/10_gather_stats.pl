@@ -1,25 +1,17 @@
 #!/usr/bin/perl -w 
 
-$top_path  = "/home/miles";
+$top_path  = "/home/ivanam";
 $tfm_table = "sysphus_tfms.csv";
 
-$nossa     = "$top_path/Projects/struct/09_tools/no_seq_sim_struct_superp_analyzer/nossa";
+$nossa     = "$top_path/kode/09_tools/no_seq_sim_struct_superp_analyzer/nossa";
 
 
-foreach ($top_path, $tfm_table, "params",
-	  $nossa) {
+foreach ($top_path, $tfm_table,  $nossa) {
     (-e $_) || die "$_ not found.\n";
 }
 
-foreach ("fold", "homologous", "fragment") {
-    (-e $_) || `mkdir $_`;
-}
 
-
-
-
-
-($alignment_id, $pdb_code, $pdb_chain, $mat11, $mat12, 
+($alignment_id, $alig_type, $pdb_code, $pdb_chain, $mat11, $mat12, 
  $mat13, $mat21, $mat22, $mat23, $mat31, $mat32, $mat33, 
  $shift1, $shift2, $shift3) = ();
 
@@ -52,25 +44,31 @@ while (<IF>) {
 	$current_qry = "$pdb_code$pdb_chain";
     } else {
 	$is_query    = 0;
-	#$ctr++;
-	#($ctr==11) && exit;
     }
 
     chdir $home;
     chdir "$home/$alig_type";
 
-    (-e "pdbchains") || `mkdir pdbchains`;
-    (-e "pdbchains/$current_qry") || `mkdir pdbchains/$current_qry`;
-    (-e "sys_tfms")  || `mkdir sys_tfms`;
-
-
-    $chainfile = "pdbchains/$current_qry/$pdb_code$pdb_chain.pdb";
+    (-e "pdbchains") ||  die "pdbchains dir not found\n";
+    (-e "sys_tfms")  ||  die "sys_tfms not found\n";
+    (-e "pdbchains/$current_qry") || die "pdbchains/$current_qry not found";
     
-    next if (! -e $chainfile || -z $chainfile);
 
-
+    my $chainfile     = "pdbchains/$current_qry/$pdb_code$pdb_chain.pdb";
+    if (! -e $chainfile) {
+	#print "$chainfile not found in ".`pwd`;
+	next;
+    }
+    if (-z $chainfile) {
+	#print  "$chainfile empty in ".`pwd`;
+	next;
+    }
+   
     if ($is_query) {
 	$qryfile = $chainfile;
+	#print "\n\n\n##############################################\n";
+	#print "$pdb_code\n";
+	#(-e "pdbchains/$current_qry") || die "pdbchains/$current_qry not found\n"; 
 	next;
     }
 
@@ -158,7 +156,7 @@ while (<IF>) {
     ###########################################################
     ###########################################################
     ###########################################################
-    # apply struct to the same problem
+    # struct
 
     $max_score{"struct"} = -1;
     $max_match_no{"struct"} = -1;
