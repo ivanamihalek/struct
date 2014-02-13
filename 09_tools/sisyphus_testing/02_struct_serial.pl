@@ -20,7 +20,7 @@ my ($alignment_id, $alig_type, $pdb_code, $pdb_chain, $mat11, $mat12,
 open (IF, "<$tfm_table") ||
     die "Cno $tfm_table: $!\n";
 
-(-e "sisyphus_alnmt_types") || die "sisyphus_alnmt_types\n";
+(-e "sisyphus_alnmt_types") || die "sisyphus_alnmt_types not found\n";
 chdir "sisyphus_alnmt_types";
 my $home = `pwd`; chomp $home;
 foreach ("fold", "homologous", "fragment") {

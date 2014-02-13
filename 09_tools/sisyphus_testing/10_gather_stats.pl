@@ -20,7 +20,14 @@ foreach ($top_path, $tfm_table,  $nossa) {
 open ( IF, "<$tfm_table") ||
     die "Cno $tfm_table: $!\n";
 
-$home = `pwd`; chomp $home;
+
+(-e "sisyphus_alnmt_types") || die "sisyphus_alnmt_types not found\n";
+chdir "sisyphus_alnmt_types";
+my $home = `pwd`; chomp $home;
+foreach ("fold", "homologous", "fragment") {
+    (-e $_) || die "$_ not found in $home.\n";
+}
+
 
 $qryfile = "";
 
