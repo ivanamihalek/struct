@@ -28,7 +28,7 @@ Contact: ivana.mihalek@gmail.com.
 
 
 /**
- * Function that calculates the first determination f' of the function f
+ * Function that calculates the first derivative f' of the function f
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f' = x[1] + 2 * x[2]*t + 3 * x[3]*t^2
  * @param x 
@@ -42,7 +42,7 @@ double der1(double *x, double t) {
 
 
 /**
- * Function that calculates the second determination f'' of the function f
+ * Function that calculates the second derivative f'' of the function f
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f'' = 2 * x[2] + 6 * x[3]*t
  * @param x
@@ -54,7 +54,7 @@ double der2(double *x, double t) {
 }
 
 /**
- * Function that calculates the third determination f''' of the function f
+ * Function that calculates the third derivative f''' of the function f
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f''' = 6 * x[3]
  * @param x
@@ -106,7 +106,11 @@ int find_beta_curvature(Protein * protein){
     Residue res;
     int exists_ca = 1;
     float curv;
-    // printf("%d\n", length);
+
+    printf("length:%d  fitting length:%d\n", length, NO_OF_POINTS);
+
+    // determinng that something is a helix is easier. so we take this as done already
+    // we do not mess with regions already established to be helices
     
     for (i=0; i < length -(NO_OF_POINTS -1); ++i) {
        // printf("%d\n", i);
@@ -125,7 +129,8 @@ int find_beta_curvature(Protein * protein){
         }
         if (! exists_ca) continue;
         // calculation of the curvature and the structure of the middle residue 
-        curv = fit_curve(x,y,z); 
+        curv = fit_curve(x,y,z);
+	printf (" pos: %d  curvature %8.3f\n", i+1, curv);
         if (curv < MAX_CURVE) {
             protein->sequence[i+NO_OF_POINTS/2].belongs_to_strand = 1;
             protein->sequence[i+NO_OF_POINTS/2].belongs_to_helix = 0;
@@ -196,7 +201,7 @@ void torsion(double *a, double *b, double *c, double *t, int size, double *tors)
     free(denum);
 }
 
-/** Function that return init parameters for fitting. The initial guess is a line between the 
+/** Function that returns init parameters for fitting. The initial guess is a line between the 
  * first and the last point
  * 
  * @param x
@@ -241,7 +246,8 @@ void set_init_param(double *x, double *y, double *z, double *p0) {
 
 double f( double t, const double *p )
 {
-    return p[0] + p[1]*t + p[2]*pow(t,2) + p[3]*pow(t,3);
+    double tsq = t*t;
+    return p[0] + p[1]*t + p[2]*tsq + p[3]*tsq*t;
 }
 
 
@@ -326,7 +332,7 @@ double fit_curve(double *x, double *y, double *z){
         t[i] = i * step; 
     }
     
-    srand((unsigned int)time(NULL));
+    srand((unsigned int)time(NULL));//?
 
     
 /*
@@ -346,19 +352,6 @@ double fit_curve(double *x, double *y, double *z){
     set_init_param(x, y, z, par);
     data_struct data = { t, x, y, z, f };
     
-/*
-    for (i = 0; i < 12; ++i) {
-        printf("%lf ", par[i]);
-    }
-    printf("\n");
-*/
-    
-    /* perform the fit */
-
-    //printf( "Fitting:\n" );
-    
-    
-    
    
     lmmin( n_par, par, m_dat, (const void*) &data,
            residuals, &control, &status, lm_printout_std );
@@ -371,9 +364,8 @@ double fit_curve(double *x, double *y, double *z){
         c[i] = par[i+8];
     }
     
-     
      if (status.fnorm > 2) {
-         return 1;
+         return  1.0;
      }
   
 /*
