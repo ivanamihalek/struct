@@ -21,7 +21,7 @@ Contact: ivana.mihalek@gmail.com.
 */
 
 # include "struct.h"
-# include "struct_curve_tors.h"
+# include "struct_curvature.h"
 
 
 /**
@@ -241,7 +241,7 @@ char struct_type(Residue * res) {
  * @return protein structure by pointer
  */
 
-int determine_sec_structure(Neighbors *neighbors, Protein *protein, int use_beta_curvature) {
+int determine_sec_structure(Neighbors *neighbors, Protein *protein, int use_curvature) {
     int length = protein->length;
     int is_struct;
     int i;
@@ -288,7 +288,7 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein, int use_beta
     
     // estimate whether a position belongs to a strand
     // using distances between neighboring C alpha atoms
-    if (use_beta_curvature == 0) {
+    if (use_curvature == 0) {
 	for (i=0; i < length; ++i) {
             is_struct = is_regular_struct(neighbors +i, &ideal_strand);
             if (is_struct) {
@@ -298,12 +298,11 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein, int use_beta
         }
 	
     } else { // use curvature information
-	find_beta_curvature(protein);
+	strand_by_curvature(protein);
     }
     
     clean_short_structures(&ideal_helix, &ideal_strand, protein);
-    
-    
+        
     return 0;
 }
 
@@ -364,9 +363,9 @@ int structure2sse (Protein *protein) {
        protein->sequence[resctr].belongs_to_strand */
     
     int number_of_SSEs;
-    int use_beta_curvature = 1; // calculate beta strands using a curvature measure
+    int use_curvature = 1; // calculate beta strands using a curvature measure
     
-    determine_sec_structure(neighbors, protein, use_beta_curvature);
+    determine_sec_structure(neighbors, protein, use_curvature);
     enumerate_structures(protein, &number_of_SSEs);
     
     printf (" number of SSEs: %d\n", number_of_SSEs);
@@ -374,8 +373,8 @@ int structure2sse (Protein *protein) {
     if (number_of_SSEs < 3) { // fudge, fudge
         
         number_of_SSEs = 0;
-        use_beta_curvature = 0;
-        determine_sec_structure(neighbors, protein, use_beta_curvature);
+        use_curvature = 0;
+        determine_sec_structure(neighbors, protein, use_curvature);
         enumerate_structures(protein, &number_of_SSEs);
     }
     

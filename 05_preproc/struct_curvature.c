@@ -28,7 +28,7 @@ Contact: ivana.mihalek@gmail.com.
 
 
 /**
- * Function that calculates the first derivative f' of the function f
+ * Function that calculates the first derivative  of the polynomial of the third order
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f' = x[1] + 2 * x[2]*t + 3 * x[3]*t^2
  * @param x 
@@ -37,12 +37,12 @@ Contact: ivana.mihalek@gmail.com.
  */
 
 double der1(double *x, double t) {
-    return x[1] + 2 * x[2] * t + 3 * x[3] * pow(t,2);
+    return x[1] + 2 * x[2] * t + 3 * x[3] * t*t;
 }
 
 
 /**
- * Function that calculates the second derivative f'' of the function f
+ * Function that calculates the second derivative of the polynomial of the third order
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f'' = 2 * x[2] + 6 * x[3]*t
  * @param x
@@ -54,7 +54,7 @@ double der2(double *x, double t) {
 }
 
 /**
- * Function that calculates the third derivative f''' of the function f
+ * Function that calculates the third derivative f''' of the polynomial of the third order
  * f = x[0] + x[1]*t + x[2]*t^2 + x[3]*t^3
  * f''' = 6 * x[3]
  * @param x
@@ -99,44 +99,70 @@ double expr1(double * a, double * b, double *c, double t) {
  * @param protein
  * @return 
  */
-int find_beta_curvature(Protein * protein){
+int strand_by_curvature(Protein * protein){
     int i, j;
     int length = protein->length;
-    double x[NO_OF_POINTS], y[NO_OF_POINTS], z[NO_OF_POINTS]; // coordinates of consecutive CA atoms
+    int no_nbrs = FITTING_NEIGHBORHOOD;
+    int no_of_points = 2*FITTING_NEIGHBORHOOD +1;
+    double x[no_of_points], y[no_of_points], z[no_of_points]; // coordinates of consecutive CA atoms
     Residue res;
-    int exists_ca = 1;
-    float curv;
+    int exists_ca = 1, helix_nbr = 0;
+    double a[4], b[4], c[4];
 
-    printf("length:%d  fitting length:%d\n", length, NO_OF_POINTS);
-
-    // determinng that something is a helix is easier. so we take this as done already
-    // we do not mess with regions already established to be helices
+    // determining that something is a helix is easier. so we take this as done already
+    // we do not mess (or waste time) with regions already established to be helices
     
-    for (i=0; i < length -(NO_OF_POINTS -1); ++i) {
-       // printf("%d\n", i);
+    for (i=no_nbrs; i < length-no_nbrs; ++i) {
+
+	if (protein->sequence[i].belongs_to_helix) continue;
+
+	// printf("%d\n", i);
         exists_ca = 1;
-        for (j=0; j<NO_OF_POINTS; ++j){
-            res = protein->sequence[i+j];
+	helix_nbr = 0;
+        for (j=0; j< no_of_points; ++j){
+            res = protein->sequence[i-no_nbrs+j];
             if ( ! res.Ca) {
                 exists_ca = 0;
                 break;
             }
-            
+            if (protein->sequence[i-no_nbrs+j].belongs_to_helix)  {
+		helix_nbr = 1;
+		break;
+	    }
             // taking coordinates
             x[j] = res.Ca->x;
             y[j] = res.Ca->y;
             z[j] = res.Ca->z;
         }
-        if (! exists_ca) continue;
-        // calculation of the curvature and the structure of the middle residue 
-        curv = fit_curve(x,y,z);
-	printf (" pos: %d  curvature %8.3f\n", i+1, curv);
-        if (curv < MAX_CURVE) {
-            protein->sequence[i+NO_OF_POINTS/2].belongs_to_strand = 1;
-            protein->sequence[i+NO_OF_POINTS/2].belongs_to_helix = 0;
+        if (! exists_ca || helix_nbr) continue;
+        // use polynomial fit to estimate the curvature
+        polynomial_fit(x,y,z, no_of_points, a, b, c);
+	
+        //if (   curvature(a, b, c, 0.5) < MAX_CURVATURE && fabs(torsion(a, b, c, 0.5)) < MAX_TORSION) {
+        if (   curvature(a, b, c, 0.5) < MAX_CURVATURE ) {
+            protein->sequence[i].belongs_to_strand = 1;
+            protein->sequence[i].belongs_to_helix  = 0;
         }
-       // printf("%d %c %lf\n", i+1+2, struct_type(&protein->sequence[i+2]), curv);
+	
     }
+
+    // second pass: check one more time whether the strand we are defining is too long:
+    /* int candidate_strand_length = 0; */
+    /* int strand_start = -1; */
+    /* for (i=no_of_points/2; i < length -(no_of_points/2 -1); ++i) { */
+    /* 	if (! protein->sequence[i].belongs_to_strand) { */
+
+    /* 	    if ( candidate_strand_length >  MIN_CaS_IN_SSE) { */
+    /* 		printf (" strand_start %3d  end %d \n",  strand_start+1, i); */
+    /* 	    } */
+	    
+    /* 	    candidate_strand_length = 0; */
+    /* 	    strand_start = -1; */
+    /* 	    continue; */
+    /* 	} */
+    /* 	if ( strand_start < 0 ) strand_start = i; */
+    /* 	candidate_strand_length ++; */
+    /* } */
     return 0;
 }
 
@@ -157,18 +183,18 @@ int find_beta_curvature(Protein * protein){
  * @param curv output array of curvature values
  */
 
-void curvature(double *a, double *b, double *c, double *t, int size, double *curv){
-    double *num = (double *) malloc(size * sizeof(t));
-    double *denum = (double *) malloc(size * sizeof(t));
-    
-    int i;
-    for (i = 0; i < size; ++i) {
-        num[i] = sqrt(pow(expr2(b,c,t[i]),2) + pow(expr2(c,a,t[i]),2) + pow(expr2(a,b,t[i]),2));
-        denum[i] = pow((pow(der1(a, t[i]),2) + pow(der1(b, t[i]),2) + pow(der1(c, t[i]),2)), 1.5);
-        curv[i] = num[i]/denum[i];
-    }
-    free(num);
-    free(denum);
+double curvature(double *a, double *b, double *c, double t){
+    double num;
+    double denum;
+    double curv;
+    num     = sqrt(pow(expr2(b,c,t),2) + pow(expr2(c,a,t),2) + pow(expr2(a,b,t),2));
+    denum   = pow((pow(der1(a, t),2)   + pow(der1(b, t),2) + pow(der1(c, t),2)), 1.5);
+    if ( denum < 1.0-10) return MAX_CURVATURE+1;
+    curv    = num/denum;
+
+    //printf ("   %8.3lf  %8.3lf     %8.3lf\n",  num, denum, curv); 
+
+    return curv;
 }
 
 /**
@@ -187,18 +213,18 @@ void curvature(double *a, double *b, double *c, double *t, int size, double *cur
  * @param tors
  */
 
-void torsion(double *a, double *b, double *c, double *t, int size, double *tors){
-    double *num = (double *) malloc(size * sizeof(t));
-    double *denum = (double *) malloc(size * sizeof(t));
+double torsion(double *a, double *b, double *c, double t){
+    double num;
+    double denum;
+    double tors;
     
-    int i;
-    for (i = 0; i < size; ++i) {
-        num[i] = expr1(a,b,c,t[i]) +  expr1(b,c,a,t[i]) + expr1(c,a,b,t[i]);
-        denum[i] = pow(expr2(b,c,t[i]),2) + pow(expr2(c,a,t[i]),2) + pow(expr2(a,b,t[i]),2);
-        tors[i] = num[i]/denum[i];
-    }
-    free(num);
-    free(denum);
+    num   = expr1(a,b,c,t) +  expr1(b,c,a,t) + expr1(c,a,b,t);
+    denum = pow(expr2(b,c,t),2) + pow(expr2(c,a,t),2) + pow(expr2(a,b,t),2);
+    if ( denum < 1.0-10) return MAX_TORSION+1;
+    tors  = num/denum;
+
+    return tors;
+    
 }
 
 /** Function that returns init parameters for fitting. The initial guess is a line between the 
@@ -224,21 +250,12 @@ void set_init_param(double *x, double *y, double *z, double *p0) {
     p0[7] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[10] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
     p0[11] = 10 *(rand()/(RAND_MAX + 1.0) - 0.5);
-    
-/*
-    
-    p0[2] = 0;
-    p0[3] = 0;
-    p0[6] = 0;
-    p0[7] = 0;
-    p0[10] = 0;
-    p0[11] = 0;
-*/
 }
 
 
 /**
  * function that we use for estimation of a curve that pass through five consecutive C alpha atoms
+ * the so called polynomial, Mile
  * @param t
  * @param p
  * @return 
@@ -302,16 +319,35 @@ void residuals( const double *par, int m_dat, const void *data,
  * @return 
  */
 
-double fit_curve(double *x, double *y, double *z){
+// warpper for the function below - different format for the points
+int polynomial_fit_pointlist(double **pointlist, int no_of_points, double a[], double b[], double c[]){
+    double *x, *y, *z;
+    x=emalloc(no_of_points*sizeof(double));
+    y=emalloc(no_of_points*sizeof(double));
+    z=emalloc(no_of_points*sizeof(double));
+    int i;
+    for (i=0; i<no_of_points; i++) {
+	x[i] = pointlist[i][0];
+	y[i] = pointlist[i][1];
+	z[i] = pointlist[i][2];
+    }
+    polynomial_fit (x, y, z,  no_of_points, a, b, c);
+    free(x);
+    free(y);
+    free(z);
+    return 0;
+}
+
+int polynomial_fit(double *x, double *y, double *z, int no_of_points, double a[], double b[], double c[]){
     
     /* parameter vector */
-
+    
     int n_par = 12; // number of parameters in model function f
     double par[12] = {0}; // arbitrary starting value
     
     /* data points */
     
-    int m_dat = 3 * NO_OF_POINTS;
+    int m_dat = 3 * no_of_points;
 
     /* auxiliary parameters */
 
@@ -324,31 +360,16 @@ double fit_curve(double *x, double *y, double *z){
     
     int i;
     
-    double t[NO_OF_POINTS];
+    double t[no_of_points];
     
-    double step = 1./(NO_OF_POINTS -1);
+    double step = 1./(no_of_points -1);
     
-    for (i = 0; i < NO_OF_POINTS ; i++) {
+    for (i = 0; i < no_of_points ; i++) {
         t[i] = i * step; 
     }
     
     srand((unsigned int)time(NULL));//?
 
-    
-/*
-    for (i = 0; i < 5; ++i) {
-        printf("%lf ", x[i]);
-    }
-    
-    for (i = 0; i < 5; ++i) {
-        printf("%lf ", y[i]);
-    }
-    
-    for (i = 0; i < 5; ++i) {
-        printf("%lf ", z[i]);
-    }
-*/
-    
     set_init_param(x, y, z, par);
     data_struct data = { t, x, y, z, f };
     
@@ -356,31 +377,15 @@ double fit_curve(double *x, double *y, double *z){
     lmmin( n_par, par, m_dat, (const void*) &data,
            residuals, &control, &status, lm_printout_std );
 
-    double a[4], b[4], c[4];
-    
     for (i = 0; i < 4; i++) {
         a[i] = par[i];
         b[i] = par[i+4];
         c[i] = par[i+8];
     }
     
-     if (status.fnorm > 2) {
+    if (status.fnorm > 2) {//?
          return  1.0;
      }
-  
-/*
-    for (i = 0; i < 12; ++i) {
-        printf("%lf ", par[i]);
-    }
-    
-    printf("\n");
-*/
-    
-    double curv[NO_OF_POINTS];
-    curvature(a, b, c, t, NO_OF_POINTS, curv);
-    
-    double output;
-    output = curv[NO_OF_POINTS/2];
-    
-    return output; // return the curvature of the middle element
+     
+     return  0; 
 }

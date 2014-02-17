@@ -23,9 +23,10 @@ Contact: ivana.mihalek@gmail.com.
 #ifndef STRUCT_CURVE_TORS_H
 #define	STRUCT_CURVE_TORS_H
 
-# define MAX_CURVE 0.12
-# define NO_OF_POINTS 5 // number of input points. Have to be >= 4
-
+# define MAX_CURVATURE  0.12
+# define MAX_TORSION    1.0
+# define FITTING_NEIGHBORHOOD  2 // number of points on each side we are fitting on
+	 // 2*FITTING_NEIGHBORHOOD +1; must be greater than 4 bc we are fitting to poly of third degree
 double der1(double *x, double t);
 double der2(double *x, double t);
 double der3(double *x, double t);
@@ -33,8 +34,8 @@ double der3(double *x, double t);
 double expr2(double * a, double * b, double t);
 double expr1(double * a, double * b, double *c, double t);
 
-void curvature(double *a, double *b, double *c, double *t, int size, double *curv);
-void torsion(double *a, double *b, double *c, double *t, int size, double *tors);
+double curvature(double *a, double *b, double *c, double t);
+double torsion(double *a, double *b, double *c, double t);
 
 void set_init_param(double *x, double *y, double *z, double *p0); 
   
@@ -55,8 +56,8 @@ void residuals( const double *par, int m_dat, const void *data,
 
 //void residuals( double *par, double *fvec, int m_dat, int n_dat, void *data);
 
-double fit_curve(double *x, double *y, double *z);
-int find_beta_curvature(Protein * protein);
-
+int strand_by_curvature(Protein * protein);
+int polynomial_fit_pointlist(double **pointlist, int no_of_points, double a[], double b[], double c[]);
+int  polynomial_fit(double *x, double *y, double *z, int no_of_points, double a[], double b[], double c[]);
 #endif	/* STRUCT_CURVE_TORS_H */
 
