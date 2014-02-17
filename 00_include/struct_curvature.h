@@ -24,7 +24,7 @@ Contact: ivana.mihalek@gmail.com.
 #define	STRUCT_CURVE_TORS_H
 
 # define MAX_CURVATURE  0.12
-# define MAX_TORSION    1.0
+# define MAX_TORSION    1.2
 # define FITTING_NEIGHBORHOOD  2 // number of points on each side we are fitting on
 	 // 2*FITTING_NEIGHBORHOOD +1; must be greater than 4 bc we are fitting to poly of third degree
 double der1(double *x, double t);

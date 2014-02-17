@@ -116,8 +116,7 @@ int strand_by_curvature(Protein * protein){
 
 	if (protein->sequence[i].belongs_to_helix) continue;
 
-	// printf("%d\n", i);
-        exists_ca = 1;
+       exists_ca = 1;
 	helix_nbr = 0;
         for (j=0; j< no_of_points; ++j){
             res = protein->sequence[i-no_nbrs+j];
@@ -138,8 +137,10 @@ int strand_by_curvature(Protein * protein){
         // use polynomial fit to estimate the curvature
         polynomial_fit(x,y,z, no_of_points, a, b, c);
 	
-        //if (   curvature(a, b, c, 0.5) < MAX_CURVATURE && fabs(torsion(a, b, c, 0.5)) < MAX_TORSION) {
-        if (   curvature(a, b, c, 0.5) < MAX_CURVATURE ) {
+	//printf("%3d   %8.3lf  %8.3lf  \n", i, curvature(a, b, c, 0.5), fabs(torsion(a, b, c, 0.5)));
+ 	
+        if (   curvature(a, b, c, 0.5) < MAX_CURVATURE && fabs(torsion(a, b, c, 0.5)) < MAX_TORSION) {
+	//if (   curvature(a, b, c, 0.5) < MAX_CURVATURE ) {
             protein->sequence[i].belongs_to_strand = 1;
             protein->sequence[i].belongs_to_helix  = 0;
         }

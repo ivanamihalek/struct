@@ -10,14 +10,14 @@
 % aln_L:   (after backbone alignment) the alignment length 
 
 % query target  geom_z   <dL>  T    frac gc_rmsd res_rmsd      A    aln_L    mapped_pdb 
- 1d0nA  2d8bA    0.000  3.000   2.55   0.21  0.000  3.491   56.900   82   2d8bA_to_1d0nA.0.pdb
- 1d0nA  2d8bA    0.000  1.500   2.42   0.20  0.000  2.771   53.556   71   2d8bA_to_1d0nA.1.pdb
- 1d0nA  2d8bA    0.000  4.167   2.40   0.20  0.000  3.149   52.838   78   2d8bA_to_1d0nA.2.pdb
- 1d0nA  2d8bA    0.000  4.500   2.02   0.17  0.000  3.536   46.800   68   2d8bA_to_1d0nA.3.pdb
- 1d0nA  2d8bA    0.000  4.500   1.89   0.16  0.000  3.430   40.300   61   2d8bA_to_1d0nA.4.pdb
- 1d0nA  2d8bA    0.000  2.750   1.63   0.14  0.000  3.234   25.695   37   2d8bA_to_1d0nA.5.pdb
- 1d0nA  2d8bA    0.000  2.333   1.55   0.13  0.000  3.143   20.838   30   2d8bA_to_1d0nA.6.pdb
- 1d0nA  2d8bA    0.000  3.000   2.04   0.17  0.000  5.447   16.863   31   2d8bA_to_1d0nA.7.pdb
- 1d0nA  2d8bA    0.000  2.667   1.68   0.14  0.000  3.710   15.236   23   2d8bA_to_1d0nA.8.pdb
- 1d0nA  2d8bA    0.000  6.000   1.44   0.12  0.000  3.607   13.572   28   2d8bA_to_1d0nA.9.pdb
-done   CPU:       0.278 s
+ 1d0nA  2d8bA    0.000  3.400   2.51   0.23  0.000  3.521   66.460   95   2d8bA_to_1d0nA.0.pdb
+ 1d0nA  2d8bA    0.000  3.750   1.96   0.18  0.000  3.549   44.594   67   2d8bA_to_1d0nA.1.pdb
+ 1d0nA  2d8bA    0.000  4.000   1.98   0.18  0.000  3.168   41.636   64   2d8bA_to_1d0nA.2.pdb
+ 1d0nA  2d8bA    0.000  5.667   0.75   0.07  0.000  3.843   28.125   42   2d8bA_to_1d0nA.3.pdb
+ 1d0nA  2d8bA    0.000  2.750   1.67   0.15  0.000  3.234   25.695   37   2d8bA_to_1d0nA.4.pdb
+ 1d0nA  2d8bA    0.000  4.333   1.17   0.11  0.000  2.778   20.783   37   2d8bA_to_1d0nA.5.pdb
+ 1d0nA  2d8bA    0.000  2.667   0.99   0.09  0.000  4.483   19.010   40   2d8bA_to_1d0nA.6.pdb
+ 1d0nA  2d8bA    0.000  5.000   1.28   0.12  0.000  3.964   17.947   34   2d8bA_to_1d0nA.7.pdb
+ 1d0nA  2d8bA    0.000  5.667   1.33   0.12  0.000  3.619   13.576   28   2d8bA_to_1d0nA.8.pdb
+ 1d0nA  2d8bA    0.000  6.333   1.33   0.12  0.000  3.607   13.572   28   2d8bA_to_1d0nA.9.pdb
+done   CPU:       0.239 s
