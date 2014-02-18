@@ -115,6 +115,20 @@ while (<IF>) {
     }
  
  
+    ###########################################################
+    ###########################################################
+    ###########################################################
+    # tfm according to kpax
+    $kpax_chainfile_renamed =  "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.kpax.0.pdb";
+    $sys_kpax_score = "none";
+
+    if (  -e $kpax_chainfile_renamed ) {
+	@aux = split " ", `$nossa $sys_chainfile_renamed $kpax_chainfile_renamed`; 
+	chomp $aux[3];
+	$sys_kpax_score = $aux[3];
+    }
+ 
+ 
 
 
     ###########################################################
@@ -188,9 +202,10 @@ while (<IF>) {
     print " $alig_type  $current_qry  $pdb_code$pdb_chain  ".
 	" sys-ce $sys_ce_score ".
 	" sys-mustang $sys_mustang_score ".
-	"   sys-fatcat (match_no: ".$max_match_no{"fatcat"}." ) ". $max_score{"fatcat"}.
-	"   sys-ceC    (match_no: ".$max_match_no{"ceC"}." ) ". $max_score{"ceC"}.
-	"   sys-struct (match_no: ".$max_match_no{"struct"}." ) ". $max_score{"struct"}."\n";
+	" sys-kpax  $sys_kpax_score ".
+	"   sys-fatcat (match_no:".$max_match_no{"fatcat"}.") ". $max_score{"fatcat"}.
+	"   sys-ceC    (match_no:".$max_match_no{"ceC"}.") ". $max_score{"ceC"}.
+	"   sys-struct (match_no:".$max_match_no{"struct"}.") ". $max_score{"struct"}."\n";
     
 
 }
