@@ -111,6 +111,7 @@ while (<IF>) {
 
     }
 =cut
+    exit;
 
     # cleanup after ourselves
     `rm -f $name_root.struct_out`;
