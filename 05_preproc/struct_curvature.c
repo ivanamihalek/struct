@@ -139,8 +139,8 @@ int strand_by_curvature(Protein * protein){
 	
 	//printf("%3d   %8.3lf  %8.3lf  \n", i, curvature(a, b, c, 0.5), fabs(torsion(a, b, c, 0.5)));
  	
-        if (   curvature(a, b, c, 0.5) < MAX_CURVATURE && fabs(torsion(a, b, c, 0.5)) < MAX_TORSION) {
-	//if (   curvature(a, b, c, 0.5) < MAX_CURVATURE ) {
+        //if (   curvature(a, b, c, 0.5) < MAX_CURVATURE && fabs(torsion(a, b, c, 0.5)) < MAX_TORSION) {
+	if (   curvature(a, b, c, 0.5) < MAX_CURVATURE ) {
             protein->sequence[i].belongs_to_strand = 1;
             protein->sequence[i].belongs_to_helix  = 0;
         }
