@@ -87,7 +87,7 @@ while (<IF>) {
     ###########################################################
     # apply struct to the same problem
 
-    my $cmd = "time $kpax  $chainfile  $qryfile  "; #-p ../params";
+    my $cmd = "$kpax  $chainfile  $qryfile >& /dev/null "; #-p ../params";
     print $cmd, "\n";
     if  (system $cmd ) {
 	print  "Error running $cmd.\n"; 
@@ -114,7 +114,6 @@ while (<IF>) {
 
     # cleanup after ourselves
     `rm -rf kpax*`;
-    exit;
 
 }
 
