@@ -87,8 +87,7 @@ while (<IF>) {
     ###########################################################
     # apply struct to the same problem
 
-    print `pwd`;
-    my $cmd = "time $kpax  $qryfile $chainfile "; #-p ../params";
+    my $cmd = "time $kpax  $chainfile  $qryfile  "; #-p ../params";
     print $cmd, "\n";
     if  (system $cmd ) {
 	print  "Error running $cmd.\n"; 
@@ -96,29 +95,26 @@ while (<IF>) {
     }
     my $name_root = "$current_qry\_to_$pdb_code$pdb_chain";
 
-=pod
-    for my  $match_no ( 0 .. 5 ) {
-	my $kpax_chainfile_orig    = "$name_root.$match_no.pdb";
-	my $kpax_chainfile_renamed = 
+    #for my  $match_no ( 0 .. 5 ) { # apprently we have only one result here
+    my $kpax_chainfile_orig    = "kpax_results/$pdb_code$pdb_chain/.$pdb_code$pdb_chain\_$current_qry.pdb";
+    print `pwd`;
+    print `ls $kpax_chainfile_orig`;
+
+    $match_no = 0;
+    my $kpax_chainfile_renamed = 
 	    "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.$match_no.pdb";
 
-	if (-e $kpax_chainfile_orig) {
-	    `mv $kpax_chainfile_orig $kpax_chainfile_renamed`;
-	    
-	} else {
-	    printf "$kpax_chainfile_orig not found after\n$cmd\n";
-	    last;
-	}
-
+    if (-e $kpax_chainfile_orig) {
+	`mv $kpax_chainfile_orig $kpax_chainfile_renamed`;
+    } else {
+	printf "$kpax_chainfile_orig not found after\n$cmd\n";
     }
-=cut
+
+    #}
     exit;
 
     # cleanup after ourselves
-    `rm -f $name_root.struct_out`;
-    `rm -f $name_root.*.aln`;
-    `rm -f $name_root.*.pdb`;
-    `rm -f *.db`;
+    `rm -rf kpax*`;
 }
 
 close IF;
