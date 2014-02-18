@@ -97,9 +97,7 @@ while (<IF>) {
 
     #for my  $match_no ( 0 .. 5 ) { # apprently we have only one result here
     my $kpax_chainfile_orig    = "kpax_results/$pdb_code$pdb_chain/$current_qry\_$pdb_code$pdb_chain.pdb";
-    print `pwd`;
-    print `ls $kpax_chainfile_orig`;
-
+ 
     $match_no = 0;
     my $kpax_chainfile_renamed = 
 	    "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.kpax.$match_no.pdb";
