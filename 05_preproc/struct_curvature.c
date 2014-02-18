@@ -114,9 +114,9 @@ int strand_by_curvature(Protein * protein){
     
     for (i=no_nbrs; i < length-no_nbrs; ++i) {
 
-	if (protein->sequence[i].belongs_to_helix) continue;
+	//if (protein->sequence[i].belongs_to_helix) continue;
 
-       exists_ca = 1;
+	exists_ca = 1;
 	helix_nbr = 0;
         for (j=0; j< no_of_points; ++j){
             res = protein->sequence[i-no_nbrs+j];
@@ -124,11 +124,11 @@ int strand_by_curvature(Protein * protein){
                 exists_ca = 0;
                 break;
             }
-            if (protein->sequence[i-no_nbrs+j].belongs_to_helix)  {
-		helix_nbr = 1;
-		break;
-	    }
-            // taking coordinates
+            //if (protein->sequence[i-no_nbrs+j].belongs_to_helix)  {
+	    //	helix_nbr = 1;
+	    //	break;
+	    //}
+            //  coordinates
             x[j] = res.Ca->x;
             y[j] = res.Ca->y;
             z[j] = res.Ca->z;
