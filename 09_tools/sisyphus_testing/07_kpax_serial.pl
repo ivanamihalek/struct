@@ -4,7 +4,7 @@
 
 my $top_path  = "/home/ivanam";
 my $tfm_table = "sysphus_tfms.csv";
-my $kpax      = "$top_path/kpax/bin/kpax"; 
+my $kpax      = "$top_path/third/kpax/bin/kpax"; 
 
 foreach ($top_path, $tfm_table,  $kpax) {
     (-e $_) || die "$_ not found.\n";
@@ -87,6 +87,7 @@ while (<IF>) {
     ###########################################################
     # apply struct to the same problem
 
+    print `pwd`;
     my $cmd = "time $kpax  $qryfile $chainfile "; #-p ../params";
     print $cmd, "\n";
     if  (system $cmd ) {
