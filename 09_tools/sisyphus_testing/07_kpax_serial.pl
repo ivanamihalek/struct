@@ -102,7 +102,7 @@ while (<IF>) {
 
     $match_no = 0;
     my $kpax_chainfile_renamed = 
-	    "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.struct.$match_no.pdb";
+	    "pdbchains/$current_qry/$current_qry.to_$pdb_code$pdb_chain.kpax.$match_no.pdb";
 
     if (-e $kpax_chainfile_orig) {
 	`mv $kpax_chainfile_orig $kpax_chainfile_renamed`;
@@ -111,10 +111,11 @@ while (<IF>) {
     }
 
     #}
-    exit;
 
     # cleanup after ourselves
     `rm -rf kpax*`;
+    exit;
+
 }
 
 close IF;
