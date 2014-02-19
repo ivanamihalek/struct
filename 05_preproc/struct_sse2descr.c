@@ -111,7 +111,6 @@ int sse2descriptor (Protein *protein, Descr* descr) {
 	    }
 	}
 
-
 	if ( sse_id ) {
 	    if ( residue->Ca ) { /* survive cases when Ca not given */
 		point[point_ctr][0] = residue->Ca->x;
@@ -139,7 +138,7 @@ int sse2descriptor (Protein *protein, Descr* descr) {
 	element_ctr ++;
     }
 
-    descr->no_of_elements   = descr->no_of_helices + descr->no_of_strands;
+    descr->no_of_elements = descr->no_of_helices + descr->no_of_strands;
     descr->no_of_residues = protein->length;
     
     protein->no_helices  = descr->no_of_helices;
@@ -187,9 +186,8 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
     /* fit a line through the points -- 
        fill in the center and direction fields of the element structure*/
     if (type== STRAND) {
-	number_of_avgd_points = number_of_points;
-	point_avg = point;
-
+	fit_line (point, number_of_points, element->cm, element->p);
+	
     } else {
 	number_of_avgd_points = number_of_points-2;
 	if ( ! (point_avg=dmatrix(number_of_avgd_points,3))) return 1;
@@ -203,13 +201,10 @@ int process_sse (Protein * protein, int type, double ** point, int number_of_poi
 	    }
 	    
 	}
+	fit_line (point_avg, number_of_avgd_points, element->cm, element->p);   
+	free_dmatrix (point_avg);   
     }
 
-    fit_line (point_avg, number_of_avgd_points, element->cm, element->p);
-
-    
-    if (type==HELIX) free_dmatrix (point_avg);
-    
 
     return 0;
 }

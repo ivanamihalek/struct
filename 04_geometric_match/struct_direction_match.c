@@ -690,7 +690,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		    }			
 		}
 	    }
-	    
+	    /* if we are doing out-of-order search we should try all permutations of these triplets
+	     storage space issues? */
 	    if (two_point_distance(cmx[i_x],cmx[j_x]) > threshold_dist) continue;
 	    if (two_point_distance(cmx[i_x],cmx[k_x]) > threshold_dist) continue;  
 	    if (two_point_distance(cmx[j_x],cmx[k_x]) > threshold_dist) continue;  
