@@ -438,6 +438,7 @@ int find_next_triple (double **X, double **Y,
     int y_ctr;
     
     /* next Y[y_ctr] cannot be numerically negative of X[x_ctr] */
+    /* numerically negative? algebraically negative? toplogically negative? epistemologically negative? */
     x_ctr = x_triple[0];
     y_ctr = y_triple[0];
     if ( x_type[x_ctr] != y_type[y_ctr] ) return 1;
@@ -822,7 +823,6 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		}
 	    }
 
-	    
 	} /* y enumeration loop */
     } /* x enumeration loop  */
     

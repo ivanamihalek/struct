@@ -438,7 +438,18 @@ int find_map ( Penalty_parametrization * penalty_params,
     if (options.current_algorithm == SEQUENTIAL) {
         smith_waterman (penalty_params, NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
-         hungarian_alignment (NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
+	double **similarity_score;
+	if (1) {
+	    similarity_score= map->sse_pair_score;
+	} else {
+	    /* allocate */
+	    /* evaluate */
+	    /* find_neighborhoods (NX, hoodsX); */
+	    /* find_neighborhoods (NY, hoodsY); */
+	    /* similarity_score_by_neighborhood (hoodsX, hoodsY, similarity_score); */
+	    /* free */
+	}
+	hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
     } else {
         printf("Wrong algorithm type\n");
         return 1;
