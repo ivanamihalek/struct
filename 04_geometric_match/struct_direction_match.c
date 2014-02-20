@@ -641,6 +641,11 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
     double ** cmx = X_rep->cm;
     double ** cmy = Y_rep->cm;
 
+    /* for out of order search */
+    int number_of_permutations = 1;
+    int permutation[6][3] = {{0}};
+    int p;
+
     if (options.verbose) printf ("exhaustive search \n");
 
     /***************************************/
@@ -653,6 +658,9 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
         best_triple_x[top_ctr][0] = -1;
     }
 
+    /* max trips is currently set to 5000 in struct_triplets.h  */
+    /* te hope is that there won't actually be that many triplets passing the
+       distance filter */
     if ( ! (x_triple = emalloc (MAX_TRIPS*sizeof(TripleID) ) ) )  return 1;
     if ( ! (y_triple = emalloc (MAX_TRIPS*sizeof(TripleID) ) ) )  return 1;
     
@@ -668,6 +676,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	x_list_full = 0;
 	xtrip_ct = 0;
 
+	/***********************************************************************/
 	while ( ! x_list_full  && !x_enumeration_done) {
 
 	    k_x ++;
@@ -690,8 +699,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		    }			
 		}
 	    }
-	    /* if we are doing out-of-order search we should try all permutations of these triplets
-	     storage space issues? */
+
 	    if (two_point_distance(cmx[i_x],cmx[j_x]) > threshold_dist) continue;
 	    if (two_point_distance(cmx[i_x],cmx[k_x]) > threshold_dist) continue;  
 	    if (two_point_distance(cmx[j_x],cmx[k_x]) > threshold_dist) continue;  
@@ -720,6 +728,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 	i_y = 0;
 	j_y = 1;
 	k_y = 1;
+	/***********************************************************************/
 	while ( !y_enumeration_done) {
 
 
@@ -752,20 +761,44 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		if (two_point_distance(cmy[i_y],cmy[j_y]) > threshold_dist) continue;
 		if (two_point_distance(cmy[i_y],cmy[k_y]) > threshold_dist) continue;  
 		if (two_point_distance(cmy[j_y],cmy[k_y]) > threshold_dist) continue;  
-	    		
-		y_triple[ytrip_ct].fingerprint = 0;
-		if (y_type[i_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE1;
-		if (y_type[j_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE2;
-		if (y_type[k_y] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE3;
 
-		y_triple[ytrip_ct].member[0] = i_y;
-		y_triple[ytrip_ct].member[1] = j_y;
-		y_triple[ytrip_ct].member[2] = k_y;
+		/* if we are doing out-of-order search we should try all  
+		   permutations of these triplets  - storage space issues? */
 
-		if ( hand(Y_rep, y_triple[ytrip_ct].member ) ) y_triple[ytrip_ct].fingerprint |= HAND;
+		if (options.current_algorithm == SEQUENTIAL) {
+		    number_of_permutations = 1;
+		    permutation[0][0] = i_y; permutation[0][1] = j_y; permutation[0][2] = k_y; 
+		} else {
+		    number_of_permutations = 6;
+		    permutation[0][0] = i_y; permutation[0][1] = j_y; permutation[0][2] = k_y; 
+		    permutation[1][0] = i_y; permutation[1][1] = k_y; permutation[1][2] = j_y; 
+		    permutation[2][0] = j_y; permutation[2][1] = k_y; permutation[2][2] = i_y; 
+		    permutation[3][0] = j_y; permutation[3][1] = i_y; permutation[3][2] = k_y; 
+		    permutation[4][0] = k_y; permutation[4][1] = i_y; permutation[4][2] = j_y; 
+		    permutation[5][0] = k_y; permutation[5][1] = j_y; permutation[5][2] = i_y; 
+		}
+
+		for (p=0; p<number_of_permutations; p++) {
+
+		    int i_p = permutation[p][0];
+		    int	j_p = permutation[p][1];
+		    int k_p = permutation[p][2];
+		    
+		    y_triple[ytrip_ct].fingerprint = 0;
+		    if (y_type[i_p] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE1;
+		    if (y_type[j_p] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE2;
+		    if (y_type[k_p] == HELIX) y_triple[ytrip_ct].fingerprint |= TYPE3;
+
+		    y_triple[ytrip_ct].member[0] = i_p;
+		    y_triple[ytrip_ct].member[1] = j_p;
+		    y_triple[ytrip_ct].member[2] = k_p;
+
+		    if ( hand(Y_rep, y_triple[ytrip_ct].member ) ) y_triple[ytrip_ct].fingerprint |= HAND;
 		
-		ytrip_ct++;
-		y_list_full = ( ytrip_ct == MAX_TRIPS);
+		    ytrip_ct++;
+		    y_list_full = ( ytrip_ct == MAX_TRIPS);
+		    if (y_list_full) break;
+		}
 	    
 	    } /* end filling the y trips list */
 
@@ -777,10 +810,8 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		exit (1);
 	    }
 	
-	    //printf ("\t no trips in x: %d\n",  no_xtrips);
-	    //printf ("\t no trips in y: %d\n\n",  no_ytrips);
 
-	    
+	    /*****************************************************/
 	    for (xtrip_ct=0; xtrip_ct<no_xtrips; xtrip_ct++) {
 		for (ytrip_ct=0; ytrip_ct<no_ytrips; ytrip_ct++) {
 
@@ -823,6 +854,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 
 		}
 	    }
+	    /*****************************************************/
 
 	} /* y enumeration loop */
     } /* x enumeration loop  */

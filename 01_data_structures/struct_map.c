@@ -388,6 +388,45 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 }
 /***************************************/
 /***************************************/
+/* we'll need neighbrohoods as a measure of similarity between elements */
+int find_neighborhoods (Representation *rep, Representation **  hood) {
+    
+    double **x    = X_rep->full;
+    double **x_cm = X_rep->cm;
+    double d, hood_radius_sq;
+    int a, b, i, j;
+
+
+    for (a=0; a<NX; a++) {
+	
+	for (b=a+1; b<NY; b++) {
+
+	        
+	        for (i=0; i<3; i++ ) {
+		    /* from a to b */
+		    cm_vector[i] = x_cm[b][i] - x_cm[a][i];
+		}
+		/* how far is it? if too far, move on */
+		unnorm_dot (cm_vector, cm_vector, &d);
+		if (d>hood_radius_sq) continuel
+		
+		count_a = hood[a].N_full;
+		count_b = hood[b].N_full;
+		
+	        for (i=0; i<3; i++ ) {
+		    hood[a].full [count_a] [i] =  component[i];
+		    hood[b].full [count_b] [i] = -component[i];
+		}
+		hood[a].N_full ++;
+		hood[b].N_full ++;
+	}
+    }
+
+    return 0;
+}
+
+
+
 /***************************************/
 int find_map ( Penalty_parametrization * penalty_params,
 	       Representation *X_rep,  Representation *Y_rep,
@@ -444,8 +483,8 @@ int find_map ( Penalty_parametrization * penalty_params,
 	} else {
 	    /* allocate */
 	    /* evaluate */
-	    /* find_neighborhoods (NX, hoodsX); */
-	    /* find_neighborhoods (NY, hoodsY); */
+	    /* find_neighborhoods (X_rep, hoodsX); */
+	    /* find_neighborhoods (Y_rep, hoodsY); */
 	    /* similarity_score_by_neighborhood (hoodsX, hoodsY, similarity_score); */
 	    /* free */
 	}
