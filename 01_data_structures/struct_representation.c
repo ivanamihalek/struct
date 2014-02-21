@@ -2,26 +2,49 @@
 This source code is part of deconSTRUCT,
 protein structure database search and backbone alignment application.
 Written by Ivana Mihalek, with contributions from Mile Sikic.
-Copyright (C) 2012 Ivana Mihalek.
+Copyright  2012 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
+along with this program. If not, see http://www.gnu.org/licenses/.
 
 Contact: ivana.mihalek@gmail.com.
 */
 
 # include "struct.h"
 
+/**************************************************************/
+/**************************************************************/
+int neighborhood_initialize (Representation ** hood, int number_of_elements, int max_possible_hood_size) {
+
+    int i;
+    hood = emalloc(number_of_elements*sizeof(Representation *));
+    for (i=0; i<number_of_elements; i++) {
+	hood[i] = emalloc(sizeof(Representation));
+	hood[i]->N_full = 0;
+	if ( ! (hood[i]->full  = dmatrix(max_possible_hood_size, 3) )) return 1;
+	if ( ! (hood[i]->full_type  = emalloc(max_possible_hood_size*sizeof(int)) )) return 1;
+    }
+        
+    return 0;
+ }
+int neighborhood_shutdown (Representation ** hood, int number_of_elements) {
+
+    int i;
+    for (i=0; i<number_of_elements; i++) {
+	free_dmatrix(hood[i]->full);
+	free (hood[i]->full_type );
+	free(hood[i]);
+    }
+    free (hood);
+        
+    return 0;
+ }
 /**************************************************************/
 /**************************************************************/
 int rep_initialize (Representation * rep, Descr * descr  ){

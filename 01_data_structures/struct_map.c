@@ -389,7 +389,7 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 /***************************************/
 /***************************************/
 /* we'll need neighbrohoods as a measure of similarity between elements */
-int find_neighborhoods (Representation *rep, Representation **  hood) {
+int find_neighborhoods (Representation *rep, Representation **  hood, int max_hood_size) {
     
     double **x    =  rep->full;
     double **x_cm =  rep->cm;
@@ -441,9 +441,42 @@ int find_neighborhoods (Representation *rep, Representation **  hood) {
 		/* type */
 		hood[a]->full_type[b] = rep->full_type[a];
 	    }
-		
 	}
     }
+
+    /* rotate to the frame in which the sse vector is pointing up (0,0,1) */
+    double rotation_axis[3], z_direction[3] = {0, 0, 1}, theta, cosine, sine;
+    double quat[4], **R;
+    double **rotated_hood;
+    
+    if ( ! (R=dmatrix(3,3) )) return 1; /* compiler is bugging me otherwise */
+    if ( ! (rotated_hood = dmatrix(max_hood_size,3) )) return 1; 
+    
+    for (a=0; a<NX; a++) {
+	unnorm_dot (x[a], z_direction, &cosine);
+	if ( 1 - cosine <= 0.0001) { // x[a] already pretty much is z-direction
+	    // do nothing: hood ia already rotated 
+	} else {
+	    normalized_cross (x[a], z_direction, rotation_axis, &d);
+	    // quaternion
+	    theta = acos (cosine);
+	    quat[0] = cos (theta/2);
+	    sine = sin(theta/2);
+	    for (i=0; i<3; i++ ) {
+		quat[i+1] = sine*rotation_axis[i];
+	    }
+	    // rotation
+	    quat_to_R (quat, R);
+	    // rotate all hood vectors
+	    rotate(rotated_hood, hood[a]->N_full, R, hood[a]->full );
+	    //copy rotated hood into the old one
+	    memcpy (hood[a], rotated_hood, max_hood_size*3*sizeof(double));
+	}
+    }
+
+    free_dmatrix (R);
+    free_dmatrix (rotated_hood);
+    
 
     return 0;
 }
@@ -501,37 +534,25 @@ int find_map ( Penalty_parametrization * penalty_params,
         smith_waterman (penalty_params, NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
 	double **similarity_score;
-	if (1) {
+	if (0) {
 	    similarity_score= map->sse_pair_score;
 	} else {
 	    /* allocate */
 	    int max_possible_hood_size_X = Y_rep->N_full;
-	    Representation ** hoodX;
-	    hoodX = emalloc(max_possible_hood_size_X*sizeof(Representation *));
-	    for (i=0; i<max_possible_hood_size_X; i++) {
-		hoodX[i] = emalloc(max_possible_hood_size_X*sizeof(Representation));
-	    }
+	    Representation ** hoodX = NULL;
+	    neighborhood_initialize (hoodX, X_rep->N_full, max_possible_hood_size_X);
 	    int max_possible_hood_size_Y = X_rep->N_full;
-	    Representation ** hoodY;
-	    hoodY = emalloc(max_possible_hood_size_Y*sizeof(Representation *));
-	    for (i=0; i<max_possible_hood_size_Y; i++) {
-		hoodY[i] = emalloc(max_possible_hood_size_Y*sizeof(Representation));
-	    }
+	    Representation ** hoodY = NULL;
+	    neighborhood_initialize (hoodY, Y_rep->N_full, max_possible_hood_size_Y);
 	    /* find neighborhood vectors */
-	    find_neighborhoods (X_rep, hoodX);
-	    find_neighborhoods (Y_rep, hoodY);
-	    
+	    find_neighborhoods (X_rep, hoodX, max_possible_hood_size_X);
+	    find_neighborhoods (Y_rep, hoodY, max_possible_hood_size_Y);	    
 	    /* similarity_score_by_neighborhood (hoodsX, hoodsY, similarity_score); */
 	    /* free */
-	    for (i=0; i<max_possible_hood_size_X; i++) {
-		free(hoodX[i]);
-	    }
-	    free(hoodX);
-	    for (i=0; i<max_possible_hood_size_Y; i++) {
-		free(hoodY[i]);
-	    }
-	    free(hoodY);
-	    
+	    neighborhood_shutdown (hoodX, X_rep->N_full);
+	    neighborhood_shutdown (hoodY, Y_rep->N_full);
+	    printf (" so far ok \n");
+	    exit(1);
 	}
 	hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
     } else {
