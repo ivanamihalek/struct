@@ -173,17 +173,19 @@ int distance_of_nearest_approach ( Representation * X_rep,  int *set_of_directio
 	
 	    ray_a = set_of_directions_x[a];
 	    ray_b = set_of_directions_x[b];
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions x */
+	    /* distance of nearest approach of ray a
+	       to the cm of b, in the set of directions x */
 	    for (i=0; i<3; i++ ) {
 		cm_vector[i] = x_cm[ray_b][i] - x_cm[ray_a][i];
 	    }
+	    /* the norm of the cross product is ||cm_vector||*sin(alpha),
+	       bc the norm of  the rep vectors is 1 */
 	    normalized_cross (cm_vector, x[ray_a], cross, &distance_x);
 
 	    ray_a = set_of_directions_y[a];
 	    ray_b = set_of_directions_y[b];
-	    /* distance of nearest approach of ray b
-	       to the cm of a, in the set of directions y */
+ 	    /* distance of nearest approach of ray a
+	       to the cm of b, in the set of directions y */
 	    for (i=0; i<3; i++ ) {
 		cm_vector[i] = y_cm[ray_b][i] - y_cm[ray_a][i];
 	    }

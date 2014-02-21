@@ -391,34 +391,57 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 /* we'll need neighbrohoods as a measure of similarity between elements */
 int find_neighborhoods (Representation *rep, Representation **  hood) {
     
-    double **x    = X_rep->full;
-    double **x_cm = X_rep->cm;
-    double d, hood_radius_sq;
-    int a, b, i, j;
-
+    double **x    =  rep->full;
+    double **x_cm =  rep->cm;
+    double d, hood_radius = 3; // <--- hardcoded
+    double cm_vector[3], cross[3], csq, component;
+    int NX = rep->N_full;
+    int a, b, i;
+    int index_a, index_b;
 
     for (a=0; a<NX; a++) {
 	
-	for (b=a+1; b<NY; b++) {
+	for (b=a+1; b<NX; b++) {
 
-	        
-	        for (i=0; i<3; i++ ) {
-		    /* from a to b */
-		    cm_vector[i] = x_cm[b][i] - x_cm[a][i];
+	    csq = 0;
+	    for (i=0; i<3; i++ ) {
+		/* from b to a  */
+		component = x_cm[a][i] - x_cm[b][i];
+		cm_vector[i] =component;
+		csq += component*component;
+	    }
+	    /* how far is it? use distance of nearest approach; if too far, move on */
+
+	    /* distance from a to the nearest point in b */
+	    normalized_cross (cm_vector, x_cm[b], cross,  &d);
+	    if (d < hood_radius) {
+		index_a = hood[a]->N_full-1;
+		/* what is the direction to this nearest point? */
+		/* dir = -cm - b*sqrt(csq-d*d) */
+		double dist_from_cm_b = sqrt(csq-d*d);
+		for (i=0; i<3; i++ ) {
+		    hood[a]->full [index_a] [i] = -cm_vector[i] -x[b][i]*dist_from_cm_b ;
 		}
-		/* how far is it? if too far, move on */
-		unnorm_dot (cm_vector, cm_vector, &d);
-		if (d>hood_radius_sq) continuel
+		hood[a]->N_full ++;
+		/* type */
+		hood[a]->full_type[a] = rep->full_type[b];
+	    }
 		
-		count_a = hood[a].N_full;
-		count_b = hood[b].N_full;
-		
-	        for (i=0; i<3; i++ ) {
-		    hood[a].full [count_a] [i] =  component[i];
-		    hood[b].full [count_b] [i] = -component[i];
+	    /* distance from b  to the nearest point in a */
+	    normalized_cross (cm_vector, x_cm[a], cross,  &d);
+	    if (d < hood_radius) { // d is now different number then above
+		index_b = hood[b]->N_full-1;
+		/* what is the direction to this nearest point? */
+		/* dir = -cm - a*sqrt(csq-d*d) */
+		double dist_from_cm_a = sqrt(csq-d*d);
+		for (i=0; i<3; i++ ) { // note the oopsite dir for the cm vector
+		    hood[b]->full [index_b] [i] = cm_vector[i] -x[a][i]*dist_from_cm_a ;
 		}
-		hood[a].N_full ++;
-		hood[b].N_full ++;
+		hood[b]->N_full ++;
+		/* type */
+		hood[a]->full_type[b] = rep->full_type[a];
+	    }
+		
 	}
     }
 
@@ -482,11 +505,33 @@ int find_map ( Penalty_parametrization * penalty_params,
 	    similarity_score= map->sse_pair_score;
 	} else {
 	    /* allocate */
-	    /* evaluate */
-	    /* find_neighborhoods (X_rep, hoodsX); */
-	    /* find_neighborhoods (Y_rep, hoodsY); */
+	    int max_possible_hood_size_X = Y_rep->N_full;
+	    Representation ** hoodX;
+	    hoodX = emalloc(max_possible_hood_size_X*sizeof(Representation *));
+	    for (i=0; i<max_possible_hood_size_X; i++) {
+		hoodX[i] = emalloc(max_possible_hood_size_X*sizeof(Representation));
+	    }
+	    int max_possible_hood_size_Y = X_rep->N_full;
+	    Representation ** hoodY;
+	    hoodY = emalloc(max_possible_hood_size_Y*sizeof(Representation *));
+	    for (i=0; i<max_possible_hood_size_Y; i++) {
+		hoodY[i] = emalloc(max_possible_hood_size_Y*sizeof(Representation));
+	    }
+	    /* find neighborhood vectors */
+	    find_neighborhoods (X_rep, hoodX);
+	    find_neighborhoods (Y_rep, hoodY);
+	    
 	    /* similarity_score_by_neighborhood (hoodsX, hoodsY, similarity_score); */
 	    /* free */
+	    for (i=0; i<max_possible_hood_size_X; i++) {
+		free(hoodX[i]);
+	    }
+	    free(hoodX);
+	    for (i=0; i<max_possible_hood_size_Y; i++) {
+		free(hoodY[i]);
+	    }
+	    free(hoodY);
+	    
 	}
 	hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
     } else {
