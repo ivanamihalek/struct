@@ -63,6 +63,7 @@ int sse2descriptor (Protein *protein, Descr* descr) {
     no_of_sses = element_ctr;
     if ( ! (descr->element = emalloc(no_of_sses*sizeof(SSElement)) )) return 1;
 
+
     /* turn SSEs into sets of points to fit onto */
     point_ctr   = 0;
     element_ctr = 0;

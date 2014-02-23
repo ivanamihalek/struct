@@ -367,8 +367,8 @@ int set_default_options () {
 	= 0.0;
     options.endgap
 	= 0.0;
-    options.threshold_distance /* for the "seed" triples in direction search */
-	= 30.0;
+    options.threshold_distance /* for the "seed" triples in direction search (why is this number so big?)*/
+	= 11.0;
     options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
 	= 10.0;
     options.max_almt_dist           /* max distance for which we want to call something "aligned" */

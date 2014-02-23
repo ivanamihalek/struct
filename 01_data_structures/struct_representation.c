@@ -20,17 +20,18 @@ Contact: ivana.mihalek@gmail.com.
 
 /**************************************************************/
 /**************************************************************/
-int neighborhood_initialize (Representation ** hood, int number_of_elements, int max_possible_hood_size) {
+int neighborhood_initialize (Representation *** hood_ptr, int number_of_elements, int max_possible_hood_size) {
 
     int i;
-    hood = emalloc(number_of_elements*sizeof(Representation *));
+    Representation ** hood = emalloc(number_of_elements*sizeof(Representation *));
     for (i=0; i<number_of_elements; i++) {
 	hood[i] = emalloc(sizeof(Representation));
 	hood[i]->N_full = 0;
 	if ( ! (hood[i]->full  = dmatrix(max_possible_hood_size, 3) )) return 1;
 	if ( ! (hood[i]->full_type  = emalloc(max_possible_hood_size*sizeof(int)) )) return 1;
     }
-        
+
+    (*hood_ptr) = hood;
     return 0;
  }
 int neighborhood_shutdown (Representation ** hood, int number_of_elements) {

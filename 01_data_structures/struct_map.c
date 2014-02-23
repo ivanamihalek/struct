@@ -393,7 +393,7 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
     
     double **x    =  rep->full;
     double **x_cm =  rep->cm;
-    double d, hood_radius = 3; // <--- hardcoded
+    double d, hood_radius = options.threshold_distance;
     double cm_vector[3], cross[3], csq, component;
     int NX = rep->N_full;
     int a, b, i;
@@ -407,15 +407,15 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 	    for (i=0; i<3; i++ ) {
 		/* from b to a  */
 		component = x_cm[a][i] - x_cm[b][i];
-		cm_vector[i] =component;
+		cm_vector[i] = component;
 		csq += component*component;
 	    }
 	    /* how far is it? use distance of nearest approach; if too far, move on */
 
 	    /* distance from a to the nearest point in b */
-	    normalized_cross (cm_vector, x_cm[b], cross,  &d);
+	    normalized_cross (cm_vector, x[b], cross,  &d);
 	    if (d < hood_radius) {
-		index_a = hood[a]->N_full-1;
+		index_a = hood[a]->N_full;
 		/* what is the direction to this nearest point? */
 		/* dir = -cm - b*sqrt(csq-d*d) */
 		double dist_from_cm_b = sqrt(csq-d*d);
@@ -424,13 +424,14 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 		}
 		hood[a]->N_full ++;
 		/* type */
-		hood[a]->full_type[a] = rep->full_type[b];
+		hood[a]->full_type[index_a] = rep->full_type[b];
 	    }
 		
 	    /* distance from b  to the nearest point in a */
-	    normalized_cross (cm_vector, x_cm[a], cross,  &d);
+	    normalized_cross (cm_vector, x[a], cross,  &d);
 	    if (d < hood_radius) { // d is now different number then above
-		index_b = hood[b]->N_full-1;
+
+		index_b = hood[b]->N_full;
 		/* what is the direction to this nearest point? */
 		/* dir = -cm - a*sqrt(csq-d*d) */
 		double dist_from_cm_a = sqrt(csq-d*d);
@@ -439,7 +440,7 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 		}
 		hood[b]->N_full ++;
 		/* type */
-		hood[a]->full_type[b] = rep->full_type[a];
+		hood[a]->full_type[index_b] = rep->full_type[a];
 	    }
 	}
     }
@@ -453,9 +454,9 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
     if ( ! (rotated_hood = dmatrix(max_hood_size,3) )) return 1; 
     
     for (a=0; a<NX; a++) {
-	unnorm_dot (x[a], z_direction, &cosine);
+ 	unnorm_dot (x[a], z_direction, &cosine);
 	if ( 1 - cosine <= 0.0001) { // x[a] already pretty much is z-direction
-	    // do nothing: hood ia already rotated 
+	    // do nothing: hood is already rotated 
 	} else {
 	    normalized_cross (x[a], z_direction, rotation_axis, &d);
 	    // quaternion
@@ -470,18 +471,81 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 	    // rotate all hood vectors
 	    rotate(rotated_hood, hood[a]->N_full, R, hood[a]->full );
 	    //copy rotated hood into the old one
-	    memcpy (hood[a], rotated_hood, max_hood_size*3*sizeof(double));
+	    memcpy (hood[a]->full[0], rotated_hood[0], hood[a]->N_full*3*sizeof(double));
 	}
     }
 
     free_dmatrix (R);
     free_dmatrix (rotated_hood);
-    
 
     return 0;
 }
 
+/***************************************/
+double  exp_score (double **x, double **, y, int NX, int NY) {
+   double score = 0, dsq = 0, dsq0 = 1.0, aux;
+    
+    for (i=0; i<  NX; i++) {
+	for (j=0; j<NY; j++) {
+	    dsq = 0;
+	    for (k=0; k<3; k++)  {
+		aux  = x[i][k] - y[j][k];
+		dsq += aux*aux;
+	    }
+	    score += exp(-dsq/dsq0);
+   	}
+    }
+ 
+    return score;
+}
+/***************************************/
+int christmas_tree_similarity(Representation hoodX[i], Representation hoodY[j], double *max_score) {
 
+    double **x = hoodX->full;
+    double **y = hoodY->full;
+
+    double  score, theta, cosine, sine;
+    double quat[4], **R;
+    int step;
+    score = exp_score(x, y, NX, NY);
+    theta = M_PI/1000;
+    cosine = cos(theta/2);
+    sine   = sin(theta/2);
+    // rotation about the z-axis
+    quat[0] = cosine;
+    quat[1] = 0; quat[2] = 0;
+    quat[3] = sine;
+    quat_to_R (quat, R);
+
+    *max_score = -1;
+	
+    for (step=0; step<1000; step++) {
+	rotate (R, y, Ry);
+	score = exp_score(x, Ry, NX, NY);
+	if (score > *max_score) *max_score = score;
+    }
+    
+  
+    return 0;
+}
+
+/***************************************/
+int similarity_score_by_neighborhood (double ** direction_similarity, Representation ** hoodX, int sizeX,
+				      Representation ** hoodY, int sizeY, double **similarity_score) {
+
+    double  hood_similarity;
+    double cutoff_direction_similarity = 0.5;
+    in i, j;
+
+    for (i=0; i< sizeX; i++) {
+	for (j=0; j<sizeY; j++) {
+	    if  (direction_similarity[i][j] < cutoff_direction_similarity) continue;
+	    hood_similarity  = christmas_tree_similarity(hoodX[i], hoodY[j]);
+	    similarity_score[i][j] = hood_similarity * direction_similarity[i][j]; //? will this work
+	}
+    }
+    return 0;
+}
 
 /***************************************/
 int find_map ( Penalty_parametrization * penalty_params,
@@ -540,21 +604,24 @@ int find_map ( Penalty_parametrization * penalty_params,
 	    /* allocate */
 	    int max_possible_hood_size_X = Y_rep->N_full;
 	    Representation ** hoodX = NULL;
-	    neighborhood_initialize (hoodX, X_rep->N_full, max_possible_hood_size_X);
+	    neighborhood_initialize (&hoodX, X_rep->N_full, max_possible_hood_size_X);
 	    int max_possible_hood_size_Y = X_rep->N_full;
 	    Representation ** hoodY = NULL;
-	    neighborhood_initialize (hoodY, Y_rep->N_full, max_possible_hood_size_Y);
+	    neighborhood_initialize (&hoodY, Y_rep->N_full, max_possible_hood_size_Y);
 	    /* find neighborhood vectors */
 	    find_neighborhoods (X_rep, hoodX, max_possible_hood_size_X);
 	    find_neighborhoods (Y_rep, hoodY, max_possible_hood_size_Y);	    
-	    /* similarity_score_by_neighborhood (hoodsX, hoodsY, similarity_score); */
+	    /* evaluate similarity */
+	    similarity_score_by_neighborhood (map->sse_pair_score, hoodX, X_rep->N_full, hoodY, Y_rep->N_full, similarity_score);
+
 	    /* free */
 	    neighborhood_shutdown (hoodX, X_rep->N_full);
 	    neighborhood_shutdown (hoodY, Y_rep->N_full);
-	    printf (" so far ok \n");
-	    exit(1);
+
+	    
 	}
 	hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
+	exit(1);
     } else {
         printf("Wrong algorithm type\n");
         return 1;

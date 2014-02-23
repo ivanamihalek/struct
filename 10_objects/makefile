@@ -1,5 +1,5 @@
 CCOMPL =  gcc 
-CFLAGS =  -Wall  -O
+CFLAGS =  -Wall  -g
 #CFLAGS += -fopenmp
 NVCC = nvcc
 

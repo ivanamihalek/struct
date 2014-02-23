@@ -1,0 +1,1 @@
+	printf (" hood %d  size %d \n", a, hood[a]->N_full);

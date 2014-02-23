@@ -312,33 +312,37 @@ int determine_sec_structure(Neighbors *neighbors, Protein *protein, int use_curv
  * @return 
  */
 
-int enumerate_structures(Protein *protein, int *counter){
+int enumerate_SSEs(Protein *protein, int *number_of_SSEs){
+    /* we increase the label  at each type change */
     char state_old = 'S', state;
     int length = protein->length;
     int i;
-    *counter = 1;
+    int label = 1;
     for (i = 0; i < length; ++i) {
         state = struct_type(&protein->sequence[i]);
         switch (state) {
             case 'C':
                 if (state_old == 'H' || state_old == 'E') {
-                    (*counter)++;
+                    label++;
                 }
                 break;
             case 'H':
                 if (state_old == 'E') {
-                    (*counter)++;
+                    label++;
                 } 
-                protein->sequence[i].belongs_to_helix = *counter;
+                protein->sequence[i].belongs_to_helix = label;
                 break;
             case 'E':
                 if (state_old == 'H') {
-                    (*counter)++;
+                    label++;
                 } 
-                protein->sequence[i].belongs_to_strand = *counter;
+                protein->sequence[i].belongs_to_strand =  label;
         }
         state_old = state;
     }
+    /* if we got to the end as helix or strand, add 1 */
+    if (state_old=='H' || state_old=='E') label++;
+    *number_of_SSEs = label-1;
     return 0;
 }
 
@@ -366,7 +370,7 @@ int structure2sse (Protein *protein) {
     int use_curvature = 1; // calculate beta strands using a curvature measure
     
     determine_sec_structure(neighbors, protein, use_curvature);
-    enumerate_structures(protein, &number_of_SSEs);
+    enumerate_SSEs(protein, &number_of_SSEs);
     
     printf (" number of SSEs: %d\n", number_of_SSEs);
     
@@ -375,7 +379,7 @@ int structure2sse (Protein *protein) {
         number_of_SSEs = 0;
         use_curvature = 0;
         determine_sec_structure(neighbors, protein, use_curvature);
-        enumerate_structures(protein, &number_of_SSEs);
+        enumerate_SSEs(protein, &number_of_SSEs);
     }
     
     free(neighbors);
