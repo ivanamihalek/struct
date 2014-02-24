@@ -95,6 +95,18 @@ int unnorm_dot (double *x, double *y, double * dot) {
 }
 
 /***************************************/
+int rotate_single_vector (double **R, double *x, double *x_rotated) {
+    int i, j;
+    for (i=0; i<3; i++ ) {
+	x_rotated[i] = 0;
+	for (j=0; j<3; j++ ) {
+	    x_rotated[i] += R[i][j]*x[j];
+	}
+    }
+    return 0;
+}
+
+/***************************************/
 int rotate(double **Ynew, int NY, double **R, double ** Y) {
 
     int n, i,j;

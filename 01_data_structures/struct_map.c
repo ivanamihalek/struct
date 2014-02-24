@@ -482,8 +482,14 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 }
 
 /***************************************/
-double  exp_score (double **x, double **, y, int NX, int NY) {
-   double score = 0, dsq = 0, dsq0 = 1.0, aux;
+double  exp_score (double **x, double ** y, int NX, int NY) {
+    
+    double score = 0, dsq = 0, dsq0 = 10.0, aux;
+    int i, j, k;
+
+    if (NX==0  || NY==0) {
+	return 0.0;
+    }
     
     for (i=0; i<  NX; i++) {
 	for (j=0; j<NY; j++) {
@@ -495,19 +501,28 @@ double  exp_score (double **x, double **, y, int NX, int NY) {
 	    score += exp(-dsq/dsq0);
    	}
     }
+    if (NX < NY) {
+	score /= NX;
+    } else {
+	score /= NY;
+    }
  
     return score;
 }
 /***************************************/
-int christmas_tree_similarity(Representation hoodX[i], Representation hoodY[j], double *max_score) {
+int christmas_tree_similarity(Representation * hoodX, Representation * hoodY, double *max_score) {
 
     double **x = hoodX->full;
     double **y = hoodY->full;
+    double NX  = hoodX->N_full;
+    double NY  = hoodY->N_full;
 
     double  score, theta, cosine, sine;
-    double quat[4], **R;
+    double quat[4], **R, **Ry, **y_prev;
     int step;
-    score = exp_score(x, y, NX, NY);
+    if ( ! (R=dmatrix(3,3) )) return 1; /* compiler is bugging me otherwise */
+    if ( ! (y_prev = dmatrix(NY,3) )) return 1; /* compiler is bugging me otherwise */
+    if ( ! (Ry     = dmatrix(NY,3) )) return 1; /* compiler is bugging me otherwise */
     theta = M_PI/1000;
     cosine = cos(theta/2);
     sine   = sin(theta/2);
@@ -517,15 +532,22 @@ int christmas_tree_similarity(Representation hoodX[i], Representation hoodY[j], 
     quat[3] = sine;
     quat_to_R (quat, R);
 
-    *max_score = -1;
+    *max_score  = exp_score(x, y, NX, NY);
+
+    memcpy (Ry[0], y[0], NY*3*sizeof(double));
 	
-    for (step=0; step<1000; step++) {
-	rotate (R, y, Ry);
+    for (step=1; step<1000; step++) {
+	double ** tmp;
+	tmp = y_prev; y_prev = Ry; Ry = tmp;
+	rotate (Ry,  NY,  R, y_prev);
 	score = exp_score(x, Ry, NX, NY);
 	if (score > *max_score) *max_score = score;
     }
-    
   
+    free_dmatrix (R);
+    free_dmatrix (Ry);
+    free_dmatrix (y_prev);
+
     return 0;
 }
 
@@ -534,14 +556,20 @@ int similarity_score_by_neighborhood (double ** direction_similarity, Representa
 				      Representation ** hoodY, int sizeY, double **similarity_score) {
 
     double  hood_similarity;
-    double cutoff_direction_similarity = 0.5;
-    in i, j;
+    double cutoff_direction_similarity = 0.1;
+    int i, j;
 
     for (i=0; i< sizeX; i++) {
 	for (j=0; j<sizeY; j++) {
-	    if  (direction_similarity[i][j] < cutoff_direction_similarity) continue;
-	    hood_similarity  = christmas_tree_similarity(hoodX[i], hoodY[j]);
-	    similarity_score[i][j] = hood_similarity * direction_similarity[i][j]; //? will this work
+	    if  (direction_similarity[i][j] < cutoff_direction_similarity) {
+		direction_similarity[i][j] = 0.0;
+		continue;
+	    }
+	    christmas_tree_similarity(hoodX[i], hoodY[j], &hood_similarity);
+	    similarity_score[i][j] = hood_similarity; // * direction_similarity[i][j]; //? will this work
+	    if ( direction_similarity[i][j] > 0.1)
+		printf (" %3d   %3d  hood: %8.3le  direction: %8.3lf\n",
+			i, j, hood_similarity,  direction_similarity[i][j]);
 	}
     }
     return 0;
@@ -595,13 +623,32 @@ int find_map ( Penalty_parametrization * penalty_params,
     
     /* dynamic programming using the sse_pair_score */
     if (options.current_algorithm == SEQUENTIAL) {
+	double **similarity_score = NULL;
+	    similarity_score= map->sse_pair_score;
+	    {
+		int i,  j;
+		for (i=0; i<X_rep->N_full; i++)
+		for (j=0; j<Y_rep->N_full; j++)
+		    if ( similarity_score[i][j] > 0.1 )
+		printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
+	    }
         smith_waterman (penalty_params, NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
-	double **similarity_score;
+	double **similarity_score = NULL;
 	if (0) {
 	    similarity_score= map->sse_pair_score;
+	    {
+		int i,  j;
+		for (i=0; i<X_rep->N_full; i++)
+		for (j=0; j<Y_rep->N_full; j++)
+		    if ( similarity_score[i][j] > 0.1)
+		printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
+	    }
+	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
+	    
 	} else {
 	    /* allocate */
+	    double **similarity_score = dmatrix(X_rep->N_full, Y_rep->N_full);
 	    int max_possible_hood_size_X = Y_rep->N_full;
 	    Representation ** hoodX = NULL;
 	    neighborhood_initialize (&hoodX, X_rep->N_full, max_possible_hood_size_X);
@@ -611,23 +658,33 @@ int find_map ( Penalty_parametrization * penalty_params,
 	    /* find neighborhood vectors */
 	    find_neighborhoods (X_rep, hoodX, max_possible_hood_size_X);
 	    find_neighborhoods (Y_rep, hoodY, max_possible_hood_size_Y);	    
-	    /* evaluate similarity */
-	    similarity_score_by_neighborhood (map->sse_pair_score, hoodX, X_rep->N_full, hoodY, Y_rep->N_full, similarity_score);
-
+	    /* evaluate similarity      */
+	    if (0){
+		int i,  j;
+		for (i=0; i<X_rep->N_full; i++)
+		for (j=0; j<Y_rep->N_full; j++)
+		    printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
+	    }
+	    similarity_score_by_neighborhood (map->sse_pair_score, hoodX, X_rep->N_full,
+					      hoodY, Y_rep->N_full, similarity_score);
 	    /* free */
 	    neighborhood_shutdown (hoodX, X_rep->N_full);
 	    neighborhood_shutdown (hoodY, Y_rep->N_full);
-
-	    
+	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
+	    free_dmatrix (similarity_score);
 	}
-	hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
-	exit(1);
+
     } else {
         printf("Wrong algorithm type\n");
         return 1;
     }
-   
-    map_assigned_score (X_rep, map);
+    for (i=0; i<NX; i++) {
+	 j = map->x2y[i];
+	 if ( j<0) continue;
+	 printf (" %2d --> %2d \n", i, j);
+    }
+    //exit(1);
+     map_assigned_score (X_rep, map);
 
     map -> avg_length_mismatch = 0;
     map_size = 0;

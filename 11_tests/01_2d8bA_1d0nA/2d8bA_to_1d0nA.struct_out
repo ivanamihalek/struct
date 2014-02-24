@@ -10,3 +10,14 @@
 % aln_L:   (after backbone alignment) the alignment length 
 
 % query target  geom_z   <dL>  T    frac gc_rmsd res_rmsd      A    aln_L    mapped_pdb 
+ 1d0nA  2d8bA    0.000  3.750   2.42   0.15  0.000  1.418   31.760   36   2d8bA_to_1d0nA.0.pdb
+ 1d0nA  2d8bA    0.000  1.800   2.62   0.16  0.000  2.996   28.547   36   2d8bA_to_1d0nA.1.pdb
+ 1d0nA  2d8bA    0.000  2.400   1.87   0.12  0.000  2.952   24.428   31   2d8bA_to_1d0nA.2.pdb
+ 1d0nA  2d8bA    0.000  3.000   1.97   0.12  0.000  2.400   20.337   25   2d8bA_to_1d0nA.3.pdb
+ 1d0nA  2d8bA    0.000  3.250   2.19   0.14  0.000  2.297   18.028   22   2d8bA_to_1d0nA.4.pdb
+ 1d0nA  2d8bA    0.000  3.333   1.35   0.08  0.000  2.398   17.664   22   2d8bA_to_1d0nA.5.pdb
+ 1d0nA  2d8bA    0.000  3.667   1.24   0.08  0.000  3.019   15.069   20   2d8bA_to_1d0nA.6.pdb
+ 1d0nA  2d8bA    0.000  6.500   1.57   0.10  0.000  1.454   15.036   17   2d8bA_to_1d0nA.7.pdb
+ 1d0nA  2d8bA    0.000  3.750   1.22   0.08  0.000  1.717   14.829   17   2d8bA_to_1d0nA.8.pdb
+ 1d0nA  2d8bA    0.000  5.333   1.11   0.07  0.000  2.200   14.734   18   2d8bA_to_1d0nA.9.pdb
+done   CPU:       8.078 s

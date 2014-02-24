@@ -403,6 +403,7 @@ int rep_read (Representation *rep, char * filename);
 int rep_save (Representation *rep, char * filename);
 
 int rotate(double **Ynew, int NY, double **R, double ** Y);
+int rotate_single_vector (double **R, double *x, double *x_rotated);
 int set_match_algebra ();
 int set_up_exp_table ();
 void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) ;

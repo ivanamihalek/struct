@@ -142,6 +142,9 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 
     smaller = (NX <= NY) ? NX : NY;
     no_top_rmsd = NX*NY/10; /* I'm not sure that this is the scale, but it works for now */
+    if ( options.current_algorithm != SEQUENTIAL) {
+	no_top_rmsd *= 10;
+    }
 
     /***********************/
     /* memory allocation   */
@@ -765,7 +768,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		/* if we are doing out-of-order search we should try all  
 		   permutations of these triplets  - storage space issues? */
 
-		if (options.current_algorithm == SEQUENTIAL) {
+		if (0 && options.current_algorithm == SEQUENTIAL) {
 		    number_of_permutations = 1;
 		    permutation[0][0] = i_y; permutation[0][1] = j_y; permutation[0][2] = k_y; 
 		} else {
@@ -873,7 +876,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		best_triple_y[top_ctr][0], best_triple_y[top_ctr][1], best_triple_y[top_ctr][2]);
    }
 
-    exit (1);
+   // exit (1);
 # endif
     
 
