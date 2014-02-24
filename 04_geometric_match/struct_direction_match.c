@@ -337,10 +337,10 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	} /* otherwise this map space is reusable */
 	    
 
-	/* is this pretty much as good as it can get ? */
+	/* is this pretty much as good as it can get ? 
 	if ( fabs (map[map_ctr].assigned_score - smaller)
 	     < options.tol )  done = 1;
-
+	*/
     }
     list->no_maps_used     = map_ctr;
     list->best_array_used  = best_ctr;
