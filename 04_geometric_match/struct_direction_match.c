@@ -257,6 +257,7 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	find_map (&penalty_params, X_rep, Y_rep, R, alpha, &F_effective, map + map_ctr,
 		  best_triple_x[top_ctr], best_triple_y[top_ctr], no_anchors);
 
+
 	/* does this map still map the two triples we started with? */
 	x2y = (map + map_ctr) ->x2y;
 	map_unstable  = 0;
@@ -266,6 +267,7 @@ int direction_match (Representation* X_rep, Representation* Y_rep, List_of_maps 
 	    }
 	}
 	if ( map_unstable) continue;
+	
         /* do the mapped SSEs match in length? */
 	if (options.use_length &&
 	    (map+map_ctr)->avg_length_mismatch  > options.avg_length_mismatch_tol)  continue;
@@ -768,7 +770,7 @@ int find_best_triples_exhaustive_redux (Representation* X_rep, Representation* Y
 		/* if we are doing out-of-order search we should try all  
 		   permutations of these triplets  - storage space issues? */
 
-		if (0 && options.current_algorithm == SEQUENTIAL) {
+		if ( options.current_algorithm == SEQUENTIAL) {
 		    number_of_permutations = 1;
 		    permutation[0][0] = i_y; permutation[0][1] = j_y; permutation[0][2] = k_y; 
 		} else {

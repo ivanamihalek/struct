@@ -389,16 +389,19 @@ int construct_translation_vecs ( Representation *X_rep,  Representation *Y_rep,
 /***************************************/
 /***************************************/
 /* we'll need neighbrohoods as a measure of similarity between elements */
-int find_neighborhoods (Representation *rep, Representation **  hood, int max_hood_size) {
+int find_neighborhoods (Representation *rep, Representation **  hood) {
     
     double **x    =  rep->full;
     double **x_cm =  rep->cm;
-    double d, hood_radius = options.threshold_distance;
+    double d, hood_radius = 10;
     double cm_vector[3], cross[3], csq, component;
     int NX = rep->N_full;
+    int max_hood_size = NX - 1;
     int a, b, i;
     int index_a, index_b;
 
+    for (a=0; a<NX; a++) hood[a]->N_full = 0; // just in case
+    
     for (a=0; a<NX; a++) {
 	
 	for (b=a+1; b<NX; b++) {
@@ -406,7 +409,7 @@ int find_neighborhoods (Representation *rep, Representation **  hood, int max_ho
 	    csq = 0;
 	    for (i=0; i<3; i++ ) {
 		/* from b to a  */
-		component = x_cm[a][i] - x_cm[b][i];
+		component    = x_cm[a][i] - x_cm[b][i];
 		cm_vector[i] = component;
 		csq += component*component;
 	    }
@@ -510,12 +513,43 @@ double  exp_score (double **x, double ** y, int NX, int NY) {
     return score;
 }
 /***************************************/
+double  hood_score (double **x, double ** y, int NX, int NY, int *typeX, int * typeY) {
+    
+    double score = 0, dsq = 0, dsq0 = 10.0, aux;
+    int i, j, k;
+
+    if (NX==0  || NY==0) {
+	return 0.0;
+    }
+    
+    for (i=0; i<  NX; i++) {
+	for (j=0; j<NY; j++) {
+	    if ( typeX[i] != typeY[j]) continue;
+	    dsq = 0;
+	    for (k=0; k<3; k++)  {
+		aux  = x[i][k] - y[j][k];
+		dsq += aux*aux;
+	    }
+	    score += exp(-dsq/dsq0);
+   	}
+    }
+    if (NX < NY) {
+	score /= NX;
+    } else {
+	score /= NY;
+    }
+ 
+    return score;
+}
+/***************************************/
 int christmas_tree_similarity(Representation * hoodX, Representation * hoodY, double *max_score) {
 
     double **x = hoodX->full;
     double **y = hoodY->full;
     double NX  = hoodX->N_full;
     double NY  = hoodY->N_full;
+    int *typeX = hoodX->full_type;
+    int *typeY = hoodY->full_type;
 
     double  score, theta, cosine, sine;
     double quat[4], **R, **Ry, **y_prev;
@@ -540,7 +574,7 @@ int christmas_tree_similarity(Representation * hoodX, Representation * hoodY, do
 	double ** tmp;
 	tmp = y_prev; y_prev = Ry; Ry = tmp;
 	rotate (Ry,  NY,  R, y_prev);
-	score = exp_score(x, Ry, NX, NY);
+	score = hood_score(x, Ry, NX, NY, typeX, typeY);
 	if (score > *max_score) *max_score = score;
     }
   
@@ -556,20 +590,26 @@ int similarity_score_by_neighborhood (double ** direction_similarity, Representa
 				      Representation ** hoodY, int sizeY, double **similarity_score) {
 
     double  hood_similarity;
-    double cutoff_direction_similarity = 0.1;
+    double cutoff_direction_similarity = 0.3;
+    double cutoff_hood_sim = 0.1;
     int i, j;
 
     for (i=0; i< sizeX; i++) {
 	for (j=0; j<sizeY; j++) {
+	    if  (direction_similarity[i][j] < 0) continue;
 	    if  (direction_similarity[i][j] < cutoff_direction_similarity) {
 		direction_similarity[i][j] = 0.0;
 		continue;
 	    }
 	    christmas_tree_similarity(hoodX[i], hoodY[j], &hood_similarity);
-	    similarity_score[i][j] = hood_similarity; // * direction_similarity[i][j]; //? will this work
-	    if ( direction_similarity[i][j] > 0.1)
-		printf (" %3d   %3d  hood: %8.3le  direction: %8.3lf\n",
+	    if (0 &&  direction_similarity[i][j] > 0.1)
+		printf (" %3d   %3d  hood: %8.3lf  direction: %8.3lf\n",
 			i, j, hood_similarity,  direction_similarity[i][j]);
+	    if ( hood_similarity<cutoff_hood_sim )  {
+		direction_similarity[i][j] = 0.0;
+		continue;
+	    }
+	    similarity_score[i][j] = hood_similarity;// * direction_similarity[i][j]; //? will this work
 	}
     }
     return 0;
@@ -582,7 +622,7 @@ int find_map ( Penalty_parametrization * penalty_params,
 	       double alpha, double * F_effective,  Map *map,
 	       int *anchor_x, int *anchor_y, int anchor_size) {
     
-    int i, j, map_size;
+    int i, j, map_size, a;
     int NX=X_rep->N_full, NY=Y_rep->N_full;
     double aln_score;
     
@@ -596,9 +636,9 @@ int find_map ( Penalty_parametrization * penalty_params,
     if (penalty_params->custom_gap_penalty_y)
 	memset (penalty_params->custom_gap_penalty_y, 0, NY*sizeof(double) );
     
+   
     if (anchor_x && anchor_y) {
-	 int a;
-         for (a=0; a<anchor_size; a++){
+        for (a=0; a<anchor_size; a++){
 	     
 	      i = anchor_x[a];
 	      if (penalty_params->custom_gap_penalty_x)
@@ -614,78 +654,62 @@ int find_map ( Penalty_parametrization * penalty_params,
 		  penalty_params->custom_gap_penalty_y[j] = options.far_far_away;
 	      for (i=0; i<NX; i++) {
 		   if ( i ==  anchor_x[a] )  continue;
-		   map->sse_pair_score [i][j] =  options.far_far_away;
+		   map->sse_pair_score [i][j] = options.far_far_away;
 		   map->cosine[i][j] = -0.9999;
 	      }
-
 	 }
     }
-    
     /* dynamic programming using the sse_pair_score */
     if (options.current_algorithm == SEQUENTIAL) {
-	double **similarity_score = NULL;
-	    similarity_score= map->sse_pair_score;
-	    {
-		int i,  j;
-		for (i=0; i<X_rep->N_full; i++)
-		for (j=0; j<Y_rep->N_full; j++)
-		    if ( similarity_score[i][j] > 0.1 )
-		printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
-	    }
-        smith_waterman (penalty_params, NX, NY, map->sse_pair_score, map->x2y, map->y2x, &aln_score);
+	double **similarity_score =  map->sse_pair_score;
+        smith_waterman (penalty_params, NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
+	
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
-	double **similarity_score = NULL;
 	if (0) {
+	    double **similarity_score = NULL;
 	    similarity_score= map->sse_pair_score;
-	    {
-		int i,  j;
-		for (i=0; i<X_rep->N_full; i++)
-		for (j=0; j<Y_rep->N_full; j++)
-		    if ( similarity_score[i][j] > 0.1)
-		printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
-	    }
 	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
 	    
 	} else {
 	    /* allocate */
 	    double **similarity_score = dmatrix(X_rep->N_full, Y_rep->N_full);
-	    int max_possible_hood_size_X = Y_rep->N_full;
 	    Representation ** hoodX = NULL;
-	    neighborhood_initialize (&hoodX, X_rep->N_full, max_possible_hood_size_X);
-	    int max_possible_hood_size_Y = X_rep->N_full;
+	    neighborhood_initialize (&hoodX, X_rep->N_full);
 	    Representation ** hoodY = NULL;
-	    neighborhood_initialize (&hoodY, Y_rep->N_full, max_possible_hood_size_Y);
+	    neighborhood_initialize (&hoodY, Y_rep->N_full);
 	    /* find neighborhood vectors */
-	    find_neighborhoods (X_rep, hoodX, max_possible_hood_size_X);
-	    find_neighborhoods (Y_rep, hoodY, max_possible_hood_size_Y);	    
+	    find_neighborhoods (X_rep, hoodX);
+	    find_neighborhoods (Y_rep, hoodY);	    
 	    /* evaluate similarity      */
-	    if (0){
-		int i,  j;
-		for (i=0; i<X_rep->N_full; i++)
-		for (j=0; j<Y_rep->N_full; j++)
-		    printf (" %3d %3d %8.4lf \n", i, j, similarity_score[i][j]);
-	    }
 	    similarity_score_by_neighborhood (map->sse_pair_score, hoodX, X_rep->N_full,
 					      hoodY, Y_rep->N_full, similarity_score);
-	    /* free */
+ 	    /* free */
 	    neighborhood_shutdown (hoodX, X_rep->N_full);
 	    neighborhood_shutdown (hoodY, Y_rep->N_full);
 	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
+
+ 
+
+	    if (0) {
+		for (i=0; i<NX; i++) {
+		    j = map->x2y[i];
+		    if ( j<0) continue;
+		    printf (" %2d  %d  --> %2d  %d   %10.6lf \n", i,  X_rep->full_type[i],
+			    j,  Y_rep->full_type[j], similarity_score[i][j]);
+		}
+	    }
+
 	    free_dmatrix (similarity_score);
 	}
 
     } else {
-        printf("Wrong algorithm type\n");
-        return 1;
-    }
-    for (i=0; i<NX; i++) {
-	 j = map->x2y[i];
-	 if ( j<0) continue;
-	 printf (" %2d --> %2d \n", i, j);
+	// shouldn't we have checked for this before?
+	fprintf (stderr, "%s:%d: Unrecognized algorithm type.\n",
+		 __FILE__, __LINE__);
+	exit (1);
     }
     //exit(1);
-     map_assigned_score (X_rep, map);
-
+    map_assigned_score (X_rep, map);
     map -> avg_length_mismatch = 0;
     map_size = 0;
     for (i=0; i<NX; i++) {
@@ -701,7 +725,6 @@ int find_map ( Penalty_parametrization * penalty_params,
 	     
 	 }    
     }
-
     map->avg_length_mismatch /= map_size;
     *F_effective = -map_size;
     

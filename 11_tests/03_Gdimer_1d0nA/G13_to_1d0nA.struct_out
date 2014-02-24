@@ -1,0 +1,23 @@
+% columns: 
+% query, target: structure names
+% geom_z:  z score for the orientational match 
+% <dL>:    average length mismatch for matched SSEs 
+% T:       total score assigned to matched SSEs 
+% frac:    T divided by the number of matched SSEs 
+% gc_rmsd: RMSD btw geometric centers of matched SSEs (before backbone alignment) 
+% Ca_rmsd:(after backbone alignment) rmsd for matched C-alpha 
+% A:       (after backbone alignment) the alignment score 
+% aln_L:   (after backbone alignment) the alignment length 
+
+% query target  geom_z   <dL>  T    frac gc_rmsd res_rmsd      A    aln_L    mapped_pdb 
+ 1d0nA    G13    0.000  0.067  14.23   0.89  0.000  0.000  102.000  102   G13_to_1d0nA.0.pdb
+ 1d0nA    G13    0.000  0.846   9.87   0.62  0.000  1.822   78.638   91   G13_to_1d0nA.1.pdb
+ 1d0nA    G13    0.000  2.000   2.44   0.15  0.000  2.372   21.236   26   G13_to_1d0nA.2.pdb
+ 1d0nA    G13    0.000  3.000   2.39   0.15  0.000  1.170   20.884   23   G13_to_1d0nA.3.pdb
+ 1d0nA    G13    0.000  2.000   1.86   0.12  0.000  2.831   20.456   26   G13_to_1d0nA.4.pdb
+ 1d0nA    G13    0.000  1.667   2.21   0.14  0.000  1.729   20.272   23   G13_to_1d0nA.5.pdb
+ 1d0nA    G13    0.000  2.000   2.00   0.12  0.000  2.372   20.204   25   G13_to_1d0nA.6.pdb
+ 1d0nA    G13    0.000  4.600   2.54   0.16  0.000  2.135   18.821   23   G13_to_1d0nA.7.pdb
+ 1d0nA    G13    0.000  2.000   2.22   0.14  0.000  0.724   18.730   20   G13_to_1d0nA.8.pdb
+ 1d0nA    G13    0.000  2.667   1.76   0.11  0.000  2.119   18.223   22   G13_to_1d0nA.9.pdb
+done   CPU:       3.164 s

@@ -87,7 +87,7 @@ while (<IF>) {
     ###########################################################
     # apply struct to the same problem
 
-    my $cmd = "$kpax  $chainfile  $qryfile > /dev/null "; #-p ../params";
+    my $cmd = "$kpax  $chainfile  $qryfile -blosum=0.0 -nothreads  > /dev/null "; #-p ../params";
     print $cmd, "\n";
     if  (system $cmd ) {
 	print  "Error running $cmd.\n"; 

@@ -376,7 +376,7 @@ int multiply (double *quat1, double *quat2_in,
 	      int conjugate,  double *product);
 int needleman_wunsch (int max_i, int max_j, double **distance,
 		      int *map_i2j, int * map_j2i, double *aln_score);
-int neighborhood_initialize (Representation *** hood, int nuber_of_elements, int max_possible_hood_size);
+int neighborhood_initialize (Representation *** hood, int nuber_of_elements);
 int neighborhood_shutdown (Representation ** hood, int nuber_of_elements) ;
 double norm (double *vec, int dim);
 int normalized_cross (double *x, double *y, double * v, double *norm_ptr);

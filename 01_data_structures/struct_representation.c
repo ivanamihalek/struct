@@ -20,9 +20,10 @@ Contact: ivana.mihalek@gmail.com.
 
 /**************************************************************/
 /**************************************************************/
-int neighborhood_initialize (Representation *** hood_ptr, int number_of_elements, int max_possible_hood_size) {
+int neighborhood_initialize (Representation *** hood_ptr, int number_of_elements) {
 
     int i;
+    int max_possible_hood_size = number_of_elements -1; // any other members of the representation, but itself
     Representation ** hood = emalloc(number_of_elements*sizeof(Representation *));
     for (i=0; i<number_of_elements; i++) {
 	hood[i] = emalloc(sizeof(Representation));
