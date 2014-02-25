@@ -1,5 +1,5 @@
 CCOMPL =  gcc 
-CFLAGS =  -Wall  -g
+CFLAGS =  -Wall  -g 
 #CFLAGS += -fopenmp
 NVCC = nvcc
 
@@ -12,7 +12,8 @@ VPATH = ../01_data_structures:../02_parsers:../03_output:\
 
 CUDA_FLAGS = -I/opt/cuda-sdk/C/common/inc/   -arch sm_20
 
-LIBS    =  -lm -lc  -L/usr/lib  -llapack #  -lprofiler
+# need  -Wl,-no_pie
+LIBS    =  -lm -lc  -L/usr/lib  -llapack   -lprofiler  -Wl,-no_pie
 INCLUDE =  -I ../00_include
 
 

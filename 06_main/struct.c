@@ -159,7 +159,8 @@ int comparison_loop (int tgt_input_type, FILE * tgt_fptr,  char tgt_chain, Descr
 	db_effective_ctr = 0;
 	CPU_time_begin = clock();
 	retval = -1;
-    
+
+	ProfilerStart("profile.out");
 	while ( ! tgt_done) {
 	    db_ctr++;
 	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, tgt_descr);
@@ -274,6 +275,8 @@ int comparison_loop (int tgt_input_type, FILE * tgt_fptr,  char tgt_chain, Descr
 	    }
 	}
     }
+    ProfilerStop();
+    
     CPU_time_end = clock();
     close_digest(CPU_time_begin, CPU_time_end, digest);
  

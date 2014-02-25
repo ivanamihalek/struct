@@ -34,6 +34,7 @@ Contact: ivana.mihalek@gmail.com.
 # ifdef OMP
 #  include <omp.h>
 # endif
+
 # include "struct_hungarian.h"
 # include "struct_utils.h"
 # include "struct_pdb.h"
@@ -43,6 +44,8 @@ Contact: ivana.mihalek@gmail.com.
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif
+
+# include "gperftools/profiler.h"
 
 # define  BUFFLEN 150
 
