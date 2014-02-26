@@ -1,0 +1,43 @@
+% columns: 
+% query, target: structure names
+% geom_z:  z score for the orientational match 
+% <dL>:    average length mismatch for matched SSEs 
+% T:       total score assigned to matched SSEs 
+% frac:    T divided by the number of matched SSEs 
+% gc_rmsd: RMSD btw geometric centers of matched SSEs (before backbone alignment) 
+% Ca_rmsd:(after backbone alignment) rmsd for matched C-alpha 
+% A:       (after backbone alignment) the alignment score 
+% aln_L:   (after backbone alignment) the alignment length 
+
+% query target  geom_z   <dL>  T    frac gc_rmsd res_rmsd      A    aln_L    mapped_pdb 
+ 1d0nA  1d0nA    0.000  0.096  50.39   0.78  0.000  0.598  597.469  627   1d0nA_to_1d0nA.0.pdb
+ 1d0nA  1d0nA    0.000  0.727  10.35   0.16  0.000  4.135  165.630  254   1d0nA_to_1d0nA.1.pdb
+ 1d0nA  1d0nA    0.000  1.667   5.39   0.08  0.000  2.871   80.308  100   1d0nA_to_1d0nA.2.pdb
+ 1d0nA  1d0nA    0.000  1.250   4.94   0.08  0.000  2.392   77.273   93   1d0nA_to_1d0nA.3.pdb
+ 1d0nA  1d0nA    0.000  0.889   5.03   0.08  0.000  2.613   75.470  107   1d0nA_to_1d0nA.4.pdb
+ 1d0nA  1d0nA    0.000  0.889   5.00   0.08  0.000  2.613   75.470  107   1d0nA_to_1d0nA.5.pdb
+ 1d0nA  1d0nA    0.000  2.222   4.02   0.06  0.000  3.172   73.574   98   1d0nA_to_1d0nA.6.pdb
+ 1d0nA  1d0nA    0.000  3.143   3.92   0.06  0.000  2.500   71.313   88   1d0nA_to_1d0nA.7.pdb
+ 1d0nA  1d0nA    0.000  3.143   3.90   0.06  0.000  2.500   71.313   88   1d0nA_to_1d0nA.8.pdb
+ 1d0nA  1d0nA    0.000  0.727   8.38   0.13  0.000  1.771   70.304  114   1d0nA_to_1d0nA.9.pdb
+ 1d0nA  1d0nA    0.000  4.000   3.87   0.06  0.000  2.763   68.137   88   1d0nA_to_1d0nA.10.pdb
+ 1d0nA  1d0nA    0.000  2.429   3.57   0.05  0.000  2.231   67.092   80   1d0nA_to_1d0nA.11.pdb
+ 1d0nA  1d0nA    0.000  2.556   4.36   0.07  0.000  2.914   66.585   89   1d0nA_to_1d0nA.12.pdb
+ 1d0nA  1d0nA    0.000  2.857   3.66   0.06  0.000  2.063   64.943   77   1d0nA_to_1d0nA.13.pdb
+ 1d0nA  1d0nA    0.000  2.857   3.60   0.06  0.000  2.063   64.943   77   1d0nA_to_1d0nA.14.pdb
+ 1d0nA  1d0nA    0.000  1.857   4.72   0.07  0.000  2.856   64.420   86   1d0nA_to_1d0nA.15.pdb
+ 1d0nA  1d0nA    0.000  1.857   3.60   0.06  0.000  2.935   58.985   82   1d0nA_to_1d0nA.16.pdb
+ 1d0nA  1d0nA    0.000  3.167   2.39   0.04  0.000  2.959   52.272   70   1d0nA_to_1d0nA.17.pdb
+ 1d0nA  1d0nA    0.000  3.167   2.38   0.04  0.000  2.959   52.272   70   1d0nA_to_1d0nA.18.pdb
+ 1d0nA  1d0nA    0.000  2.143   4.15   0.06  0.000  2.586   51.917   69   1d0nA_to_1d0nA.19.pdb
+ 1d0nA  1d0nA    0.000  2.143   4.16   0.06  0.000  2.586   51.917   69   1d0nA_to_1d0nA.20.pdb
+ 1d0nA  1d0nA    0.000  0.667   3.78   0.06  0.000  2.388   49.236   67   1d0nA_to_1d0nA.21.pdb
+ 1d0nA  1d0nA    0.000  0.667   3.77   0.06  0.000  2.388   49.236   67   1d0nA_to_1d0nA.22.pdb
+ 1d0nA  1d0nA    0.000  1.800   3.37   0.05  0.000  1.092   48.450   55   1d0nA_to_1d0nA.23.pdb
+ 1d0nA  1d0nA    0.000  4.000   1.07   0.02  0.000  3.636   23.516   34   1d0nA_to_1d0nA.24.pdb
+ 1d0nA  1d0nA    0.000  1.667   2.04   0.03  0.000  3.598   20.182   38   1d0nA_to_1d0nA.25.pdb
+ 1d0nA  1d0nA    0.000  1.667   2.03   0.03  0.000  3.598   20.182   38   1d0nA_to_1d0nA.26.pdb
+ 1d0nA  1d0nA    0.000  1.500   1.13   0.02  0.000  2.957   18.295   23   1d0nA_to_1d0nA.27.pdb
+ 1d0nA  1d0nA    0.000  1.500   1.14   0.02  0.000  3.250   18.295   24   1d0nA_to_1d0nA.28.pdb
+ 1d0nA  1d0nA    0.000  2.667   1.29   0.02  0.000  2.721   17.522   22   1d0nA_to_1d0nA.29.pdb
+done   CPU:       2.549 s

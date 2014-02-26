@@ -44,8 +44,7 @@ Contact: ivana.mihalek@gmail.com.
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif
-
-# include "gperftools/profiler.h"
+//# include "gperftools/profiler.h"
 
 # define  BUFFLEN 150
 

@@ -665,7 +665,7 @@ int find_map ( Penalty_parametrization * penalty_params,
         smith_waterman (penalty_params, NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
 	
     } else if  (options.current_algorithm == OUT_OF_ORDER) {
-	if (0) {
+	if (1) {
 	    double **similarity_score = NULL;
 	    similarity_score= map->sse_pair_score;
 	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
