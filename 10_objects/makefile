@@ -20,7 +20,7 @@ INCLUDE =  -I ../00_include
 DEFINES =   # -DGPU  # -DOMP  -DDEBUG  -DDMALLOC 
 
 SOURCES.c =  struct.c struct_aa_code.c  struct_alignment_out.c  struct_curvature.c	         \
-	     struct_map_reduced_reps.c  struct_align_backbone.c  struct_hungarian.c              \
+	     struct_map_reduced_reps.c  struct_align_backbone.c             \
 	     struct_direction_match.c  struct_descr_out.c struct_digest.c  struct_geometry.c    \
 	     struct_input_structure.c struct_linalg.c  struct_map.c struct_map2rotation.c        \
 	     struct_optimize_bb_almt.c  struct_opt_quat.c                                        \

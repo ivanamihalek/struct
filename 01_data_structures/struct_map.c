@@ -664,44 +664,6 @@ int find_map ( Penalty_parametrization * penalty_params,
 	double **similarity_score =  map->sse_pair_score;
         smith_waterman (penalty_params, NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
 	
-    } else if  (options.current_algorithm == OUT_OF_ORDER) {
-	if (1) {
-	    double **similarity_score = NULL;
-	    similarity_score= map->sse_pair_score;
-	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
-	    
-	} else {
-	    /* allocate */
-	    double **similarity_score = dmatrix(X_rep->N_full, Y_rep->N_full);
-	    Representation ** hoodX = NULL;
-	    neighborhood_initialize (&hoodX, X_rep->N_full);
-	    Representation ** hoodY = NULL;
-	    neighborhood_initialize (&hoodY, Y_rep->N_full);
-	    /* find neighborhood vectors */
-	    find_neighborhoods (X_rep, hoodX);
-	    find_neighborhoods (Y_rep, hoodY);	    
-	    /* evaluate similarity      */
-	    similarity_score_by_neighborhood (map->sse_pair_score, hoodX, X_rep->N_full,
-					      hoodY, Y_rep->N_full, similarity_score);
- 	    /* free */
-	    neighborhood_shutdown (hoodX, X_rep->N_full);
-	    neighborhood_shutdown (hoodY, Y_rep->N_full);
-	    hungarian_alignment (NX, NY, similarity_score, map->x2y, map->y2x, &aln_score);
-
- 
-
-	    if (0) {
-		for (i=0; i<NX; i++) {
-		    j = map->x2y[i];
-		    if ( j<0) continue;
-		    printf (" %2d  %d  --> %2d  %d   %10.6lf \n", i,  X_rep->full_type[i],
-			    j,  Y_rep->full_type[j], similarity_score[i][j]);
-		}
-	    }
-
-	    free_dmatrix (similarity_score);
-	}
-
     } else {
 	// shouldn't we have checked for this before?
 	fprintf (stderr, "%s:%d: Unrecognized algorithm type.\n",
@@ -871,83 +833,6 @@ int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *li
     list_uniq->map_best[uniq_map_ctr] = -1;
     
     return 0;
-}
-
-
-/************************************/
-/************************************/
-
-/**
- * Function that calculate alignment, and maps structures using Hungarian algorithm
- * @param NX
- * @param NY
- * @param similarity
- * @param x2y
- * @param y2x
- * @param alignment
- * @return 
- */
-
-int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y2x, double * alignment ) {
-    int i,j;
-    *alignment  = 0;
-    for (i =0; i < NX; ++i) x2y[i] = options.far_far_away;
-    for (i =0; i < NY; ++i) y2x[i] = options.far_far_away;
-     
-    
-    int multiplier = 1000; // precision level for conversion of double to int
-    int **scoring_matrix;
-    scoring_matrix = intmatrix(NX, NY);
-    
-    similarity_to_scoring(NX, NY, multiplier, similarity, scoring_matrix );
-    
-    
-    hungarian_problem_t p;
-    
-    int matrix_size = hungarian_init(&p, scoring_matrix, NX,NY, HUNGARIAN_MODE_MAXIMIZE_UTIL);
-    if (matrix_size < 0) printf("wrong matrix size for Hungarian algorithm\n");
-
-    hungarian_solve(&p);
-
-    // checking if the number of rows is greater than number of columns. Note: Hungarian 
-    
-    
-    // if (NX >= NY) {
-    for (i = 0; i < NX; ++i) {
-        for (j = 0; j < NY; ++j) {
-            if (p.assignment[i][j] && similarity[i][j] > 0) {
-                x2y[i] = j;
-                y2x[j] = i;
-                *alignment += similarity[i][j];
-            }
-        }
-    }
-    //} 
-        
-  
-    /* free used memory */
-    hungarian_free(&p);
-    free_imatrix(scoring_matrix);
-    
-    return 0;
-    
-}
-
-/**
- * Function that converts similarity matrix of doubles to scoring matrix of integers
- * Scoring matrix is necessary to the Hungarian algorithm 
- * @param m input double matrix
- * @param rows
- * @param cols
- * @return matrix of integers
- */
-
-void similarity_to_scoring(int NX, int NY, int multiplier, double** similarity, int ** hungarian_alignment ) {
-  int i,j;
-  
-  for(i=0;i<NX;i++) {
-      for(j=0;j<NY;j++) hungarian_alignment[i][j] = similarity[i][j] * multiplier;
-  }
 }
 
 
