@@ -349,6 +349,8 @@ int check_input_type (FILE *fptr) {
 	    input_type = DB;
 	} else if ( ! strncmp (line, "MODEL", 5) ) {
 	    input_type = PDB;	    
+	} else if ( ! strncmp (line, "TITLE", 5) ) {
+	    input_type = PDB;	    
 	} else if ( ! strncmp (line, "ATOM",  4) ) {
 	    input_type = PDB;	    
 	} else if ( ! strncmp (line, "HEADER", 6) ) {

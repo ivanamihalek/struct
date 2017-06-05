@@ -56,7 +56,7 @@ int process_input_instructions (int argc, char *argv[],
     /* figure out whether we have a pdb or db input:                      */
     tgt_input_type = check_input_type (tgt_fptr);
     if ( tgt_input_type != PDB && tgt_input_type != DB ) {
-	fprintf ( stderr, "Unrecognized file type: %s.\n", argv[1]);
+	fprintf ( stderr, "Unrecognized file type: %s.\n", options.tgt_filename);
 	return 1;
     }
 
@@ -78,7 +78,7 @@ int process_input_instructions (int argc, char *argv[],
 	
 	qry_input_type = check_input_type (qry_fptr);
 	if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
-	    fprintf ( stderr, "Unrecognized file type: %s.\n", argv[2]);
+	    fprintf ( stderr, "Unrecognized file type: %s.\n", options.qry_filename);
 	    exit (1);
 	}
 	if ( qry_input_type==PDB) {
