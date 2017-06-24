@@ -666,8 +666,7 @@ int find_map ( Penalty_parametrization * penalty_params,
 	
     } else {
 	// shouldn't we have checked for this before?
-	fprintf (stderr, "%s:%d: Unrecognized algorithm type.\n",
-		 __FILE__, __LINE__);
+	fprintf (stderr, "%s:%d: Unrecognized algorithm type.\n",__FILE__, __LINE__);
 	exit (1);
     }
     //exit(1);

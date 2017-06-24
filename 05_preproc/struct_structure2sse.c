@@ -372,8 +372,6 @@ int structure2sse (Protein *protein) {
     determine_sec_structure(neighbors, protein, use_curvature);
     enumerate_SSEs(protein, &number_of_SSEs);
     
-    printf (" number of SSEs: %d\n", number_of_SSEs);
-    
     if (number_of_SSEs < 3) { // fudge, fudge
         
         number_of_SSEs = 0;

@@ -42,30 +42,33 @@ int map_reduced_reps (Representation *rep1, Representation *rep2, List_of_maps *
     if ( !list  || ! list->map )  return 1;
    
     
-    /* the size has increased case */ 
-    if ( NX > list->NX_allocated || NY > list->NY_allocated  ) {
-	for ( map_ctr= 0; map_ctr< list->no_maps_allocated; map_ctr++) {
-	    if ( list->map) if ( free_map( list->map+map_ctr) ) return 1;
-	    
-	    int NXalloc = NX > list->NX_allocated ? NX : list->NX_allocated;
-	    int NYalloc = NY > list->NY_allocated ? NY : list->NY_allocated;
-	    
-	    if ( initialize_map( list->map+map_ctr, NXalloc, NYalloc) ) return 1;
-	}
-	list->NX_allocated = NX;
-	list->NY_allocated = NY;
-	
-    } else { /* I should perhaps clean up anyway */
-	for ( map_ctr= 0; map_ctr< list->no_maps_used; map_ctr++) {
-	    clear_map (list->map+map_ctr);
-	}
-	list->no_maps_used = 0;
-    }
+    /* the size has increased case */
+	if (NX > list->NX_allocated || NY > list->NY_allocated) {
+		for (map_ctr = 0; map_ctr < list->no_maps_allocated; map_ctr++) {
+			if (list->map)
+				if (free_map(list->map + map_ctr))
+					return 1;
 
-    for ( map_ctr= 0; map_ctr<list->no_maps_allocated; map_ctr++) {
-	(list->map+map_ctr)->x2y_size = NX;
-	(list->map+map_ctr)->y2x_size = NY;
-    }
+			int NXalloc = NX > list->NX_allocated ? NX : list->NX_allocated;
+			int NYalloc = NY > list->NY_allocated ? NY : list->NY_allocated;
+
+			if (initialize_map(list->map + map_ctr, NXalloc, NYalloc))
+				return 1;
+		}
+		list->NX_allocated = NX;
+		list->NY_allocated = NY;
+
+	} else { /* I should perhaps clean up anyway */
+		for (map_ctr = 0; map_ctr < list->no_maps_used; map_ctr++) {
+			clear_map(list->map + map_ctr);
+		}
+		list->no_maps_used = 0;
+	}
+
+	for (map_ctr = 0; map_ctr < list->no_maps_allocated; map_ctr++) {
+		(list->map + map_ctr)->x2y_size = NX;
+		(list->map + map_ctr)->y2x_size = NY;
+	}
     
 
     /******************************************/

@@ -46,11 +46,11 @@ int main ( int argc, char * argv[]) {
     
     /***********************************************************************/
     if ( argc < 2 ) {
-	fprintf ( stderr, "Usage: %s -in/-from <pdb/db tgt file> [-c1 <tgt chain>] "
-		  "[ -to <pdb/db qry file>] [ -c2 <qry chain>] [-max_out <# of almts to output>] [ -v] [ -gpu] "
-		  "[-no_bb] [ -p <parameter file>].\n",
-		  argv[0]);
-	exit (1);
+		fprintf ( stderr, "Usage: %s -in/-from <pdb/db tgt file> [-c1 <tgt chain>] "
+			  "[ -to <pdb/db qry file>] [ -c2 <qry chain>] [-max_out <# of almts to output>] [ -v] [ -gpu] "
+			  "[-no_bb] [ -p <parameter file>].\n",
+			  argv[0]);
+		exit (1);
     }
 
     /***********************************************************************/
@@ -69,13 +69,13 @@ int main ( int argc, char * argv[]) {
     /* preprocessing only :                                                */
     if (options.preproc_only) {
 
-	retval = preprocessing_loop (tgt_input_type, tgt_fptr, tgt_chain, &tgt_descr);
+    	retval = preprocessing_loop (tgt_input_type, tgt_fptr, tgt_chain, &tgt_descr);
    
     /***********************************************************************/
     /* the full proceesing loop :                                          */
     } else {
 
-	retval = comparison_loop (tgt_input_type, tgt_fptr, tgt_chain, &tgt_descr, 
+    	retval = comparison_loop (tgt_input_type, tgt_fptr, tgt_chain, &tgt_descr,
 				  qry_input_type, qry_fptr, qry_chain, &qry_descr);
     }
 
@@ -165,11 +165,11 @@ int comparison_loop (int tgt_input_type, FILE * tgt_fptr,  char tgt_chain, Descr
 	    db_ctr++;
 	    retval = get_next_descr (tgt_input_type, tgt_fptr, tgt_chain, &tgt_structure, tgt_descr);
 	    if ( retval == 1 ) {
-		fprintf (stderr, "Error reading %s.\n", options.tgt_filename);
-		continue;
+	    	fprintf (stderr, "Error reading %s.\n", options.tgt_filename);
+	    	continue;
 	    } else if ( retval == -1 ) {
-		tgt_done = 1;
-		continue;
+			tgt_done = 1;
+			continue;
 	    } 
 
 	    int match_found = 0;
@@ -370,8 +370,8 @@ int set_default_options () {
 	= 0.0;
     options.endgap
 	= 0.0;
-    options.threshold_distance /* for the "seed" triples in direction search (why is this number so big?)*/
-	= 11.0;
+    options.threshold_distance /* for the "seed" triples in direction search*/
+	= 15.0;
     options.distance_tol_in_bb_almt /* exp fallof for the bb almt score */
 	= 10.0;
     options.max_almt_dist           /* max distance for which we want to call something "aligned" */
