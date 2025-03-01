@@ -1,8 +1,7 @@
 
 This file is part of deconSTRUCT,
 protein structure database search and backbone alignment application.
-Written by Ivana Mihalek, with contributions from Mile Sikic.
-Copyright (C) 2008-2025 Ivana Mihalek.
+Written by Ivana Mihalek.  Copyright (C) 2008-2025 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
