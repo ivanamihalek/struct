@@ -1,24 +1,4 @@
 
-This file is part of deconSTRUCT,
-protein structure database search and backbone alignment application.
-Written by Ivana Mihalek.  Copyright (C) 2008-2025 Ivana Mihalek.
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or,
-at your option, any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
-
-Contact: ivana.mihalek@gmail.com.
-
-
 
 DEPENDENCIES
 ------------
@@ -46,7 +26,7 @@ USAGE
 ```bash
 $STRUCT_HOME/struct -in/-from <pdb/db tgt file> [-c1 <tgt chain>] \
 		    [ -to <pdb/db qry file>] [ -c2 <qry chain>] \
-		    [-max_out <# of almts to output>] [ -v] [ -gpu] \
+		    [-max_out <number of almts to output>] [ -v] \
 		    [-no_bb] [ -p <parameter file>]
 
 
@@ -56,7 +36,6 @@ $STRUCT_HOME/struct -in/-from <pdb/db tgt file> [-c1 <tgt chain>] \
   -max_out number of alignments (pdb and allignemnt files) to output
   -no_bb  do not do the alignment on the backbone level
   -v      verbose output
-  -gpu    GPU versiont (placeholder; not available yet)
   -p      parameter file
 ``````
 
@@ -67,7 +46,7 @@ TEST CASES
 ## 1-on-1 comparison
 
 ```bash
-> > cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
+> cd $STRUCT_HOME/11_tests/01_2d8bA_1d0nA/
 > $STRUCT_HOME/struct -from 2d8bA.pdb  -to 1d0nA.pdb
 ```
 
@@ -77,11 +56,11 @@ view the results:
 > pymol 1d0nA.pdb 2d8bA.to_1d0nA.*.pdb
 ```
 If you do not use pymol, you can view these files in your
-favorite molecular viewer by finding them under open->file menu .
+favorite molecular viewer by finding them under open->file menu.
 
 
 ## Making a db file 
-A db file is a file containing directions and cetnerpoints for
+A db file is a file containing directions and center points for
    each tentative, heuristically determined, element of secondary
    structure; it is used for fast searching though a large set 
    of structures, such as PDB itself.
@@ -93,7 +72,7 @@ A db file is a file containing directions and cetnerpoints for
 Note: it is possible to use the full pdb file here,
 provided you have it available in your directory:
 ```bash
-> $STRUCT_HOME/struct -in 1d0n.pdb -c1 A ]]
+> $STRUCT_HOME/struct -in 1d0n.pdb -c1 A 
 ```
 
 view the output:

@@ -343,7 +343,7 @@ int F_moments (double **x, int *x_type, int NX,
 	       double **y, int *y_type, int NY, double alpha,
 	       double *avg_ptr, double *avg_sq_ptr,
 	       double *std_ptr);
-int fill_protein_info ( FILE * fptr,  char chain, Protein * protein);
+int fill_protein_info ( void* fptr,  char chain, Protein* protein, int gzipped);
 int find_next_pair (double **X, double **Y, int *x_type, int *y_type,
 		    int NX, int NY, int nbr_range, int x_ctr, int y_ctr,
 		    int *x_next_ptr, int *y_next_ptr);

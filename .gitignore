@@ -2,6 +2,7 @@
 # Compiled source #
 ###################
 struct
+
 *.com
 *.class
 *.dll
@@ -32,6 +33,7 @@ pdbchains
 sys_tfm
 *.aln
 *to_*.pdb
+*.db
 
 # OS generated files #
 ######################
