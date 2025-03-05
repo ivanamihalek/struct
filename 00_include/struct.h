@@ -14,7 +14,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program. If not, see<http://www.gnu.org/licenses/>.
+along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Contact: ivana.mihalek@gmail.com.
 */
@@ -40,6 +40,8 @@ Contact: ivana.mihalek@gmail.com.
 # include "struct_geometry.h"
 # include "struct_structure2sse.h"
 # include "struct_curvature.h"
+# include "struct_wrappers.h"
+
 # ifdef DMALLOC
 #   include "dmalloc.h"
 # endif
@@ -76,8 +78,7 @@ Contact: ivana.mihalek@gmail.com.
 #define REWARD   1
 #define PENALTY  0
 
-typedef enum   /* Declares an enumeration data type called ALGORITHM */
-{
+typedef enum {
     SEQUENTIAL,     
     OUT_OF_ORDER,
     BOTH
@@ -87,6 +88,9 @@ typedef enum   /* Declares an enumeration data type called ALGORITHM */
 typedef struct {
     char * tgt_filename;  /* input filename for the target (set); pointer to argv, if given */
     char * qry_filename;  /* input filename for the qry (set) */
+
+    COMPRESSION_TYPE tgt_compression_type;
+    COMPRESSION_TYPE qry_compression_type;
 
     char * tgt_db;        /* for testing purposes only - outside db, separate from the pdb */
     char * qry_db; 
@@ -127,7 +131,7 @@ typedef struct {
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
     int omp;              /* use omp parallelization of the exhaustive search */
-    int gpu;              /* use gpu parallelization of the exhaustive search */
+
 
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */

@@ -23,7 +23,7 @@ Contact: ivana.mihalek@gmail.com.
 # ifndef _UTILS_H
 # define _UTILS_H
 
-
+# include <stddef.h> // defintion of NULL should be here
 /******************************/
 /*   tokenizer                */
 /******************************/
@@ -61,5 +61,6 @@ int infox ( char * errmsg, int exitval); /* exit with erval, after printing errm
 int    **intmatrix(int rows, int columns);
 int intmatrix_init(int **matrix, int rows, int columns, int val);
 int improvize_name ( char *filename,  char chain, char *outstring);
+int is_gzipped(const char *filename);
 int      string_clean ( char* string, int length);
 # endif

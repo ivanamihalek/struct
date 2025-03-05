@@ -35,15 +35,38 @@ void * emalloc(int  size)
 }
 
 
+// check if a file is zipped by using the magic bytes
+int is_gzipped(const char *filename) {
+
+    /* open file */
+    FILE * fptr = fopen (filename, "r");
+
+	/* croak if it does not work */
+    if (!fptr ) {
+		fprintf (stderr, "Cno %s.\n", filename);
+		return ERR_NO_FILE_OR_CHAIN;
+    }
+
+    unsigned char magic[2];
+    if (fread(magic, 1, 2, fptr) != 2) {
+        fclose(fptr);
+        return 0; // Not gzipped (or file too small)
+    }
+    fclose(fptr);
+
+    // Check for gzip magic number
+	printf("%s\n", magic);
+    return (magic[0] == 0x1F && magic[1] == 0x8B);
+}
+
 
 FILE * efopen(char * name, char * mode) {
 
     FILE * fp;
 
     if ((fp = fopen(name, mode)) == NULL) {
-	fprintf (stderr,  
-	      "Cannot open \"%s\" for \"%s\"\n", name, mode);
-	return NULL;
+        fprintf (stderr, "Cannot open \"%s\" for \"%s\"\n", name, mode);
+        return NULL;
     }
 
     return fp;
@@ -52,8 +75,7 @@ FILE * efopen(char * name, char * mode) {
 
 /**********************************************************************/  
 int infox ( char * errmsg, int exitval) {
-    fprintf (stderr, "%s\nExiting at %s:%d.\n",		
-	     errmsg, __FILE__, __LINE__ );		
+    fprintf (stderr, "%s\nExiting at %s:%d.\n",	errmsg, __FILE__, __LINE__ );		
     exit (exitval);
 }
 
@@ -63,17 +85,19 @@ int infox ( char * errmsg, int exitval) {
 char **chmatrix(int rows, int columns){
     char **m;
     int i;
-        /* allocate pointers to rows */
+    /* allocate pointers to rows */
     m=(char **) malloc(rows*sizeof(char*));
     if (!m)  {
-	fprintf (stderr,"row allocation failure  in chmatrix().\n");
-	return NULL;
+        fprintf (stderr,"row allocation failure  in chmatrix().\n");
+        return NULL;
     }
+
     /* allocate rows and set pointers to them */
     m[0]=(char *) calloc( rows*columns, sizeof(char));
+
     if (!m[0]) {
-	fprintf (stderr,"column allocation failure in chmatrix().\n");
- 	return NULL;
+        fprintf (stderr,"column allocation failure in chmatrix().\n");
+        return NULL;
     }
     for( i=1; i < rows; i++)  m[i] = m[i-1] + columns;
     /* return pointer to array of pointers to rows */ 
@@ -86,14 +110,14 @@ int **intmatrix(int rows, int columns){
         /* allocate pointers to rows */
     m=(int **) malloc(rows*sizeof(int*));
     if (!m)  {
-	fprintf (stderr,"row allocation failure  in chmatrix().\n");
-	return NULL;
+        fprintf (stderr,"row allocation failure  in chmatrix().\n");
+        return NULL;
     }
     /* allocate rows and set pointers to them */
     m[0]=(int *) calloc( rows*columns, sizeof(int));
     if (!m[0]) {
-	fprintf (stderr,"column allocation failure in chmatrix().\n");
- 	return NULL;
+        fprintf (stderr,"column allocation failure in chmatrix().\n");
+        return NULL;
     }
     for( i=1; i < rows; i++)  m[i] = m[i-1] + columns;
     /* return pointer to array of pointers to rows */ 
@@ -103,21 +127,22 @@ int **intmatrix(int rows, int columns){
 float **fmatrix(int rows, int columns){
     float **m;
     int i;
-        /* allocate pointers to rows */
-    m=(float **) malloc(rows*sizeof(float*));
+    /* allocate pointers to rows */
+    m = (float **)malloc(rows * sizeof(float *));
     if (!m)  {
-	fprintf (stderr,"row allocation failure  in chmatrix().\n");
-	return NULL;
-    } 
-    /* allocate rows and set pointers to them */
-    m[0]=(float *) calloc( rows*columns, sizeof(float));
-    if (!m[0]) {
-	fprintf (stderr,"column allocation failure in chmatrix().\n");
- 	return NULL;
+        fprintf(stderr, "row allocation failure  in chmatrix().\n");
+        return NULL;
     }
-    for( i=1; i < rows; i++)  m[i] = m[i-1] + columns;
-    /* return pointer to array of pointers to rows */ 
-    return m; 
+    /* allocate rows and set pointers to them */
+    m[0] = (float *)calloc(rows * columns, sizeof(float));
+    if (!m[0]) {
+        fprintf(stderr, "column allocation failure in chmatrix().\n");
+        return NULL;
+    }
+    for (i = 1; i < rows; i++)
+        m[i] = m[i - 1] + columns;
+    /* return pointer to array of pointers to rows */
+    return m;
 }
 
 double **dmatrix(int rows, int columns){
@@ -126,14 +151,14 @@ double **dmatrix(int rows, int columns){
         /* allocate pointers to rows */
     m=(double **) malloc(rows*sizeof(double*));
     if (!m)  {
-	fprintf (stderr,"row allocation failure  in chmatrix().\n");
-	return NULL;
+        fprintf (stderr,"row allocation failure  in chmatrix().\n");
+        return NULL;
     } 
     /* allocate rows and set pointers to them */
     m[0]=(double *) calloc( rows*columns, sizeof(double));
     if (!m[0]) {
-	fprintf (stderr,"column allocation failure in chmatrix().\n");
- 	return NULL;
+        fprintf (stderr,"column allocation failure in chmatrix().\n");
+        return NULL;
     }
     for( i=1; i < rows; i++)  m[i] = m[i-1] + columns;
     /* return pointer to array of pointers to rows */ 

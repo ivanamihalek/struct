@@ -1,7 +1,7 @@
 /*
 This source code is part of deconSTRUCT,
 protein structure database search and backbone alignment application.
-Written by Ivana Mihalek. Copyright (C) 2008-2025 Ivana Mihalek.
+Copyright (C) 2008-2025 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ Contact: ivana.mihalek@gmail.com.
 */
 # include <zlib.h>
 # include "struct.h"
+# include "struct_wrappers.h"
 
 /*****************************************************************/
 /*  this thing is ignoring HETATMS ... I need a parser           */
@@ -29,71 +30,9 @@ Contact: ivana.mihalek@gmail.com.
 
 # define DELETE  -789
 
-// Define a function pointer type for reading
-typedef int (*read_func_t)(char *buffer, int size, void* file);
-// Define function pointer types for seeking and rewinding
-typedef int (*seek_func_t)(void *file, long offset, int whence);
-typedef void (*rewind_func_t)(void *file);
-
-// Wrapper for fgets (regular files)
-int read_fgets(char* buffer, int size, void* file) {
-    return fgets(buffer, size, (FILE *)file) != NULL ? strlen(buffer) : 0;
-}
-
-// Wrapper for gzread (gzipped files)
-// Note the order of the arguments is not the same as for 
-// reading the plain FILE *
-int read_gzread(char* buffer, int size, void* file) {
-    return gzread((gzFile)file, buffer, size);
-}
-// Wrapper for fseek (regular files)
-int fseek_wrapper(void *file, long offset, int whence) {
-    return fseek((FILE *)file, offset, whence);
-}
-
-// Wrapper for gzseek (gzipped files)
-int gzseek_wrapper(void *file, long offset, int whence) {
-    return gzseek((gzFile)file, offset, whence);
-}
-
-// Wrapper for rewind (regular files)
-void rewind_wrapper(void *file) {
-    rewind((FILE *)file);
-}
-
-// Wrapper for gzrewind (gzipped files)
-void gzrewind_wrapper(void *file) {
-	// gzrewind returns something, but we are 
-	// ignoring it for compat with rewind
-    gzrewind((gzFile)file);
-}
-
-// check if a file is zipped by using the magic bytes
-int is_gzipped(const char *filename) {
-
-    /* open file */
-    FILE * fptr = fopen (filename, "r");
-
-	/* croak if it does not work */
-    if (!fptr ) {
-		fprintf (stderr, "Cno %s.\n", filename);
-		return ERR_NO_FILE_OR_CHAIN;
-    }
-
-    unsigned char magic[2];
-    if (fread(magic, 1, 2, fptr) != 2) {
-        fclose(fptr);
-        return 0; // Not gzipped (or file too small)
-    }
-    fclose(fptr);
-
-    // Check for gzip magic number
-    return (magic[0] == 0x1F && magic[1] == 0x8B);
-}
-
 
 int read_pdb ( char * pdbname,  char chain, Protein * protein) {
-    
+
     int retval;
 	int gzipped = is_gzipped(pdbname);
     
@@ -103,7 +42,7 @@ int read_pdb ( char * pdbname,  char chain, Protein * protein) {
 		retval = fill_protein_info ((void*)fptr, chain, protein, 1);
 		gzclose(fptr);
 
-	} else {  // todo: check if some other format
+	} else {  // todo: check if some other compression format
     	FILE * fptr = NULL;
 		fptr = fopen (pdbname, "r");
 		retval = fill_protein_info ((void*)fptr, chain, protein, 0);
@@ -155,7 +94,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     chain_found = 0;
     old_chain = '\0';
     while(read_func(line, BUFFLEN, fptr) > 0){
-		
+		printf(line, "\n");
 		if (resctr &&  !strncmp(line,"ENDMDL", 6)) {
 			is_nmr = 1;
 			break;
@@ -184,6 +123,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     }
 
     no_res = resctr;
+	printf("number of residues: %d\n", no_res);
 
     if ( !no_res ) return -1;  /* take it as the end of the read */
     

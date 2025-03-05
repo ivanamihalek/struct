@@ -32,8 +32,8 @@ int main ( int argc, char * argv[]) {
     char tgt_chain = '\0', qry_chain = '\0';
     int tgt_input_type = 0, qry_input_type = 0;
     FILE *qry_fptr = NULL, *tgt_fptr = NULL;
-    Descr qry_descr        = {0};
-    Descr tgt_descr        = {0};
+    Descr qry_descr = {0};
+    Descr tgt_descr = {0};
 
    
     int comparison_loop (int tgt_input_type, FILE * tgt_fptr,  char tgt_chain, Descr * tgt_descr, 
@@ -307,16 +307,16 @@ int preprocessing_loop(int input_type, FILE * fptr,  char chain, Descr * descr) 
     Protein structure;
     
     while ( ! done) {
-	retval = get_next_descr (input_type, fptr, chain, &structure, descr);
-	if ( retval ) { /* I don't know how to recover if this is a concat of PDB files      */
-	                /* actually if I want to concatenate I have another problem: rewind  */
-	                /* so PDB input should be completley                                 */
-			/* rewritten to acommodate this possibility                          */
-	    done = 1;
-		
-	} else {
-	    descr_out (NULL, descr);
-	}
+		retval = get_next_descr (input_type, fptr, chain, &structure, descr);
+		if ( retval ) { /* I don't know how to recover if this is a concat of PDB files      */
+						/* actually if I want to concatenate I have another problem: rewind  */
+						/* so PDB input should be completley                                 */
+						/* rewritten to acommodate this possibility                          */
+			done = 1;
+			
+		} else {
+			descr_out (NULL, descr);
+		}
     }
     protein_shutdown (&structure);
     
