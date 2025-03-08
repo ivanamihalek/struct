@@ -23,18 +23,15 @@ Contact: ivana.mihalek@gmail.com.
 
 
 
-int process_input_instructions (int argc, char *argv[],
+int process_input_options (int argc, char *argv[],
 				int *tgt_input_type_ptr, char *tgt_chain_ptr, Descr *tgt_descr,
 				int *qry_input_type_ptr, char *qry_chain_ptr, Descr *qry_descr) {
 
 
     char tgt_chain = '\0', qry_chain = '\0';
     int  tgt_input_type = 0, qry_input_type = 0;
-
     void *qry_fptr = NULL, *tgt_fptr = NULL;
-
     char  *cmd_filename = NULL;
-
     int parse_cmd_line (int argc, char * argv[],  char * tgt_chain_ptr,
 			char * qry_chain_ptr, char **cmd_filename_ptr);
     int read_cmd_file (char *filename);
@@ -45,15 +42,13 @@ int process_input_instructions (int argc, char *argv[],
     /* process the command (parameters) file, if provided */
     if (cmd_filename && read_cmd_file(cmd_filename))  return 1;
 
-    /* check if the tgt file is compressed */
-    if (is_gzipped(options.tgt_filename)) {
-      	options.tgt_compression_type = GZIP;
-    } else {
-      	options.tgt_compression_type = NONE;
-    }
+    /* files  compressed ?  is_gzipped check for the fil existence*/
+    options.tgt_compression_type = is_gzipped (options.tgt_filename) ? GZIP : NONE;
+    options.qry_compression_type = is_gzipped (options.qry_filename) ? GZIP : NONE;
+
 	// TODO I am here - wrapper for fptr creation
-    /* check if the tgt file is  present and readable; open               */
-    if ( !(tgt_fptr = efopen(options.tgt_filename, "r"))) return 1;
+    tgt_fptr = fopen_wrapper(options.tgt_filename, options.qry_compression_type);
+    qry_fptr = fopen_wrapper(options.tgt_filename, options.qry_compression_type);
 
     /* figure out whether we have a pdb or db input:                      */
     tgt_input_type = check_input_type (tgt_fptr);

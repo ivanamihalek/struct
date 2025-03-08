@@ -3,8 +3,9 @@
 DEPENDENCIES
 ------------
 
-depends on lapack, and  assumes the lapack is installed in /usr/lib/ 
-(sudo apt-get install liblapack-dev)
+* depends on lapack, and  assumes the lapack is installed in /usr/lib/ 
+(sudo apt install liblapack-dev)
+* zlib (sudo apt install zlib)
 
 
 INSTALLING

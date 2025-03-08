@@ -35,15 +35,14 @@ int main ( int argc, char * argv[]) {
     Descr qry_descr = {0};
     Descr tgt_descr = {0};
 
-   
+	int set_default_options ();
+	int process_input_options(int argc, char *argv[],
+				   int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FILE ** tgt_fptr_ptr,
+				   int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
+	int preprocessing_loop(int input_type, FILE * fptr,  char chain, Descr * descr);
     int comparison_loop (int tgt_input_type, FILE * tgt_fptr,  char tgt_chain, Descr * tgt_descr, 
 			 int qry_input_type, FILE * qry_fptr,  char qry_chain, Descr * qry_descr);
-    int process_input_instructions (int argc, char *argv[],
-				    int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FILE ** tgt_fptr_ptr,
-				    int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FILE ** qry_fptr_ptr);
-    int preprocessing_loop(int input_type, FILE * fptr,  char chain, Descr * descr);
-    int set_default_options ();
-    
+
     /***********************************************************************/
     if ( argc < 2 ) {
 		fprintf ( stderr, "Usage: %s -in/-from <pdb/db tgt file> [-c1 <tgt chain>] "
@@ -59,7 +58,7 @@ int main ( int argc, char * argv[]) {
 
     /***********************************************************************/
     /* read in the cmd/options file */
-    retval = process_input_instructions(argc, argv,
+    retval = process_input_options(argc, argv,
 					&tgt_input_type, &tgt_chain, &tgt_descr, &tgt_fptr,
 					&qry_input_type, &qry_chain, &qry_descr, &qry_fptr);
     if (retval) return retval;

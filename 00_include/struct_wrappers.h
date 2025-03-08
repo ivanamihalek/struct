@@ -31,12 +31,9 @@ typedef enum {
     GZIP
 } COMPRESSION_TYPE;
 
-// Define a function pointer type for reading
-typedef int (*read_func_t)(char *buffer, int size, void* file);
-// Define function pointer types for seeking and rewinding
-typedef int (*seek_func_t)(void *file, long offset, int whence);
-typedef void (*rewind_func_t)(void *file);
 
+int fopen_wrapper(char* buffer, COMPRESSION_TYPE compression_type);
+int fclose_wrapper()
 int read_wrapper(char* buffer, int size, void* file, COMPRESSION_TYPE compression_type);
 int seek_wrapper(void *file, long offset, int whence, COMPRESSION_TYPE compression_type);
 void rewind_wrapper(void *file, COMPRESSION_TYPE compression_type);

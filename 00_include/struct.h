@@ -168,8 +168,6 @@ typedef struct {
 } Point;
 
 
-
-
 typedef struct {
     char *db_file;
     char name[SHORTSTRING];
