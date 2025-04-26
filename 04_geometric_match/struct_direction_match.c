@@ -20,6 +20,7 @@
  Contact: ivana.mihalek@gmail.com.
  */
 # include "struct.h"
+# include "struct_triplets.h"
 # include "sys/time.h"
 # ifdef OMP
 #   include "omp.h"

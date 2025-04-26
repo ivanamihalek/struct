@@ -151,12 +151,6 @@ int read_cmd_file (char *filename) {
 		break;
 	    }
 	}
-
-	/* some hacking for switches */ 
-	if ( ! token_assigned  &&  !strcmp (token[0], "gpu")  ) {
-	    options.gpu = 1;
-	    token_assigned = 1;
-	}
 	if ( ! token_assigned  &&  !strcmp (token[0], "length")  ) {
 	    options.use_length = 1;
 	    token_assigned = 1;
@@ -263,19 +257,6 @@ int read_cmd_file (char *filename) {
     }
     fclose (fptr);
 
-
-# ifndef OMP
-    if (options.omp) {
-	fprintf (stderr, "omp option not available  - recompile the code with -DOMP option.");
-	return 1;
-    }
-# endif
-# ifndef GPU
-    if (options.gpu) {
-	fprintf (stderr, "gpu option not available  - recompile the code with -DGPU option.");
-	return 1;
-    }
-# endif
 
  
     

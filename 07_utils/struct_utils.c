@@ -23,15 +23,14 @@ Contact: ivana.mihalek@gmail.com.
 # include "struct.h"
 
 
-void * emalloc(int  size)
-{
-    void * ptr;
-    if ((ptr = calloc(size, 1)) == NULL) {
-	fprintf (stderr,  "emalloc: no memory for %u bytes", size);
-	return NULL;
-    }
+void *emalloc(int size) {
+	void *ptr;
+	if ((ptr = calloc(size, 1)) == NULL) {
+		fprintf(stderr, "emalloc: no memory for %u bytes", size);
+		return NULL;
+	}
 
-    return ptr;
+	return ptr;
 }
 
 

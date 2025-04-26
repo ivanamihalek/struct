@@ -18,23 +18,23 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 Contact: ivana.mihalek@gmail.com.
 */
-# include <stddef.h>
+
 # include "struct.h"
+# include "struct_file_wrapper.h"
 
-
+int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
+		char * qry_chain_ptr, char **cmd_filename_ptr);
+int read_cmd_file (char *filename);
 
 int process_input_options (int argc, char *argv[],
-				int *tgt_input_type_ptr, char *tgt_chain_ptr, Descr *tgt_descr,
-				int *qry_input_type_ptr, char *qry_chain_ptr, Descr *qry_descr) {
+                           int *tgt_input_type_ptr, char *tgt_chain_ptr, Descr *tgt_descr, FileWrapper ** tgt_fptr_ptr,
+                           int *qry_input_type_ptr, char *qry_chain_ptr, Descr *qry_descr, FileWrapper ** qry_fptr_ptr) {
 
 
     char tgt_chain = '\0', qry_chain = '\0';
     int  tgt_input_type = 0, qry_input_type = 0;
-    void *qry_fptr = NULL, *tgt_fptr = NULL;
+    FileWrapper *qry_fptr = NULL, *tgt_fptr = NULL;
     char  *cmd_filename = NULL;
-    int parse_cmd_line (int argc, char * argv[],  char * tgt_chain_ptr,
-			char * qry_chain_ptr, char **cmd_filename_ptr);
-    int read_cmd_file (char *filename);
 
     /* process cmd line input */
     if (parse_cmd_line (argc, argv, &tgt_chain, &qry_chain, &cmd_filename)) return 1;
@@ -42,13 +42,9 @@ int process_input_options (int argc, char *argv[],
     /* process the command (parameters) file, if provided */
     if (cmd_filename && read_cmd_file(cmd_filename))  return 1;
 
-    /* files  compressed ?  is_gzipped check for the fil existence*/
-    options.tgt_compression_type = is_gzipped (options.tgt_filename) ? GZIP : NONE;
-    options.qry_compression_type = is_gzipped (options.qry_filename) ? GZIP : NONE;
-
-	// TODO I am here - wrapper for fptr creation
-    tgt_fptr = fopen_wrapper(options.tgt_filename, options.qry_compression_type);
-    qry_fptr = fopen_wrapper(options.tgt_filename, options.qry_compression_type);
+	/* file_open() is a wrapper that hides handling plain vs compressed files*/
+    tgt_fptr = file_open(options.tgt_filename, "r");
+    qry_fptr = file_open(options.tgt_filename, "r");
 
     /* figure out whether we have a pdb or db input:                      */
     tgt_input_type = check_input_type (tgt_fptr);
@@ -70,7 +66,8 @@ int process_input_options (int argc, char *argv[],
     /* the same for the qry file, but may not be necessary if we are      */
     /* preprocessing only                                                 */
     if ( options.qry_filename) {
-		if ( ! (qry_fptr = efopen(options.qry_filename, "r"))) return 1;
+    	qry_fptr=file_open(options.qry_filename, "r");
+		if (!qry_fptr) return 1;
 		
 		qry_input_type = check_input_type (qry_fptr);
 		if ( qry_input_type != PDB  &&  qry_input_type != DB ) {
@@ -156,6 +153,7 @@ int parse_cmd_line (int argc, char * argv[], char * tgt_chain_ptr,
 	    // A single input structure. Assumes we wil just output the reduced representation and exit.
 	    options.tgt_filename = argv[argi+1];
 	    argi += 2;
+
 	} else if ( ! strncmp (argv[argi], "-from", 5)) {
 	    // A potentially confusing point here:
 	    // we are mapping from target to query, with the following problem in mind:

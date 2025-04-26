@@ -20,7 +20,8 @@ Contact: ivana.mihalek@gmail.com.
 */
 # include <zlib.h>
 # include "struct.h"
-# include "struct_wrappers.h"
+# include "struct_file_wrapper.h"
+
 
 /*****************************************************************/
 /*  this thing is ignoring HETATMS ... I need a parser           */
@@ -28,35 +29,9 @@ Contact: ivana.mihalek@gmail.com.
 /*  or I just need to apply the transformation to the original pdb */
 
 
-# define DELETE  -789
-
-
-int read_pdb ( char * pdbname,  char chain, Protein * protein) {
-
-    int retval;
-	int gzipped = is_gzipped(pdbname);
-    
-	if (gzipped) {
-		gzFile  fptr = NULL;
-		fptr = gzopen(pdbname, "rb");
-		retval = fill_protein_info ((void*)fptr, chain, protein, 1);
-		gzclose(fptr);
-
-	} else {  // todo: check if some other compression format
-    	FILE * fptr = NULL;
-		fptr = fopen (pdbname, "r");
-		retval = fill_protein_info ((void*)fptr, chain, protein, 0);
-		fclose(fptr);
-
-	}
-
-    if (retval) return retval;
-    
-    return 0;
-}
-
+# define DELETE (-789)
 /*****************************************************************/
-int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
+int fill_protein_info (FileWrapper *fptr,  char chain, Protein *protein) {
 
     /* TODO for the moment we rely on PDB annotation
        to extract structural elements - that should be changed */
@@ -73,13 +48,8 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     int chain_found;
     int ca_trace;
     char single_letter ( char code[]);
-    
-	read_func_t read_func =  gzipped ? read_gzread : read_fgets;
-	seek_func_t seek_func =  gzipped ? gzseek_wrapper : fseek_wrapper;
-	rewind_func_t rewind_func =  gzipped ? gzrewind_wrapper : rewind_wrapper;
-
     int has_backbone (Residue * sequence, int from, int to);
-    
+
     /********************************************/
     /********************************************/
     /* cleanup                                  */
@@ -93,7 +63,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     resctr = 0;
     chain_found = 0;
     old_chain = '\0';
-    while(read_func(line, BUFFLEN, fptr) > 0){
+    while(file_read(line, BUFFLEN, fptr) > 0){
 		printf(line, "\n");
 		if (resctr &&  !strncmp(line,"ENDMDL", 6)) {
 			is_nmr = 1;
@@ -102,18 +72,17 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 
 		if (chain  &&  (line[PDB_ATOM_CHAINID] != chain) ) continue;
 		chain_found  = 1;
-		
+
 		if( ! strncmp(line,"ATOM", 4)){
-			
-			if (  strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
-			
-			strncpy (oldresno, line+PDB_ATOM_RES_NO, PDB_ATOM_RES_NO_LEN+1);
-			oldresno[PDB_ATOM_RES_NO_LEN+1] = '\0';
-			/* handling the case when the chain is not given, meaning: "take the first chain" */ 
-			old_chain = line[PDB_ATOM_CHAINID];
-			resctr ++;
+			if (strncmp(line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
+
+				strncpy (oldresno, line+PDB_ATOM_RES_NO, PDB_ATOM_RES_NO_LEN+1);
+				oldresno[PDB_ATOM_RES_NO_LEN+1] = '\0';
+				/* handling the case when the chain is not given, meaning: "take the first chain" */
+				old_chain = line[PDB_ATOM_CHAINID];
+				resctr ++;
 			}
-		} 
+		}
     }
 
     /* sanity: */
@@ -126,16 +95,15 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 	printf("number of residues: %d\n", no_res);
 
     if ( !no_res ) return -1;  /* take it as the end of the read */
-    
+
     /* allocate space */
     sequence = emalloc ( no_res*sizeof (Residue));
     if ( ! sequence ) return 1;
-  
-    
+
     /*********************************************/
     /*********************************************/
     /*   read in residue numbers and atom coords */
-    rewind_func (fptr);
+    file_rewind(fptr);
     memset (line,  0, BUFFLEN);
     old_chain = '\0';
 
@@ -144,28 +112,27 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     resctr= -1;
     atomctr = 0;
     ca_trace = 1;
-    while(read_func(line, BUFFLEN, fptr) > NULL){
-		
-		
+    while(file_read(line, BUFFLEN, fptr) > 0){
+
 		if (resctr>-1  &&  !strncmp(line,"ENDMDL", 6))  break;
-		
+
 		if ( chain  && line[PDB_ATOM_CHAINID] != chain ) continue;
-		
+
 		if( ! strncmp(line,"ATOM", 4) ){
 			/* if it's a hydrogen - skip */
-			if ( line[PDB_ATOM_ATOM_NAME] == 'H' ||  line[PDB_ATOM_ATOM_NAME+1] == 'H') continue;
+			if (line[PDB_ATOM_ATOM_NAME] == 'H' ||  line[PDB_ATOM_ATOM_NAME+1] == 'H') continue;
 			/* if it is an alternate location, also skip */
-			if ( line[PDB_ATOM_ALTLOC] != ' ' && line[PDB_ATOM_ALTLOC] != 'A' && line[PDB_ATOM_ALTLOC] != '1' ) continue;
-			/* adjust the counters */ 
-			if (  strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
+			if (line[PDB_ATOM_ALTLOC] != ' ' && line[PDB_ATOM_ALTLOC] != 'A' && line[PDB_ATOM_ALTLOC] != '1' ) continue;
+			/* adjust the counters */
+			if (strncmp (line+PDB_ATOM_RES_NO, oldresno,  PDB_ATOM_RES_NO_LEN+1) ) {
 				/*+1 in  PDB_ATOM_RES_NO_LEN+1 means I am including the insertion code
 				in the identifier */
 				strncpy (oldresno, line+PDB_ATOM_RES_NO, PDB_ATOM_RES_NO_LEN+1);
 				strncpy (oldrestype, line+PDB_ATOM_RES_NAME, PDB_ATOM_RES_NAME_LEN);
 				oldresno[PDB_ATOM_RES_NO_LEN+1]   = '\0';
 				oldrestype[PDB_ATOM_RES_NAME_LEN] = '\0';
-				
-				/* handling the case when the chain is not given, meaning: "take the first chain" */ 
+
+				/* handling the case when the chain is not given, meaning: "take the first chain" */
 				old_chain = line[PDB_ATOM_CHAINID];
 				resctr ++;
 				if ( resctr >= no_res ) {
@@ -177,11 +144,11 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 				/* keep track of atom types we have read in */
 				memset (atomtypes_read_in, 0, BUFFLEN*sizeof(char));
 				atomtypes_read_in[0] = '_';
-				
+
 				sequence[resctr].no_atoms = 1;
 				strncpy ( sequence[resctr].pdb_id, oldresno, PDB_ATOM_RES_NO_LEN+2);
 				sequence[resctr].pdb_id[PDB_ATOM_RES_NO_LEN+1]   = '\0';
-				
+
 				strncpy ( sequence[resctr].res_type, oldrestype, PDB_ATOM_RES_NAME_LEN+1);
 				sequence[resctr].res_type[PDB_ATOM_RES_NAME_LEN] = '\0';
 				sequence[resctr].res_type_short  =
@@ -190,7 +157,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 				/* unless they are sugars or some such - deal with it below */
 				/* by checking the backbone atoms */
 				///if ( !sequence[resctr].res_type_short ) return 1;
-			
+
 			} else {
 				atomctr ++;
 				sequence[resctr].no_atoms = atomctr + 1;
@@ -200,7 +167,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 				}
 			}
 			/* read in atom info */
-			
+
 			auxptr = line+ PDB_ATOM_ATOM_NAME;
 			memset ( tmp, 0, PDB_ATOM_ATOM_NAME_LEN+1);
 			/* skip initial blanks*/
@@ -224,7 +191,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 			sprintf (atomtypes_read_in, "%s%s", atomtypes_read_in, tmp);
 			}
 			tmp[nonblank] = '\0';
-			
+
 			strncpy ( sequence[resctr].atom[atomctr].type, tmp, PDB_ATOM_ATOM_NAME_LEN );
 
 			/* is this a backbone atom?*/
@@ -242,7 +209,7 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 			}
 			/* check if this is Ca trace */
 			if ( strcmp ( tmp, "CA" ) ) ca_trace = 0;
-			
+
 			strncpy ( tmp, line+PDB_ATOM_X, PDB_ATOM_X_LEN);
 			tmp[PDB_ATOM_X_LEN] = '\0';
 			sequence[resctr].atom[atomctr].x=atof(tmp);
@@ -252,12 +219,12 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
 			strncpy ( tmp, line+PDB_ATOM_Z, PDB_ATOM_Z_LEN);
 			tmp[PDB_ATOM_Z_LEN] = '\0';
 			sequence[resctr].atom[atomctr].z=atof(tmp);
-		
+
 		}
     }
 
     if ( ca_trace) return ERR_SSE_NONE|ERR_CA_TRACE;
-    
+
     /* clean PDB id tags from spaces */
     for (resctr=0; resctr < no_res; resctr ++ ) {
 		retval = string_clean (sequence[resctr].pdb_id, PDB_ATOM_RES_NO_LEN+1);
@@ -272,10 +239,22 @@ int fill_protein_info (void *fptr,  char chain, Protein *protein, int gzipped) {
     protein->length   = no_res;
 
     if (is_nmr)  {
-		seek_func(fptr, 0L, SEEK_END);  /* go to the end of file */
+		file_seek(fptr, 0L, SEEK_END);  /* go to the end of file */
 		/* ( this is not enough, bcs fseek clears the EOF value (?!) */
-		while(read_func(line, BUFFLEN, fptr)!=NULL) {}
+		while(file_read(line, BUFFLEN, fptr)) {}
     }
+
+    return 0;
+}
+
+
+int read_pdb (char * pdbname,  char chain, Protein * protein) {
+
+    FileWrapper *fptr = file_open(pdbname, "r");
+    int retval = fill_protein_info(fptr, chain, protein);
+    file_close(fptr);
+
+    if (retval) return retval;
     
     return 0;
 }

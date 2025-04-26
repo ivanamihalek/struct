@@ -120,6 +120,62 @@ void test_error_handling(void) {
     CU_ASSERT_EQUAL(file_read(buffer, 10, f), -1);
 }
 
+void test_file_gets(void) {
+    char buffer[100];
+
+    // Test uncompressed file
+    FileWrapper* f = file_open("test.txt", "rb", COMP_NONE);
+    CU_ASSERT_PTR_NOT_NULL(f);
+
+    CU_ASSERT_PTR_NOT_NULL(file_gets(buffer, sizeof(buffer), f));
+    CU_ASSERT_STRING_EQUAL(buffer, "The quick brown fox jumps over the lazy dog");
+    file_close(f);
+
+    // Test compressed file
+    FileWrapper* gzf = file_open("test.gz", "rb", COMP_GZIP);
+    CU_ASSERT_PTR_NOT_NULL(gzf);
+
+    CU_ASSERT_PTR_NOT_NULL(file_gets(buffer, sizeof(buffer), gzf));
+    CU_ASSERT_STRING_EQUAL(buffer, "The quick brown fox jumps over the lazy dog");
+    file_close(gzf);
+
+    // Test buffer limits
+    FileWrapper* f2 = file_open("test.txt", "rb", COMP_NONE);
+    CU_ASSERT_PTR_NOT_NULL(file_gets(buffer, 10, f2));
+    CU_ASSERT_STRING_EQUAL(buffer, "The quic");
+    file_close(f2);
+}
+
+
+void test_file_feof(void) {
+    char buffer[256];
+
+    // Test uncompressed file
+    FileWrapper* f = file_open("test.txt", "rb", COMP_NONE);
+    CU_ASSERT_PTR_NOT_NULL(f);
+
+    // Read entire file
+    while (file_read(buffer, sizeof(buffer), f) > 0);
+    CU_ASSERT(file_feof(f));
+    file_close(f);
+
+    // Test compressed file
+    FileWrapper* gzf = file_open("test.gz", "rb", COMP_GZIP);
+    CU_ASSERT_PTR_NOT_NULL(gzf);
+
+    // Read entire file
+    while (file_read(buffer, sizeof(buffer), gzf) > 0);
+    CU_ASSERT(file_feof(gzf));
+    file_close(gzf);
+
+    // Test mid-file reading
+    FileWrapper* f2 = file_open("test.txt", "rb", COMP_NONE);
+    CU_ASSERT_PTR_NOT_NULL(f2);
+    CU_ASSERT_EQUAL(file_read(buffer, 10, f2), 10);
+    CU_ASSERT(!file_feof(f2));
+    file_close(f2);
+}
+
 int main() {
     CU_pSuite suite;
 
@@ -129,6 +185,8 @@ int main() {
     CU_add_test(suite, "Read Operations", test_file_read);
     CU_add_test(suite, "Seek/Rewind", test_file_seek_rewind);
     CU_add_test(suite, "Error Handling", test_error_handling);
+    CU_add_test(suite, "Fgets test, test_file_gets);
+    CU_add_test(suite, "EOF Detection", test_file_feof);
 
     create_test_files();
     CU_basic_set_mode(CU_BRM_VERBOSE);

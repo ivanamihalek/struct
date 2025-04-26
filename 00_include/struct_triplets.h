@@ -66,12 +66,6 @@ int cull_by_dna (Representation *X_rep, int *set_of_directions_x,
     
 int insert_triple_to_array(int * triple_types, int triple1, int triple2, int triple3, 
 			   Triples_array *triple_array);
-    
-int insert_triple_to_heap (Representation* X_rep, Representation* Y_rep, int ** x_triple_array,
-			  int ** y_triple_array, int x_triple_cnt, int y_triple_cnt, PriorityQueue * heap);
-extern int insert_triple_to_heap_gpu(Representation* X_rep, Representation* Y_rep, int ** x_triple_array,
-				     int ** y_triple_array, int x_triple_cnt, int y_triple_cnt,
-				     PriorityQueue * heap, int no_top_rmsd);
 
 int init_triples_array (Triples_array * triples_array, int size);
 int free_triples_array (Triples_array * triples_array);    

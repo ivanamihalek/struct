@@ -1,7 +1,7 @@
 /*
 This source code is part of deconSTRUCT,
 protein structure database search and backbone alignment application.
-Written by Ivana Mihalek. Copyright (C) 2008-2025 Ivana Mihalek.
+Copyright (C) 2008-2025 Ivana Mihalek.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ Contact: ivana.mihalek@gmail.com.
 # include "struct_geometry.h"
 # include "struct_structure2sse.h"
 # include "struct_curvature.h"
-# include "struct_wrappers.h"
+# include "struct_file_wrapper.h"
 
 # ifdef DMALLOC
 #   include "dmalloc.h"
@@ -75,8 +75,8 @@ Contact: ivana.mihalek@gmail.com.
 # define FAR_FAR_AWAY -1000
 
 /* for matching elements of different type */
-#define REWARD   1
-#define PENALTY  0
+# define REWARD   1
+# define PENALTY  0
 
 typedef enum {
     SEQUENTIAL,     
@@ -89,10 +89,7 @@ typedef struct {
     char * tgt_filename;  /* input filename for the target (set); pointer to argv, if given */
     char * qry_filename;  /* input filename for the qry (set) */
 
-    COMPRESSION_TYPE tgt_compression_type;
-    COMPRESSION_TYPE qry_compression_type;
-
-    char * tgt_db;        /* for testing purposes only - outside db, separate from the pdb */
+	char * tgt_db;        /* for testing purposes only - outside db, separate from the pdb */
     char * qry_db; 
     double merge_cosine;  /* min cos angle between two SSEs to be represented
 			     by (merged into) the same vector */
@@ -131,7 +128,6 @@ typedef struct {
 			     instead of consecutive only            */
     int smith_waterman;   /* use Smith-Waterman rather than Needleman-Wunsch        */
     int omp;              /* use omp parallelization of the exhaustive search */
-
 
     ALGORITHM search_algorithm;  /* database search algorithm  {out_of_order, sequential, both*/
     ALGORITHM current_algorithm; /* current database search algorithm {out_of_order, sequential} */
@@ -325,7 +321,7 @@ double alignment_score (Protein * protein1, Protein * protein2, int * residue_ma
 int align_backbone (Descr *tgt_descr, Protein *tgt_structure, Representation * tgt_rep,
 		    Descr *qry_descr, Protein *qry_structure, Representation * qry_rep, List_of_maps *list);
 int check_gap_lengths (Map * map, double *gap_score );
-int check_input_type  (FILE *fptr);
+int check_input_type  (FileWrapper *fptr);
 int clear_map (Map *map);
 int close_digest      (clock_t CPU_time_begin, clock_t CPU_time_end, FILE *digest);
 int closeness_score_for_bb_almt (Map *map,  Protein *protein1, Protein *protein2,
@@ -344,7 +340,7 @@ int F_moments (double **x, int *x_type, int NX,
 	       double **y, int *y_type, int NY, double alpha,
 	       double *avg_ptr, double *avg_sq_ptr,
 	       double *std_ptr);
-int fill_protein_info ( void* fptr,  char chain, Protein* protein, int gzipped);
+int fill_protein_info (FileWrapper* fptr,  char chain, Protein* protein);
 int find_next_pair (double **X, double **Y, int *x_type, int *y_type,
 		    int NX, int NY, int nbr_range, int x_ctr, int y_ctr,
 		    int *x_next_ptr, int *y_next_ptr);
@@ -355,7 +351,7 @@ int find_quat_exp (double ** X, int NX, double **Y, int NY,
 int find_uniq_maps (List_of_maps  *list1, List_of_maps *list2, List_of_maps  *list_uniq);
 int free_map (Map *map);
 int geometric_descriptors (Protein * protein);
-int get_next_descr (int input_type, FILE * fptr,  char chain, Protein *protein, Descr * description);
+int get_next_descr (int input_type, FileWrapper * fptr,  char chain, Protein *protein, Descr * description);
 int hungarian_alignment (int NX, int NY, double **similarity, int * x2y, int * y2x, double * alignment );
 int init_digest (Descr *qry_descr, Descr *tgt_descr, FILE ** digest);
 int initialize_map (Map *map, int NX, int NY );
@@ -434,12 +430,6 @@ int write_tfmd_pdb ( Protein * tgt_protein, List_of_maps *list, Descr *tgt_descr
 int find_Calpha (Protein *protein, int  resctr, double ca[3] );
 double two_point_distance (double point1[3], double point2[3]);
 int point_rot_tr (double point_in[3], double **R, double T[3],double point_out[3]);
-
-
-
-#include "struct_binheap.h"
-#include "struct_triplets.h"
-
 
 
 # endif
