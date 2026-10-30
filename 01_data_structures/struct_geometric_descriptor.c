@@ -35,10 +35,8 @@ int  geometric_descriptors (Protein * protein) {
     double *params;
     Residue * residue;
     int lm_fit (double **points, int n_points, double *params, int n_params);
-    int line_fit (double **point, int no_of_points,
-	      double p[], double center_of_mass[]);
-    int perp_line_fit (double **point, int no_of_points,
-		       double p[], double cm[], double avg[]);
+    int line_fit (double **point, int no_of_points, double p[], double center_of_mass[]);
+    int perp_line_fit (double **point, int no_of_points, double p[], double cm[], double avg[]);
     double normal_to_catenoid (double **point, int no_of_points,
 			       double *params, double normal[3], double foot[3]);
     

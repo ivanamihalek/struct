@@ -22,13 +22,13 @@
 # include "struct.h"
 # include "struct_file_wrapper.h"
 Options options;
-int set_default_options ();
+static int set_default_options ();
 int process_input_options(int argc, char *argv[],
 			   int * tgt_input_type_ptr, char * tgt_chain_ptr, Descr * tgt_descr, FileWrapper ** tgt_fptr_ptr,
 			   int * qry_input_type_ptr, char * qry_chain_ptr, Descr * qry_descr, FileWrapper ** qry_fptr_ptr);
-int preprocessing_loop(int input_type, FileWrapper * fptr,  char chain, Descr * descr);
-int comparison_loop (int tgt_input_type, FileWrapper * tgt_fptr,  char tgt_chain, Descr * tgt_descr,
-		 int qry_input_type, FileWrapper * qry_fptr,  char qry_chain, Descr * qry_descr);
+static int preprocessing_loop(int input_type, FileWrapper * fptr,  char chain, Descr * descr);
+static int comparison_loop (int tgt_input_type, FileWrapper * tgt_fptr,  char tgt_chain, Descr * tgt_descr,
+                            int qry_input_type, FileWrapper * qry_fptr,  char qry_chain, Descr * qry_descr);
 
 /******************************************************************************************/
 /******************************************************************************************/
